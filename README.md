@@ -1,2 +1,2 @@
-# Convert-C-
+# Convert-CPP
 Because I hate myself
