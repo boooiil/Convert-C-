@@ -1,0 +1,11 @@
+.vscode/c_cpp_properties.json
+.vscode/settings.json
+/.vs
+/.vscode
+/vcpkg_installed/x64-windows
+*.sln
+*.vcxproj
+*.filters
+*.user
+/CppProperties.json
+/x64/Debug
