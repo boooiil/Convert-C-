@@ -24,8 +24,7 @@ class HWAccelerators {
    * @brief Map of enum to string value.
    *
    */
-  static std::unordered_map<Accelerator, std::string>
-      acceleratorMap;
+  static std::unordered_map<Accelerator, std::string> acceleratorMap;
 };
 
 #endif  // HWACCELERATORS
