@@ -1,5 +1,7 @@
 #include "ProbeResultStreamVideo.h"
 
+#include "../utils/RegexUtils.h"
+
 ProbeResultStreamVideo::ProbeResultStreamVideo()
     : closed_captions(-1),
       film_grain(-1),
@@ -13,7 +15,9 @@ ProbeResultStreamVideo::ProbeResultStreamVideo()
       refs(-1) {}
 ProbeResultStreamVideo::~ProbeResultStreamVideo() {}
 
-ProbeResultStreamVideo::ProbeResultStreamVideo(nlohmann::json JSON) {
+ProbeResultStreamVideo::ProbeResultStreamVideo(nlohmann::json JSON)
+    : is_avc(RegexUtils::isMatch(JSON["is_avc"], "true",
+                                 std::regex_constants::icase)) {
   ProbeResultStreamVideo::index = JSON["index"];
   ProbeResultStreamVideo::codec_name = JSON["codec_name"];
   ProbeResultStreamVideo::codec_long_name = JSON["codec_long_name"];
