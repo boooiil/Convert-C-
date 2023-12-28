@@ -17,13 +17,17 @@
 #include <cstdio>
 #endif
 
-MediaProcess::MediaProcess(Container& conatiner, Media& media)
+/* TODO: I don't really need to pass container and media to this class */
+
+MediaProcess::MediaProcess(Container& container, Media& media)
     : container(container),
       media(media),
       status(MediaProcess::Status::WAIT),
       stop_req(false) {}
 
-MediaProcess::~MediaProcess() {}
+MediaProcess::~MediaProcess() {
+  MediaProcess::container.log.debug({"[MediaProcess.cpp] DESTRUCTOR CALLED"});
+}
 
 /**
  * @brief Start the process.
