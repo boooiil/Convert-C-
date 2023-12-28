@@ -12,10 +12,11 @@ class MediaProcess {
   enum Status { WAIT, DONE, RUNNING, ERROR };
 
   virtual void start(std::string command);
-  void setStatus(Status);
   virtual void parse(std::string);
 
-  bool stop(void);
+  void setStatus(Status);
+  void stop(void);
+
   bool isWaiting(void) const;
   bool isRunning(void) const;
   bool isError(void) const;
@@ -27,6 +28,9 @@ class MediaProcess {
   Container& container;
   Media& media;
   Status status;
+
+ private:
+  bool stop_req;
 };
 
 #endif  // !MEDIA_PROCESS
