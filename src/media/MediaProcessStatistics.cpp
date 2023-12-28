@@ -11,6 +11,8 @@
 
 #include "../ffmpeg/ProbeResult.h"
 #include "../ffmpeg/ProbeResultStreamVideo.h"
+#include "../media/MediaDefinedFormat.h"
+#include "../utils/RegexUtils.h"
 
 #ifdef _WIN32
 #include <cstdio>
@@ -51,21 +53,21 @@ void MediaProcessStatistics::start(std::string command) {
 
   // Read from pipe
   while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-    MediaProcessStatistics::container.log.debug(
-        {"[MediaProcessStatistics.cpp] RAW OUTPUT: ", buffer.data()});
+    // MediaProcessStatistics::container.log.debug(
+    //     {"[MediaProcessStatistics.cpp] RAW OUTPUT: ", buffer.data()});
     result += buffer.data();
-    std::cout << " LINE " << buffer.data();
     // std::this_thread::sleep_for(
     //     std::chrono::seconds(1));  // delay for long running processes
   }
 
-  MediaProcessStatistics::container.log.debug(
-      {"[MediaProcessStatistics.cpp] OUTPUT: ", result});
+  // MediaProcessStatistics::container.log.debug(
+  //    {"[MediaProcessStatistics.cpp] OUTPUT: ", result});
   MediaProcessStatistics::parse(result);
 }
 
 void MediaProcessStatistics::parse(std::string data) {
   nlohmann::json JSON = nlohmann::json::parse(data);
+  Container& container = MediaProcessStatistics::container;
   Media& media = MediaProcessStatistics::media;
   ProbeResult pr = ProbeResult(JSON);
 
@@ -91,4 +93,16 @@ void MediaProcessStatistics::parse(std::string data) {
   media.video.height = prsv.height;
   media.video.totalFrames =
       static_cast<int>(std::ceil(duration * media.video.fps));
+
+  assert(RegexUtils::isMatch(container.appEncodingDecision.quality, "720p"));
+
+  MediaFormat format =
+      MediaDefinedFormat::formats[container.appEncodingDecision.quality];
+
+  media.video.convertedWidth = std::to_string(format.width);
+  media.video.convertedHeight = std::to_string(format.getResolution(
+      media.video.width, media.video.height, format.width));
+  media.video.convertedResolution =
+      media.video.convertedWidth + ":" + media.video.convertedHeight;
+  media.video.crf = format.crf;
 }
