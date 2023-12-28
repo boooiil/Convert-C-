@@ -23,7 +23,7 @@ void Log::sendBuffer(int length, std::string message) {
     Log::buffer = new LogBuffer(length);
   }
 
-  Log::debug({"called sendbuffer, len " + length});
+  Log::debug({"[Log.cpp] called sendbuffer, len " + length});
 
   Log::buffer->addLine(message);
 
@@ -38,7 +38,7 @@ void Log::sendBuffer(int length, const char* message) {
     Log::buffer = new LogBuffer(length);
   }
 
-  Log::debug({"called sendbuffer, len " + std::to_string(length)});
+  Log::debug({"[Log.cpp] called sendbuffer, len " + std::to_string(length)});
 
   Log::buffer->addLine(std::string(message));
 

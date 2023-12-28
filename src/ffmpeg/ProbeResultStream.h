@@ -6,6 +6,11 @@
 #include "ProbeResultStreamDisposition.h"
 #include "ProbeResultStreamTags.h"
 
+/**
+ * @brief This class became redundant when switched to individual stream list in
+ * ProbeResult.h.
+ *
+ */
 class ProbeResultStream {
  public:
   /** This constructor should never be called. */

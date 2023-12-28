@@ -24,8 +24,8 @@ class ProbeResultFormat {
   std::string format_long_name;
   std::string start_time;
   std::string duration;
-  std::string size;
   std::string bit_rate;
+  std::string size;
   int probe_score;
 
   /**

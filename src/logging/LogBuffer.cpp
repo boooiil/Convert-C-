@@ -7,7 +7,7 @@ LogBuffer::LogBuffer(int max) : max(max), current(0) {}
 LogBuffer::~LogBuffer() {}
 
 void LogBuffer::addLine(std::string line) {
-  Log::debug({"called addline, max:", std::to_string(max),
+  Log::debug({"[LogBuffer.cpp] called addline, max:", std::to_string(max),
               "min:", std::to_string(current)});
 
   if (LogBuffer::current >= LogBuffer::max) {
