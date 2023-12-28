@@ -16,6 +16,7 @@ class Media {
   std::string path;
   // original filename
   std::string name;
+
   std::vector<std::string> ffmpegArguments;
   long started;
   long ended;
@@ -28,12 +29,12 @@ class Media {
   Media(std::string, std::string);
   ~Media();
 
-  void doStatistics(class Container*);
-  void doConversion(class Container*);
-  void doValidation(class Container*);
+  void doStatistics(class Container&);
+  void doConversion(class Container&);
+  void doValidation(class Container&);
 
-  void buildFFmpegArguments(class Container*, bool);
-  void rename(class Container*);
+  void buildFFmpegArguments(class Container&, bool);
+  void rename(class Container&);
 
   bool isProcessing();
 
