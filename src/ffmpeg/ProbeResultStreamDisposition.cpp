@@ -24,8 +24,6 @@ ProbeResultStreamDisposition::~ProbeResultStreamDisposition() {}
 
 ProbeResultStreamDisposition::ProbeResultStreamDisposition(
     nlohmann::json JSON) {
-  std::cout << "JSON: " << JSON << std::endl;
-  return;
   ProbeResultStreamDisposition::default_ = JSON["default"];
   ProbeResultStreamDisposition::dub = JSON["dub"];
   ProbeResultStreamDisposition::original = JSON["original"];
