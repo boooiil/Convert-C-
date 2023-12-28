@@ -6,10 +6,10 @@ class UserArguments {
   UserArguments();
   ~UserArguments();
 
-  static void parse(class Container*);
+  static void parse(class Container&, int argc, char* argv[]);
 
  private:
-  static void invalidArgument(const char*);
+  static void invalidArgument(class Container&, const char*);
 };
 
 #endif  // !USER_ARGUMENTS
