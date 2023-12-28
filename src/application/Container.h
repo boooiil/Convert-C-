@@ -1,6 +1,8 @@
 #ifndef CONTAINER
 #define CONTAINER
 
+#include <queue>
+
 #include "../application/Settings.h"
 #include "../application/UserArguments.h"
 #include "../application/UserCapabilities.h"
@@ -21,7 +23,7 @@ class Container {
   UserCapabilities userCapabilities;
 
   std::unordered_map<std::string, Media> converting;
-  std::vector<Media> pending;
+  std::queue<Media> pending;
 
   void scanWorkingDir();
 };
