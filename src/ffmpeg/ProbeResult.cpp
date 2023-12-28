@@ -15,11 +15,11 @@ ProbeResult::ProbeResult(nlohmann::json JSON) {
 
   for (nlohmann::json stream : JSON["streams"]) {
     if (stream["codec_type"] == "video") {
-      ProbeResult::streams.push_back(ProbeResultStreamVideo(stream));
+      ProbeResult::videoStreams.push_back(ProbeResultStreamVideo(stream));
     } else if (stream["codec_type"] == "audio") {
-      ProbeResult::streams.push_back(ProbeResultStreamAudio(stream));
+      ProbeResult::audioStreams.push_back(ProbeResultStreamAudio(stream));
     } else if (stream["codec_type"] == "subtitle") {
-      ProbeResult::streams.push_back(ProbeResultStreamSubtitle(stream));
+      ProbeResult::subtitleStreams.push_back(ProbeResultStreamSubtitle(stream));
     }
   }
 }
