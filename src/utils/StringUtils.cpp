@@ -38,6 +38,21 @@ std::string StringUtils::replaceAll(std::string str, std::regex from,
   return std::regex_replace(str, from, to);
 }
 
+std::vector<std::string> StringUtils::split(std::string str,
+                                            std::string delim) {
+  std::vector<std::string> tokens;
+  size_t prev = 0, pos = 0;
+  do {
+    pos = str.find(delim, prev);
+    if (pos == std::string::npos) pos = str.length();
+    std::string token = str.substr(prev, pos - prev);
+    if (!token.empty()) tokens.push_back(token);
+    prev = pos + delim.length();
+  } while (pos < str.length() && prev < str.length());
+
+  return tokens;
+}
+
 std::string StringUtils::toLowerCase(std::string str) {
   std::transform(str.begin(), str.end(), str.begin(), ::tolower);
   return str;
