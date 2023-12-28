@@ -43,7 +43,7 @@ void Log::sendBuffer(int length, const char* message) {
   Log::buffer->addLine(std::string(message));
 
   if (Log::buffer->isFull()) {
-    Log::send({"buffer is full"});
+    Log::debug({"[Log.cpp] buffer is full"});
 
     Log::send({Log::buffer->output()});
     Log::buffer = nullptr;
