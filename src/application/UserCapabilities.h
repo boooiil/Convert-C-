@@ -13,7 +13,7 @@ class UserCapabilities {
   ~UserCapabilities(void);
 
   Platform::OPERATING_SYSTEM platform;
-  char* GPU_Provider;
+  const char* GPU_Provider;
   std::vector<Encoders::Codec> supportedEncoders;
   std::vector<Decoders::Codec> supportedDecoders;
 
