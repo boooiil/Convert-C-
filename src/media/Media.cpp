@@ -6,6 +6,7 @@
 #include "../application/Container.h"
 #include "../utils/RegexUtils.h"
 #include "../utils/StringUtils.h"
+#include "./MediaProcessStatistics.h"
 
 Media::Media() : started(0), ended(0) {}
 Media::Media(std::string name, std::string path) : started(0), ended(0) {
@@ -29,13 +30,21 @@ bool Media::isProcessing() {
   return false;
 }
 
-void Media::doStatistics(Container* container) {
+void Media::doStatistics(Container& container) {
+  Media::activity = Activity::STATISTICS;
+
+  MediaProcessStatistics statistics(container, *this);
+  statistics.start(
+      "ffprobe -v quiet -print_format json -show_format "
+      "-show_streams \"" +
+      Media::file.path + "\"");
+
+  Media::activity = Activity::WAITING_CONVERT;
+}
+void Media::doConversion(Container& container) {
   // TODO: implement this
 }
-void Media::doConversion(Container* container) {
-  // TODO: implement this
-}
-void Media::doValidation(Container* container) {
+void Media::doValidation(Container& container) {
   // TODO: implement this
 }
 
@@ -45,12 +54,9 @@ void Media::doValidation(Container* container) {
  * @param container The container to use for the arguments.
  * @param isValidate True if the arguments are for validation.
  */
-void Media::buildFFmpegArguments(Container* container, bool isValidate) {}
-void Media::rename(Container* container) {
-  container->log.sendPlain({"Media name:", Media::name});
-  container->log.sendPlain({"Media path:", Media::path});
-
-  Media::file.path = Media::path + "\\" + Media::name;
+void Media::buildFFmpegArguments(Container& container, bool isValidate) {}
+void Media::rename(Container& container) {
+  Media::file.path = Media::path + "/" + Media::name;
 
   // pattern for matching media names
   // ex: The.Big.Bang.Theory.S01E01.720p.HDTV.ReEnc-Max.mkv
@@ -76,7 +82,7 @@ void Media::rename(Container* container) {
 
     Media::resolveModifiedFileName(
         Media::file.series, std::to_string(Media::file.season),
-        Media::file.episode, std::to_string(Media::file.quality));
+        Media::file.episode, container.appEncodingDecision.quality);
     Media::resolveModifiedFileNameExt(Media::file.modifiedFileName,
                                       Media::file.ext);
 
@@ -87,7 +93,12 @@ void Media::rename(Container* container) {
     Media::resolveConversionPath(Media::file.conversionName, Media::file.series,
                                  std::to_string(Media::file.season),
                                  Media::path);
+
+    container.log.debug({"[Media.cpp] Original file:", Media::name});
+    container.log.debug(
+        {"[Media.cpp] Renamed file:", Media::file.conversionName});
   } else {
+    // TODO: finish
   }
 }
 
@@ -113,7 +124,7 @@ void Media::rename(Container* container) {
 
 // original file path
 void Media::resolvePath(std::string original_filename, std::string cwd) {
-  Media::file.path = cwd + "\\" + original_filename;
+  Media::file.path = cwd + "/" + original_filename;
 }
 
 // original file extension
@@ -191,7 +202,7 @@ void Media::resolveModifiedFileName(std::string series, std::string season,
         StringUtils::replaceAll(series, ".", "") + " - s" + season + episode;
   } else {
     Media::file.modifiedFileName =
-        series + " - s" + season + episode + " [" + quality + "p]";
+        series + " - s" + season + episode + " [" + quality + "]";
   }
 }
 
@@ -213,7 +224,7 @@ void Media::resolveModifiedFileNameExt(std::string modified_filename,
 // ie: /path/to/renamed/file/some season.mkv
 void Media::resolveRenamePath(std::string modified_filename, std::string ext,
                               std::string cwd) {
-  Media::file.renamePath = cwd + "\\" + modified_filename + ext;
+  Media::file.renamePath = cwd + "/" + modified_filename + ext;
 }
 
 void Media::resolveConversionName(std::string modified_filename,
@@ -227,5 +238,5 @@ void Media::resolveConversionPath(std::string conversion_filename,
                                   std::string series, std::string season,
                                   std::string cwd) {
   Media::file.conversionPath =
-      cwd + "\\" + series + " Season " + season + "\\" + conversion_filename;
+      cwd + "/" + series + " Season " + season + "/" + conversion_filename;
 }
