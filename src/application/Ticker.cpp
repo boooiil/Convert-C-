@@ -8,35 +8,34 @@
 #include "./Debug.h"
 #include "nlohmann/json.hpp"
 
-Ticker::Ticker(Container& container) : container(container) {
-  Ticker::display = new Display(container);
-}
+Container* Ticker::container = nullptr;
+Display* Ticker::display = nullptr;
 
-Ticker::~Ticker() {
-  container.log.debug({"[Ticker.cpp] deconstructing display"});
-  Ticker::writeDebug();
-  delete Ticker::display;
+void Ticker::init(Container* container) {
+  Ticker::container = container;
+  Ticker::display = new Display(*container);
 }
 
 void Ticker::start() {
   // once every second
   while (true) {
-    int currentAmount = container.converting.size();
+    int currentAmount = container->converting.size();
 
-    container.log.send({std::to_string(currentAmount),
-                        std::to_string(container.appEncodingDecision.amount)});
+    container->log.send(
+        {std::to_string(currentAmount),
+         std::to_string(container->appEncodingDecision.amount)});
 
-    if (currentAmount < container.appEncodingDecision.amount) {
-      Media media = container.pending.front();
+    if (currentAmount < container->appEncodingDecision.amount) {
+      Media media = container->pending.front();
 
       if (media.activity != Activity::WAITING) {
         if (currentAmount == 0) {
-          container.log.flushBuffer();
+          container->log.flushBuffer();
           if (Debug::toggle) {
-            container.log.debug(
+            container->log.debug(
                 {LogColor::fgRed("Debugging enabled. Writing debug file.")});
             Ticker::writeDebug();
-            container.log.debug({LogColor::fgRed("Debug file written.")});
+            container->log.debug({LogColor::fgRed("Debug file written.")});
             exit(0);
           } else
             exit(0);
@@ -50,44 +49,44 @@ void Ticker::start() {
                             std::chrono::system_clock::now().time_since_epoch())
                             .count();
 
-        container.converting[media.name] = media;
-        container.pending.pop();
+        container->converting[media.name] = media;
+        container->pending.pop();
       }
     }
 
-    if (currentAmount > container.appEncodingDecision.amount) {
-      container.log.send({LogColor::fgRed(
+    if (currentAmount > container->appEncodingDecision.amount) {
+      container->log.send({LogColor::fgRed(
           "CURRENT TRANSCODES ARE GREATER THAN THE ALLOWED AMOUNT.")});
 
-      container.log.send({LogColor::fgRed(
+      container->log.send({LogColor::fgRed(
           "CURRENT ALLOWED AMOUNT: " +
-          std::to_string(container.appEncodingDecision.amount))});
+          std::to_string(container->appEncodingDecision.amount))});
 
-      container.log.send({LogColor::fgRed(
+      container->log.send({LogColor::fgRed(
           "CURRENT QUEUE: " +
-          std::to_string(container.appEncodingDecision.amount))});
+          std::to_string(container->appEncodingDecision.amount))});
 
-      for (auto it = container.converting.begin();
-           it != container.converting.end(); ++it) {
+      for (auto it = container->converting.begin();
+           it != container->converting.end(); ++it) {
         Media value = it->second;
-        container.log.send(
+        container->log.send(
             {LogColor::fgRed("CURRENT FILE: " + value.file.modifiedFileName)});
       }
     }
 
-    for (auto it = container.converting.begin();
-         it != container.converting.end(); ++it) {
+    for (auto it = container->converting.begin();
+         it != container->converting.end(); ++it) {
       Media media = it->second;
 
-      container.log.send({media.name, Activity::getValue(media.activity)});
+      container->log.send({media.name, Activity::getValue(media.activity)});
 
       if (!media.isProcessing()) {
         if (media.activity == Activity::WAITING_STATISTICS)
-          media.doStatistics(container);
+          media.doStatistics(*container);
         if (media.activity == Activity::WAITING_CONVERT)
-          media.doConversion(container);
+          media.doConversion(*container);
         if (media.activity == Activity::WAITING_VALIDATE)
-          media.doValidation(container);
+          media.doValidation(*container);
       }
 
       if (RegexUtils::isMatch(Activity::getValue(media.activity),
@@ -108,13 +107,19 @@ void Ticker::start() {
   }
 }
 
+void Ticker::end() {
+  container->log.debug({"[Ticker.cpp] deconstructing display"});
+  Ticker::writeDebug();
+  delete Ticker::display;
+}
+
 void Ticker::writeDebug() {
   nlohmann::json json;
 
   json["pending"] = nlohmann::json::array();
 
   // converting file
-  for (std::pair<std::string, Media> mediaPair : container.converting) {
+  for (std::pair<std::string, Media> mediaPair : container->converting) {
     Media media = mediaPair.second;
 
     nlohmann::json mediaDebug;
@@ -168,8 +173,8 @@ void Ticker::writeDebug() {
   }
 
   // pending file
-  while (!container.pending.empty()) {
-    Media media = container.pending.front();
+  while (!container->pending.empty()) {
+    Media media = container->pending.front();
     nlohmann::json mediaDebug;
     nlohmann::json mediaFileDebug;
     nlohmann::json mediaVideoDebug;
@@ -217,46 +222,68 @@ void Ticker::writeDebug() {
     mediaDebug["working"] = mediaWorkingDebug;
 
     json["pending"].push_back(mediaDebug);
-    container.pending.pop();
+    container->pending.pop();
   }
 
-  container.log.sendPlain({container.appEncodingDecision.quality});
+  container->log.sendPlain({container->appEncodingDecision.quality});
 
   json["appEncodingDecision"]["wantedEncoder"] =
-      container.appEncodingDecision.wantedEncoder;
+      container->appEncodingDecision.wantedEncoder;
   json["appEncodingDecision"]["runningEncoder"] =
-      container.appEncodingDecision.runningEncoder;
+      container->appEncodingDecision.runningEncoder;
   json["appEncodingDecision"]["runningDecoder"] =
-      container.appEncodingDecision.runningDecoder;
+      container->appEncodingDecision.runningDecoder;
   json["appEncodingDecision"]["quality"] =
-      container.appEncodingDecision.quality;
-  json["appEncodingDecision"]["tune"] = container.appEncodingDecision.tune;
-  json["appEncodingDecision"]["amount"] = container.appEncodingDecision.amount;
+      container->appEncodingDecision.quality;
+  json["appEncodingDecision"]["tune"] = container->appEncodingDecision.tune;
+  json["appEncodingDecision"]["amount"] = container->appEncodingDecision.amount;
   json["appEncodingDecision"]["crfOverride"] =
-      container.appEncodingDecision.crfOverride;
-  json["appEncodingDecision"]["crop"] = container.appEncodingDecision.crop;
+      container->appEncodingDecision.crfOverride;
+  json["appEncodingDecision"]["crop"] = container->appEncodingDecision.crop;
   json["appEncodingDecision"]["startBeginning"] =
-      container.appEncodingDecision.startBeginning;
-  json["appEncodingDecision"]["trim"] = container.appEncodingDecision.trim;
+      container->appEncodingDecision.startBeginning;
+  json["appEncodingDecision"]["trim"] = container->appEncodingDecision.trim;
   json["appEncodingDecision"]["useBitrate"] =
-      container.appEncodingDecision.useBitrate;
+      container->appEncodingDecision.useBitrate;
   json["appEncodingDecision"]["useConstrain"] =
-      container.appEncodingDecision.useConstrain;
+      container->appEncodingDecision.useConstrain;
   json["appEncodingDecision"]["validate"] =
-      container.appEncodingDecision.validate;
+      container->appEncodingDecision.validate;
   json["appEncodingDecision"]["useHardwareDecode"] =
-      container.appEncodingDecision.useHardwareDecode;
+      container->appEncodingDecision.useHardwareDecode;
   json["appEncodingDecision"]["useHardwareEncode"] =
-      container.appEncodingDecision.useHardwareEncode;
+      container->appEncodingDecision.useHardwareEncode;
   json["appEncodingDecision"]["overwrite"] =
-      container.appEncodingDecision.overwrite;
+      container->appEncodingDecision.overwrite;
   json["appEncodingDecision"]["audioStreams"] =
-      container.appEncodingDecision.audioStreams;
+      container->appEncodingDecision.audioStreams;
+
+  json["settings"]["workingDir"] = container->settings.workingDir;
+  json["settings"]["tuneAssociations"] = container->settings.tuneAssociations;
+
+  json["userCapabilities"]["platform"] =
+      Platform::getValue(container->userCapabilities.platform);
+  json["userCapabilities"]["supportedEncoders"] = nlohmann::json::array();
+
+  // supported encoders
+  for (Encoders::Codec codec : container->userCapabilities.supportedEncoders) {
+    json["userCapabilities"]["supportedEncoders"].push_back(
+        Encoders::getValue(codec));
+  }
+
+  // supported decoders
+  for (Encoders::Codec codec : container->userCapabilities.supportedEncoders) {
+    json["userCapabilities"]["supportedEncoders"].push_back(
+        Encoders::getValue(codec));
+  }
+
+  json["userCapabilities"]["GPUProvider"] =
+      container->userCapabilities.GPU_Provider;
 
   std::ofstream oFile("container_debug.json");
 
   if (!oFile.is_open()) {
-    container.log.send({LogColor::fgRed("Failed to open debug file.")});
+    container->log.send({LogColor::fgRed("Failed to open debug file.")});
     return;
   }
 

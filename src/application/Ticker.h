@@ -6,16 +6,15 @@
 
 class Ticker {
  public:
-  Ticker(Container&);
-  ~Ticker();
-
-  void start();
+  static void init(Container*);
+  static void start();
+  static void end();
 
  private:
-  Container& container;
-  Display* display;
+  static Container* container;
+  static Display* display;
 
-  void writeDebug();
+  static void writeDebug();
 };
 
 #endif  // !TICKER_H
