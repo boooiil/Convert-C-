@@ -64,7 +64,10 @@ void Log::sendPlain(std::initializer_list<std::string> messages) {
 
 void Log::flushBuffer() {
   Log::debug({"called flush buffer"});
-  Log::send({LogColor::fgRed(Log::buffer->output())});
+  if (Log::buffer == nullptr)
+    Log::send({"buffer is empty"});
+  else
+    Log::send({LogColor::fgRed(Log::buffer->output())});
   Log::buffer = nullptr;
 }
 
