@@ -1,10 +1,12 @@
 #include "Ticker.h"
 
 #include <chrono>
+#include <fstream>
 #include <thread>
 
 #include "../utils/RegexUtils.h"
 #include "./Debug.h"
+#include "nlohmann/json.hpp"
 
 Ticker::Ticker(Container& container) : container(container) {
   Ticker::display = new Display(container);
@@ -12,6 +14,7 @@ Ticker::Ticker(Container& container) : container(container) {
 
 Ticker::~Ticker() {
   container.log.debug({"[Ticker.cpp] deconstructing display"});
+  Ticker::writeDebug();
   delete Ticker::display;
 }
 
@@ -32,7 +35,7 @@ void Ticker::start() {
           if (Debug::toggle) {
             container.log.debug(
                 {LogColor::fgRed("Debugging enabled. Writing debug file.")});
-            // write debug contents matching that of Convert-JS
+            Ticker::writeDebug();
             container.log.debug({LogColor::fgRed("Debug file written.")});
             exit(0);
           } else
@@ -104,3 +107,159 @@ void Ticker::start() {
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   }
 }
+
+void Ticker::writeDebug() {
+  nlohmann::json json;
+
+  json["pending"] = nlohmann::json::array();
+
+  // converting file
+  for (std::pair<std::string, Media> mediaPair : container.converting) {
+    Media media = mediaPair.second;
+
+    nlohmann::json mediaDebug;
+    nlohmann::json mediaFileDebug;
+    nlohmann::json mediaVideoDebug;
+    nlohmann::json mediaWorkingDebug;
+
+    mediaDebug["name"] = media.name;
+    mediaDebug["activity"] = Activity::getValue(media.activity);
+    mediaDebug["path"] = media.file.path;
+    mediaDebug["started"] = media.started;
+    mediaDebug["ended"] = media.ended;
+    // this might not work
+    mediaDebug["ffmpegArguments"] = media.ffmpegArguments;
+
+    mediaFileDebug["modifiedFileName"] = media.file.modifiedFileName;
+    mediaFileDebug["modifiedFileNameExt"] = media.file.modifiedFileNameExt;
+    mediaFileDebug["conversionName"] = media.file.conversionName;
+    mediaFileDebug["ext"] = media.file.ext;
+    mediaFileDebug["size"] = media.file.size;
+    mediaFileDebug["newSize"] = media.file.newSize;
+    mediaFileDebug["validationSize"] = media.file.validationSize;
+    mediaFileDebug["path"] = media.file.path;
+    mediaFileDebug["conversionPath"] = media.file.conversionPath;
+    mediaFileDebug["quality"] = media.file.quality;
+    mediaFileDebug["series"] = media.file.series;
+    mediaFileDebug["season"] = media.file.season;
+
+    mediaVideoDebug["fps"] = media.video.fps;
+    mediaVideoDebug["totalFrames"] = media.video.totalFrames;
+    mediaVideoDebug["subtitleProvider"] = media.video.subtitleProvider;
+    mediaVideoDebug["width"] = media.video.width;
+    mediaVideoDebug["height"] = media.video.height;
+    mediaVideoDebug["ratio"] = media.video.ratio;
+    mediaVideoDebug["convertedWidth"] = media.video.convertedWidth;
+    mediaVideoDebug["convertedHeight"] = media.video.convertedHeight;
+    mediaVideoDebug["convertedResolution"] = media.video.convertedResolution;
+    mediaVideoDebug["crop"] = media.video.crop;
+    mediaVideoDebug["crf"] = media.video.crf;
+
+    mediaWorkingDebug["fps"] = media.working.fps;
+    mediaWorkingDebug["completedFrames"] = media.working.completedFrames;
+    mediaWorkingDebug["quality"] = media.working.quality;
+    mediaWorkingDebug["bitrate"] = media.working.bitrate;
+
+    mediaDebug["file"] = mediaFileDebug;
+    mediaDebug["video"] = mediaVideoDebug;
+    mediaDebug["working"] = mediaWorkingDebug;
+
+    json["converting"][media.name] = mediaDebug;
+  }
+
+  // pending file
+  while (!container.pending.empty()) {
+    Media media = container.pending.front();
+    nlohmann::json mediaDebug;
+    nlohmann::json mediaFileDebug;
+    nlohmann::json mediaVideoDebug;
+    nlohmann::json mediaWorkingDebug;
+
+    mediaDebug["name"] = media.name;
+    mediaDebug["activity"] = Activity::getValue(media.activity);
+    mediaDebug["path"] = media.file.path;
+    mediaDebug["started"] = media.started;
+    mediaDebug["ended"] = media.ended;
+    mediaDebug["ffmpegArguments"] = media.ffmpegArguments;
+
+    mediaFileDebug["modifiedFileName"] = media.file.modifiedFileName;
+    mediaFileDebug["modifiedFileNameExt"] = media.file.modifiedFileNameExt;
+    mediaFileDebug["conversionName"] = media.file.conversionName;
+    mediaFileDebug["ext"] = media.file.ext;
+    mediaFileDebug["size"] = media.file.size;
+    mediaFileDebug["newSize"] = media.file.newSize;
+    mediaFileDebug["validationSize"] = media.file.validationSize;
+    mediaFileDebug["path"] = media.file.path;
+    mediaFileDebug["conversionPath"] = media.file.conversionPath;
+    mediaFileDebug["quality"] = media.file.quality;
+    mediaFileDebug["series"] = media.file.series;
+    mediaFileDebug["season"] = media.file.season;
+
+    mediaVideoDebug["fps"] = media.video.fps;
+    mediaVideoDebug["totalFrames"] = media.video.totalFrames;
+    mediaVideoDebug["subtitleProvider"] = media.video.subtitleProvider;
+    mediaVideoDebug["width"] = media.video.width;
+    mediaVideoDebug["height"] = media.video.height;
+    mediaVideoDebug["ratio"] = media.video.ratio;
+    mediaVideoDebug["convertedWidth"] = media.video.convertedWidth;
+    mediaVideoDebug["convertedHeight"] = media.video.convertedHeight;
+    mediaVideoDebug["convertedResolution"] = media.video.convertedResolution;
+    mediaVideoDebug["crop"] = media.video.crop;
+    mediaVideoDebug["crf"] = media.video.crf;
+
+    mediaWorkingDebug["fps"] = media.working.fps;
+    mediaWorkingDebug["completedFrames"] = media.working.completedFrames;
+    mediaWorkingDebug["quality"] = media.working.quality;
+    mediaWorkingDebug["bitrate"] = media.working.bitrate;
+
+    mediaDebug["file"] = mediaFileDebug;
+    mediaDebug["video"] = mediaVideoDebug;
+    mediaDebug["working"] = mediaWorkingDebug;
+
+    json["pending"].push_back(mediaDebug);
+    container.pending.pop();
+  }
+
+  container.log.sendPlain({container.appEncodingDecision.quality});
+
+  json["appEncodingDecision"]["wantedEncoder"] =
+      container.appEncodingDecision.wantedEncoder;
+  json["appEncodingDecision"]["runningEncoder"] =
+      container.appEncodingDecision.runningEncoder;
+  json["appEncodingDecision"]["runningDecoder"] =
+      container.appEncodingDecision.runningDecoder;
+  json["appEncodingDecision"]["quality"] =
+      container.appEncodingDecision.quality;
+  json["appEncodingDecision"]["tune"] = container.appEncodingDecision.tune;
+  json["appEncodingDecision"]["amount"] = container.appEncodingDecision.amount;
+  json["appEncodingDecision"]["crfOverride"] =
+      container.appEncodingDecision.crfOverride;
+  json["appEncodingDecision"]["crop"] = container.appEncodingDecision.crop;
+  json["appEncodingDecision"]["startBeginning"] =
+      container.appEncodingDecision.startBeginning;
+  json["appEncodingDecision"]["trim"] = container.appEncodingDecision.trim;
+  json["appEncodingDecision"]["useBitrate"] =
+      container.appEncodingDecision.useBitrate;
+  json["appEncodingDecision"]["useConstrain"] =
+      container.appEncodingDecision.useConstrain;
+  json["appEncodingDecision"]["validate"] =
+      container.appEncodingDecision.validate;
+  json["appEncodingDecision"]["useHardwareDecode"] =
+      container.appEncodingDecision.useHardwareDecode;
+  json["appEncodingDecision"]["useHardwareEncode"] =
+      container.appEncodingDecision.useHardwareEncode;
+  json["appEncodingDecision"]["overwrite"] =
+      container.appEncodingDecision.overwrite;
+  json["appEncodingDecision"]["audioStreams"] =
+      container.appEncodingDecision.audioStreams;
+
+  std::ofstream oFile("container_debug.json");
+
+  if (!oFile.is_open()) {
+    container.log.send({LogColor::fgRed("Failed to open debug file.")});
+    return;
+  }
+
+  oFile << json.dump(4);
+  oFile.close();
+};
