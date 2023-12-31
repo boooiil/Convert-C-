@@ -16,14 +16,18 @@ void UserArguments::parse(Container& container, int argc, char* argv[]) {
     return UserArguments::invalidArgument(container, "No arguments provided.");
   }
 
-  for (int i = 0; i < argc; i++) {
-    container.log.sendPlain({"VA:LIE", argv[i]});
+  for (int i = 1; i < argc; i++) {
+    container.log.debug({"[UserArguments.cpp] Option:", argv[i]});
     std::string option = StringUtils::toLowerCase(argv[i]);
-    std::string value = StringUtils::toLowerCase(argv[i + 1]);
 
     // yandere dev moment
 
     if (option == "-as" || option == "--audiostreams") {
+      if (i + 1 >= argc) {
+        return invalidArgument(container, "No value provided for argument.");
+      }
+      std::string value = StringUtils::toLowerCase(argv[++i]);
+      container.log.debug({"[UserArguments.cpp] Value:", value});
       container.appEncodingDecision.audioStreams =
           StringUtils::split(value, ",");
     }
@@ -41,6 +45,11 @@ void UserArguments::parse(Container& container, int argc, char* argv[]) {
     }
 
     else if (option == "-q" || option == "quality") {
+      if (i + 1 >= argc) {
+        return invalidArgument(container, "No value provided for argument.");
+      }
+      std::string value = StringUtils::toLowerCase(argv[++i]);
+      container.log.debug({"[UserArguments.cpp] Value:", value});
       if (MediaDefinedFormat::formats.count(value) > 0) {
         container.appEncodingDecision.quality = value;
       } else if (RegexUtils::isMatch(value, "[0-9]+p")) {
@@ -62,6 +71,11 @@ void UserArguments::parse(Container& container, int argc, char* argv[]) {
     }
 
     else if (option == "-a" || option == "--amount") {
+      if (i + 1 >= argc) {
+        return invalidArgument(container, "No value provided for argument.");
+      }
+      std::string value = StringUtils::toLowerCase(argv[++i]);
+      container.log.debug({"[UserArguments.cpp] Value:", value});
       container.appEncodingDecision.amount = std::stoi(value);
     }
 
@@ -70,10 +84,20 @@ void UserArguments::parse(Container& container, int argc, char* argv[]) {
     }
 
     else if (option == "-s" || option == "--start") {
+      if (i + 1 >= argc) {
+        return invalidArgument(container, "No value provided for argument.");
+      }
+      std::string value = StringUtils::toLowerCase(argv[++i]);
+      container.log.debug({"[UserArguments.cpp] Value:", value});
       container.appEncodingDecision.startBeginning = value;
     }
 
     else if (option == "-tr" || option == "--trim") {
+      if (i + 1 >= argc) {
+        return invalidArgument(container, "No value provided for argument.");
+      }
+      std::string value = StringUtils::toLowerCase(argv[++i]);
+      container.log.debug({"[UserArguments.cpp] Value:", value});
       container.appEncodingDecision.trim = value;
     }
 
@@ -86,6 +110,11 @@ void UserArguments::parse(Container& container, int argc, char* argv[]) {
     }
 
     else if (option == "-crf" || option == "--crf") {
+      if (i + 1 >= argc) {
+        return invalidArgument(container, "No value provided for argument.");
+      }
+      std::string value = StringUtils::toLowerCase(argv[++i]);
+      container.log.debug({"[UserArguments.cpp] Value:", value});
       container.appEncodingDecision.crfOverride = std::stoi(value);
     }
 
