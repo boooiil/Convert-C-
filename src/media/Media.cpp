@@ -33,6 +33,8 @@ bool Media::isProcessing() {
 void Media::doStatistics(Container& container) {
   Media::activity = Activity::STATISTICS;
 
+  container.log.debug({"[Media.cpp] Starting statistics for: ", Media::name});
+
   MediaProcessStatistics statistics(container, *this);
   statistics.start(
       "ffprobe -v quiet -print_format json -show_format "
@@ -40,12 +42,31 @@ void Media::doStatistics(Container& container) {
       Media::file.path + "\"");
 
   Media::activity = Activity::WAITING_CONVERT;
+
+  // TODO: implement in a way where this isn't necessary
+  // container.converting[Media::name] = *this;
 }
 void Media::doConversion(Container& container) {
+  Media::activity = Activity::CONVERT;
+
+  container.log.debug({"[Media.cpp] Starting conversion for: ", Media::name});
+
   // TODO: implement this
+  Media::activity = Activity::WAITING_VALIDATE;
+
+  // TODO: implement in a way where this isn't necessary
+  // container.converting[Media::name] = *this;
 }
 void Media::doValidation(Container& container) {
+  Media::activity = Activity::VALIDATE;
+
+  container.log.debug({"[Media.cpp] Starting validation for: ", Media::name});
+
   // TODO: implement this
+  Media::activity = Activity::FINISHED;
+
+  // TODO: implement in a way where this isn't necessary
+  // container.converting[Media::name] = *this;
 }
 
 /**
