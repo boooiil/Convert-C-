@@ -3,4 +3,4 @@
 Debug::Debug() {}
 Debug::~Debug() {}
 
-bool Debug::toggle = true;
+bool Debug::toggle = false;
