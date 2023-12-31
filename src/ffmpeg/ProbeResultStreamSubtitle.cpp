@@ -1,5 +1,9 @@
 #include "ProbeResultStreamSubtitle.h"
 
+/**
+ * TODO: Validate ffmpeg verison to avoid missing fields
+ */
+
 ProbeResultStreamSubtitle::ProbeResultStreamSubtitle() : duration_ts(-1) {}
 ProbeResultStreamSubtitle::~ProbeResultStreamSubtitle() {}
 
@@ -15,7 +19,8 @@ ProbeResultStreamSubtitle::ProbeResultStreamSubtitle(nlohmann::json JSON) {
   ProbeResultStreamSubtitle::time_base = JSON["time_base"];
   ProbeResultStreamSubtitle::start_pts = JSON["start_pts"];
   ProbeResultStreamSubtitle::start_time = JSON["start_time"];
-  ProbeResultStreamSubtitle::extradata_size = JSON["extradata_size"];
+  /* Does not appear on linux (ubuntu), apt, ffmpeg=4.4.2-0ubuntu0.22.04.1 */
+  // ProbeResultStreamSubtitle::extradata_size = JSON["extradata_size"];
   ProbeResultStreamSubtitle::disposition =
       ProbeResultStreamDisposition(JSON["disposition"]);
   ProbeResultStreamSubtitle::tags = ProbeResultStreamTags(JSON["tags"]);

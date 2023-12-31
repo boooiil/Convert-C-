@@ -2,6 +2,10 @@
 
 #include "../utils/RegexUtils.h"
 
+/**
+ * TODO: Validate ffmpeg verison to avoid missing fields
+ */
+
 ProbeResultStreamVideo::ProbeResultStreamVideo()
     : closed_captions(-1),
       film_grain(-1),
@@ -29,7 +33,8 @@ ProbeResultStreamVideo::ProbeResultStreamVideo(nlohmann::json JSON)
   ProbeResultStreamVideo::time_base = JSON["time_base"];
   ProbeResultStreamVideo::start_pts = JSON["start_pts"];
   ProbeResultStreamVideo::start_time = JSON["start_time"];
-  ProbeResultStreamVideo::extradata_size = JSON["extradata_size"];
+  /* Does not appear on linux (ubuntu), apt, ffmpeg=4.4.2-0ubuntu0.22.04.1 */
+  // ProbeResultStreamVideo::extradata_size = JSON["extradata_size"];
   ProbeResultStreamVideo::disposition =
       ProbeResultStreamDisposition(JSON["disposition"]);
   ProbeResultStreamVideo::tags = ProbeResultStreamTags(JSON["tags"]);
@@ -38,7 +43,8 @@ ProbeResultStreamVideo::ProbeResultStreamVideo(nlohmann::json JSON)
   ProbeResultStreamVideo::coded_width = JSON["coded_width"];
   ProbeResultStreamVideo::coded_height = JSON["coded_height"];
   ProbeResultStreamVideo::closed_captions = JSON["closed_captions"];
-  ProbeResultStreamVideo::film_grain = JSON["film_grain"];
+  /* Does not appear on linux (ubuntu), apt, ffmpeg=4.4.2-0ubuntu0.22.04.1 */
+  // ProbeResultStreamVideo::film_grain = JSON["film_grain"];
   ProbeResultStreamVideo::has_b_frames = JSON["has_b_frames"];
   ProbeResultStreamVideo::sample_aspect_ratio = JSON["sample_aspect_ratio"];
   ProbeResultStreamVideo::display_aspect_ratio = JSON["display_aspect_ratio"];

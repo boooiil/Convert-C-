@@ -2,6 +2,10 @@
 
 #include <iostream>
 
+/**
+ * TODO: Validate ffmpeg verison to avoid missing fields
+ */
+
 ProbeResultStreamDisposition::ProbeResultStreamDisposition()
     : default_(-1),
       dub(-1),
@@ -36,9 +40,10 @@ ProbeResultStreamDisposition::ProbeResultStreamDisposition(
   ProbeResultStreamDisposition::clean_effects = JSON["clean_effects"];
   ProbeResultStreamDisposition::attached_pic = JSON["attached_pic"];
   ProbeResultStreamDisposition::timed_thumbnails = JSON["timed_thumbnails"];
-  ProbeResultStreamDisposition::captions = JSON["captions"];
-  ProbeResultStreamDisposition::descriptions = JSON["descriptions"];
-  ProbeResultStreamDisposition::metadata = JSON["metadata"];
-  ProbeResultStreamDisposition::dependent = JSON["dependent"];
-  ProbeResultStreamDisposition::still_image = JSON["still_image"];
+  /* Does not appear on linux (ubuntu), apt, ffmpeg=4.4.2-0ubuntu0.22.04.1 */
+  // ProbeResultStreamDisposition::captions = JSON["captions"];
+  // ProbeResultStreamDisposition::descriptions = JSON["descriptions"];
+  // ProbeResultStreamDisposition::metadata = JSON["metadata"];
+  // ProbeResultStreamDisposition::dependent = JSON["dependent"];
+  // ProbeResultStreamDisposition::still_image = JSON["still_image"];
 }
