@@ -22,7 +22,8 @@ class Container {
   UserArguments userArguments;
   UserCapabilities userCapabilities;
 
-  std::unordered_map<std::string, Media> converting;
+  // std::unordered_map<std::string, Media> converting;
+  std::queue<Media> converting;
   std::queue<Media> pending;
 
   void scanWorkingDir();
