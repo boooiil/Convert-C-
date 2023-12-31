@@ -16,3 +16,4 @@
 .vscode/settings.json
 *.mkv
 convert*
+container_debug.json
