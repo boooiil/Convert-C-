@@ -11,8 +11,8 @@
 Container* Ticker::container = nullptr;
 Display* Ticker::display = nullptr;
 
-void Ticker::init(Container* container) {
-  Ticker::container = container;
+void Ticker::init() {
+  Ticker::container = new Container();
   Ticker::display = new Display(*container);
 }
 
@@ -31,14 +31,7 @@ void Ticker::start() {
       if (media.activity != Activity::WAITING) {
         if (currentAmount == 0) {
           container->log.flushBuffer();
-          if (Debug::toggle) {
-            container->log.debug(
-                {LogColor::fgRed("Debugging enabled. Writing debug file.")});
-            Ticker::writeDebug();
-            container->log.debug({LogColor::fgRed("Debug file written.")});
-            exit(0);
-          } else
-            exit(0);
+          Ticker::end();
         }
       } else {
         media.activity = Activity::WAITING_STATISTICS;
@@ -108,9 +101,19 @@ void Ticker::start() {
 }
 
 void Ticker::end() {
-  container->log.debug({"[Ticker.cpp] deconstructing display"});
-  Ticker::writeDebug();
+  container->log.debug({"[Ticker.cpp] deconstructing ticker"});
+
+  if (Debug::toggle) {
+    container->log.debug(
+        {LogColor::fgRed("Debugging enabled. Writing debug file.")});
+    Ticker::writeDebug();
+    container->log.debug({LogColor::fgRed("Debug file written.")});
+  }
+
+  delete Ticker::container;
   delete Ticker::display;
+
+  exit(0);
 }
 
 void Ticker::writeDebug() {

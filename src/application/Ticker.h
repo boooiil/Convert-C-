@@ -6,12 +6,13 @@
 
 class Ticker {
  public:
-  static void init(Container*);
+  static Container* container;
+
+  static void init();
   static void start();
   static void end();
 
  private:
-  static Container* container;
   static Display* display;
 
   static void writeDebug();
