@@ -26,27 +26,29 @@ void Ticker::start() {
          std::to_string(container->appEncodingDecision.amount)});
 
     if (currentAmount < container->appEncodingDecision.amount) {
-      Media media = container->pending.front();
+      Media& media = container->pending.front();
 
       if (media.activity != Activity::WAITING) {
         if (currentAmount == 0) {
           container->log.flushBuffer();
           Ticker::end();
+          exit(0);
         }
       } else {
         media.activity = Activity::WAITING_STATISTICS;
 
-        // todo: this is probably going to be an issue at some point?
+        // TODO: this is probably going to be an issue at some point?
         // havent tested it, just making predictions
         media.started = std::chrono::duration_cast<std::chrono::milliseconds>(
                             std::chrono::system_clock::now().time_since_epoch())
                             .count();
 
-        container->converting[media.name] = media;
+        container->converting.push(media);
         container->pending.pop();
       }
     }
 
+    // error if there are more converting than allowed
     if (currentAmount > container->appEncodingDecision.amount) {
       container->log.send({LogColor::fgRed(
           "CURRENT TRANSCODES ARE GREATER THAN THE ALLOWED AMOUNT.")});
@@ -59,37 +61,49 @@ void Ticker::start() {
           "CURRENT QUEUE: " +
           std::to_string(container->appEncodingDecision.amount))});
 
-      for (auto it = container->converting.begin();
-           it != container->converting.end(); ++it) {
-        Media value = it->second;
+      // iterate over converting
+      while (!container->converting.empty()) {
+        Media& value = container->converting.front();
         container->log.send(
             {LogColor::fgRed("CURRENT FILE: " + value.file.modifiedFileName)});
+        container->converting.pop();
       }
     }
 
-    for (auto it = container->converting.begin();
-         it != container->converting.end(); ++it) {
-      Media media = it->second;
+    // temp queue for conversion iteration
+    std::queue<Media> t_queue;
+
+    // iterate over converting media
+    while (!container->converting.empty()) {
+      Media& media = container->converting.front();
 
       container->log.send({media.name, Activity::getValue(media.activity)});
 
       if (!media.isProcessing()) {
         if (media.activity == Activity::WAITING_STATISTICS)
           media.doStatistics(*container);
-        if (media.activity == Activity::WAITING_CONVERT)
+        else if (media.activity == Activity::WAITING_CONVERT)
           media.doConversion(*container);
-        if (media.activity == Activity::WAITING_VALIDATE)
+        else if (media.activity == Activity::WAITING_VALIDATE)
           media.doValidation(*container);
       }
 
       if (RegexUtils::isMatch(Activity::getValue(media.activity),
-                              "finished|failed", std::regex_constants::icase)) {
+                              R"(finished|failed)",
+                              std::regex_constants::icase)) {
         // todo: again, chrono stuff
         media.ended = std::chrono::duration_cast<std::chrono::milliseconds>(
                           std::chrono::system_clock::now().time_since_epoch())
                           .count();
+
+        container->pending.push(media);
+      } else {
+        t_queue.push(media);
       }
+      container->converting.pop();
     }
+
+    container->converting = t_queue;
 
     if (Debug::toggle)
       Ticker::display->printDebug();
@@ -120,10 +134,11 @@ void Ticker::writeDebug() {
   nlohmann::json json;
 
   json["pending"] = nlohmann::json::array();
+  json["converting"] = nlohmann::json::array();
 
   // converting file
-  for (std::pair<std::string, Media> mediaPair : container->converting) {
-    Media media = mediaPair.second;
+  while (!container->converting.empty()) {
+    Media& media = container->converting.front();
 
     nlohmann::json mediaDebug;
     nlohmann::json mediaFileDebug;
@@ -172,12 +187,14 @@ void Ticker::writeDebug() {
     mediaDebug["video"] = mediaVideoDebug;
     mediaDebug["working"] = mediaWorkingDebug;
 
-    json["converting"][media.name] = mediaDebug;
+    json["converting"].push_back(mediaDebug);
+
+    container->converting.pop();
   }
 
   // pending file
   while (!container->pending.empty()) {
-    Media media = container->pending.front();
+    Media& media = container->pending.front();
     nlohmann::json mediaDebug;
     nlohmann::json mediaFileDebug;
     nlohmann::json mediaVideoDebug;
