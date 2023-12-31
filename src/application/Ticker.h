@@ -14,6 +14,8 @@ class Ticker {
  private:
   Container& container;
   Display* display;
+
+  void writeDebug();
 };
 
 #endif  // !TICKER_H
