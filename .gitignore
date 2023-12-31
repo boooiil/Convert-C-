@@ -6,10 +6,13 @@
 /.vs
 /.vscode
 /vcpkg_installed/x64-windows
+/vcpkg.json
 /x64/Debug
 /CppProperties.json
+/dist
+/obj
 
 .vscode/c_cpp_properties.json
 .vscode/settings.json
 *.mkv
-/vcpkg.json
+convert*
