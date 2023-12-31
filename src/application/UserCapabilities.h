@@ -12,7 +12,7 @@ class UserCapabilities {
   UserCapabilities(void);
   ~UserCapabilities(void);
 
-  Platform::OS platform;
+  Platform::OPERATING_SYSTEM platform;
   char* GPU_Provider;
   std::vector<Encoders::Codec> supportedEncoders;
   std::vector<Decoders::Codec> supportedDecoders;

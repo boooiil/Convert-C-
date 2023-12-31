@@ -54,7 +54,7 @@ void UserCapabilities::findHardwareDetails() {
     GPU_Provider = "unknown";
   }
 #elif __linux__
-  platform = Platform::LINUX;
+  platform = Platform::_LINUX;
 
   std::array<char, 128> buffer;
   std::string result;

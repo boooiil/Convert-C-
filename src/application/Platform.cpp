@@ -1,13 +1,13 @@
 #include "Platform.h"
 
-std::unordered_map<Platform::OS, std::string> Platform::osMap = {
-    {Platform::OS::WINDOWS, "Windows"},
-    {Platform::OS::LINUX, "Linux"},
-    {Platform::OS::LINUX_LIKE, "Linux-like"},
-    {Platform::OS::MAC, "Mac"},
-    {Platform::OS::UNKNOWN, "Unknown"}};
+std::unordered_map<Platform::OPERATING_SYSTEM, std::string> Platform::osMap = {
+    {Platform::OPERATING_SYSTEM::WINDOWS, "Windows"},
+    {Platform::OPERATING_SYSTEM::_LINUX, "Linux"},
+    {Platform::OPERATING_SYSTEM::LINUX_LIKE, "Linux-like"},
+    {Platform::OPERATING_SYSTEM::MAC, "Mac"},
+    {Platform::OPERATING_SYSTEM::UNKNOWN, "Unknown"}};
 
 Platform::Platform(void) {}
 Platform::~Platform(void) {}
 
-std::string Platform::getValue(OS os) { return osMap[os]; }
+std::string Platform::getValue(OPERATING_SYSTEM os) { return osMap[os]; }

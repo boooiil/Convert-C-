@@ -8,12 +8,12 @@ class Platform {
  public:
   Platform(void);
   ~Platform(void);
-  enum OS { WINDOWS, LINUX, LINUX_LIKE, MAC, UNKNOWN };
+  enum OPERATING_SYSTEM { WINDOWS, _LINUX, LINUX_LIKE, MAC, UNKNOWN };
 
-  static std::string getValue(OS);
+  static std::string getValue(OPERATING_SYSTEM);
 
  private:
-  static std::unordered_map<OS, std::string> osMap;
+  static std::unordered_map<OPERATING_SYSTEM, std::string> osMap;
 };
 
 #endif  // !PLATFORM_H
