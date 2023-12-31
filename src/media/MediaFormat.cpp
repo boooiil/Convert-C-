@@ -1,5 +1,7 @@
 #include "MediaFormat.h"
 
+#include <cmath>
+
 MediaFormat::MediaFormat()
     : name(""),
       crf(0),

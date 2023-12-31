@@ -1,5 +1,7 @@
 #include "MediaDefinedFormat.h"
 
+#include <cmath>
+
 std::unordered_map<std::string, MediaFormat> MediaDefinedFormat::formats = {
 
     {"2160p", MediaFormat("2160p", 24, 30, 30, 40, 3840, 2160, "3840:1600",

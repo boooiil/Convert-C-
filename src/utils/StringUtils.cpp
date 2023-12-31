@@ -1,5 +1,7 @@
 #include "StringUtils.h"
 
+#include <cmath>
+
 std::string StringUtils::truncateString(std::string str) {
   const int MAX_LENGTH = 10;
   if (str.length() <= MAX_LENGTH) {
