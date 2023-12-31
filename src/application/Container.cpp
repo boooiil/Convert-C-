@@ -10,15 +10,16 @@ Container::~Container() {}
 void Container::scanWorkingDir() {
   namespace fs = std::filesystem;
 
-  Log log = Log();
-
   fs::path start_dir = fs::current_path();
+
+  Container::log.debug(
+      {"[Container.cpp] Scanning directory:", start_dir.generic_string()});
 
   for (const auto& entry : fs::directory_iterator(start_dir)) {
     if (entry.is_regular_file()) {
       if (entry.path().extension() == ".mkv") {
-        log.debug({"[Container.cpp] Found file:",
-                   entry.path().filename().generic_string()});
+        Container::log.debug({"[Container.cpp] Found file:",
+                              entry.path().filename().generic_string()});
 
         Media media = Media(entry.path().filename().generic_string(),
                             Container::settings.workingDir);
