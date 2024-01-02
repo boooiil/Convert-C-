@@ -35,6 +35,7 @@ MediaProcess::~MediaProcess() {
  * @param command The command to execute.
  */
 void MediaProcess::start(std::string command) {
+  command += " 2>&1";
   MediaProcess::container.log.debug(
       {"[MediaProcess.cpp] SENDING COMMAND:", command});
 
@@ -42,6 +43,7 @@ void MediaProcess::start(std::string command) {
 
   std::array<char, 128> buffer;
   std::string result;
+  int ch;
 
   // Open pipe to file
   std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.c_str(), "r"),
@@ -50,20 +52,29 @@ void MediaProcess::start(std::string command) {
     throw std::runtime_error("popen() failed!");
   }
 
-  // Read from pipe
-  while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr &&
-         !stop_req) {
-    MediaProcess::container.log.debug({"RAW OUTPUT: ", buffer.data()});
-    result += buffer.data();
-
-    // parse the data using overriden func
-    parse(buffer.data());
-
-    // std::this_thread::sleep_for(
-    //     std::chrono::seconds(1));  // delay for long running processes
+  if (stop_req) {
+    MediaProcess::container.log.debug(
+        {"Stop request received before starting the loop"});
+    return;
   }
 
-  MediaProcess::container.log.debug({"[MediaProcess.cpp] OUTPUT: ", result});
+  // Read from pipe
+  while ((ch = fgetc(pipe.get())) != EOF && !stop_req) {
+    result += static_cast<char>(ch);
+
+    // If the last character is a newline, parse the result
+    if (ch == 10 || ch == 13) {
+      // parse the data using overriden func
+      parse(result);
+      result.clear();  // Clear the result for the next line
+    }
+
+    if (stop_req) {
+      MediaProcess::container.log.debug(
+          {"Stop request received during the loop"});
+      break;
+    }
+  }
 }
 
 /**
@@ -80,7 +91,9 @@ void MediaProcess::setStatus(MediaProcess::Status status) {
  *
  * @param data The data to parse.
  */
-void MediaProcess::parse(std::string data) { return; }
+void MediaProcess::parse(std::string data) {
+  container.log.debug({"WARNING, USING DEFAULT PARSER", data});
+}
 
 /**
  * @brief Stop the process.
