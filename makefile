@@ -1,14 +1,13 @@
-CXX := g++
+CXX = g++
+CCFLAGS = -std=c++17
 
-BASEDIR := src
-OBJ_DIR := obj
-OUTPUTDIR := dist
-TARGET := convert
+BASEDIR = src
+OBJ_DIR = obj
+OUTPUTDIR = dist
+TARGET = convert
 
-DEBUG_ARGS := -a 2 -d
-ARGS := -a 2
-
-CCFLAGS := -std=c++17
+DEBUG_ARGS = -a 1 -d
+ARGS = -a 2
 
 SRCS := $(wildcard $(BASEDIR)/*.cpp $(BASEDIR)/**/*.cpp)
 OBJS := $(patsubst $(BASEDIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
@@ -34,7 +33,7 @@ clean:
 	rm -rf $(OBJ_DIR) $(TARGET)
 
 valgrind: $(TARGET)
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(TARGET) $(ARGS)
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(TARGET) $(DEBUG_ARGS)
 
 debug: $(TARGET)
 	./$(TARGET) $(DEBUG_ARGS)
