@@ -3,7 +3,7 @@
 #include <cmath>
 
 std::string StringUtils::truncateString(std::string str) {
-  const int MAX_LENGTH = 10;
+  const int MAX_LENGTH = 25;
   if (str.length() <= MAX_LENGTH) {
     return str;
   }
