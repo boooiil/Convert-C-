@@ -25,6 +25,24 @@ void Container::scanWorkingDir() {
                             Container::settings.workingDir);
         media.rename(*this);
 
+        // if series folder doesn't exist, create it
+        if (!fs::exists(Container::settings.workingDir + "/" +
+                        media.file.series + " Season " +
+                        std::to_string(media.file.season))) {
+          Container::log.debug(
+              {"[Container.cpp] Series folder does not exist for series:",
+               media.file.series});
+          // create directory
+          Container::log.debug({"[Container.cpp] Creating directory:",
+                                Container::settings.workingDir + "/" +
+                                    media.file.series + " Season " +
+                                    std::to_string(media.file.season)});
+
+          fs::create_directory(Container::settings.workingDir + "/" +
+                               media.file.series + " Season " +
+                               std::to_string(media.file.season));
+        }
+
         // log.sendPlain({"Media conversion name:", media.file.conversionName});
         // log.sendPlain({"Media conversion path:", media.file.conversionPath});
         // log.sendPlain({"Media episode:", media.file.episode});
