@@ -44,7 +44,7 @@ std::string RegexUtils::getFirstMatch(std::string str, std::string pattern) {
   std::smatch match;
 
   if (std::regex_search(str, match, regex)) {
-    return match[0];
+    return match[1];
   } else
     return "";
 }
@@ -65,7 +65,7 @@ std::string RegexUtils::getFirstMatch(
   std::smatch match;
 
   if (std::regex_search(str, match, regex)) {
-    return match[0];
+    return match[1];
   } else
     return "";
 }
