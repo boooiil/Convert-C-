@@ -6,7 +6,7 @@
 
 Log::Log() : buffer(nullptr) {}
 Log::~Log() {
-  Log::send({"deconstructing buffer"});
+  Log::debug({"[Log.cpp] deconstructing log"});
   delete this->buffer;
 }
 
@@ -63,9 +63,9 @@ void Log::sendPlain(std::initializer_list<std::string> messages) {
 }
 
 void Log::flushBuffer() {
-  Log::debug({"called flush buffer"});
+  Log::debug({"[Log.cpp] called flush buffer"});
   if (Log::buffer == nullptr)
-    Log::send({"buffer is empty"});
+    Log::debug({"[Log.cpp] buffer is empty"});
   else
     Log::send({LogColor::fgRed(Log::buffer->output())});
   Log::buffer = nullptr;
