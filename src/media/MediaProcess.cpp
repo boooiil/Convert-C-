@@ -41,7 +41,6 @@ void MediaProcess::start(std::string command) {
 
   MediaProcess::status = MediaProcess::Status::RUNNING;
 
-  std::array<char, 128> buffer;
   std::string result;
   int ch;
 
