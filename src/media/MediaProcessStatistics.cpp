@@ -52,7 +52,8 @@ void MediaProcessStatistics::start(std::string command) {
   }
 
   // Read from pipe
-  while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+  while (fgets(buffer.data(), static_cast<int>(buffer.size()), pipe.get()) !=
+         nullptr) {
     // MediaProcessStatistics::container.log.debug(
     //     {"[MediaProcessStatistics.cpp] RAW OUTPUT: ", buffer.data()});
     result += buffer.data();
@@ -80,15 +81,15 @@ void MediaProcessStatistics::parse(std::string data) {
   char slash;
   rateStream >> numerator >> slash >> denominator;
 
+  // TODO: calc duration??
   const auto timeMatch = prsv.tags.DURATION;
   size_t pos = 0;
-  int hours, minutes, seconds;
-  sscanf(timeMatch.c_str(), "%d:%d:%d", &hours, &minutes, &seconds);
-  const int duration = (hours * 60 * 60) + (minutes * 60) + seconds;
+
+  int duration = 0;
 
   media.file.size = std::stoi(pr.format.size);
   media.video.fps =
-      round((static_cast<double>(numerator) / denominator) * 100) / 100;
+      round((static_cast<float>(numerator) / denominator) * 100) / 100;
   media.video.width = prsv.width;
   media.video.height = prsv.height;
   media.video.totalFrames =
