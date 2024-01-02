@@ -125,9 +125,13 @@ void Display::print() {
                            Activity::getValue(media.activity);
 
     if (media.activity == Activity::FINISHED) {
-      std::string ended;
-      std::string elapsed;
-      std::string reduced;
+      std::string ended = ob + LogColor::fgCyan("END") + cb + " " + "00:00:00";
+      std::string elapsed = ob + LogColor::fgCyan("ELAPSED") + cb + " " +
+                            std::to_string(media.ended - media.started);
+      std::string reduced = ob + LogColor::fgCyan("REDUCED") + cb + " " +
+                            std::to_string(media.working.completedFrames -
+                                           media.video.totalFrames) +
+                            " frames";
 
       this->container.log.sendBuffer(bufferLen, fileName + " " + activity +
                                                     " " + reduced + " " +
