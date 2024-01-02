@@ -57,6 +57,7 @@ void Media::doConversion(Container& container) {
   container.log.debug({"[Media.cpp] Starting conversion for: ", Media::name});
 
   MediaProcessConversion conversion(container, *this);
+
   conversion.start("ffmpeg -v quiet -stats -i \"" + Media::file.path + "\" " +
                    ListUtils::join(Media::ffmpegArguments, " ") + "\"" +
                    Media::file.conversionPath + "\" -y");
