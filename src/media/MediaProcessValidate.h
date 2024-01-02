@@ -3,6 +3,7 @@
 
 #include "MediaProcess.h"
 class MediaProcessValidate : public MediaProcess {
+ public:
   MediaProcessValidate(Container&, Media&);
   ~MediaProcessValidate();
 
