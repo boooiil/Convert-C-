@@ -25,7 +25,7 @@
 // TODO: maybe implement a better way of doing this when its complete
 
 #ifdef _WIN32
-void winHandle(DWORD signal) {
+BOOL WINAPI winHandle(DWORD signal) {
   std::cout << "Interrupt signal (" << signal << ") received.\n";
   // TODO: test
   // TODO: implement exit
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
    */
 #ifdef _WIN32
   // this DEFINITELY does not work
-  SetConsoleCtrlHandler(ticker->windowsSignalHandler, TRUE);
+  SetConsoleCtrlHandler(winHandle, TRUE);
 #else
   signal(SIGKILL, unixHandle);
   signal(SIGINT, unixHandle);
