@@ -9,6 +9,7 @@
 #include "../utils/StringUtils.h"
 #include "./MediaProcessConversion.h"
 #include "./MediaProcessStatistics.h"
+#include "./MediaProcessValidate.h"
 
 Media::Media() : started(0), ended(0) {}
 Media::Media(std::string name, std::string path) : started(0), ended(0) {
@@ -49,9 +50,6 @@ void Media::doStatistics(Container& container) {
   }
 
   Media::activity = Activity::WAITING_CONVERT;
-
-  // TODO: implement in a way where this isn't necessary
-  // container.converting[Media::name] = *this;
 }
 void Media::doConversion(Container& container) {
   Media::activity = Activity::CONVERT;
@@ -69,14 +67,15 @@ void Media::doConversion(Container& container) {
   }
 
   Media::activity = Activity::WAITING_VALIDATE;
-
-  // TODO: implement in a way where this isn't necessary
-  // container.converting[Media::name] = *this;
 }
 void Media::doValidation(Container& container) {
   Media::activity = Activity::VALIDATE;
 
   container.log.debug({"[Media.cpp] Starting validation for: ", Media::name});
+
+  MediaProcessValidate validate(container, *this);
+  validate.start("ffmpeg -v quiet -stats -i \"" + Media::file.conversionPath +
+                 "\" -f null -");
 
   if (RegexUtils::isMatch(Activity::getValue(Media::activity), "failed",
                           std::regex::icase)) {
@@ -84,9 +83,6 @@ void Media::doValidation(Container& container) {
   }
   // TODO: implement this
   Media::activity = Activity::FINISHED;
-
-  // TODO: implement in a way where this isn't necessary
-  // container.converting[Media::name] = *this;
 }
 
 /**
