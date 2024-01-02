@@ -10,8 +10,8 @@ Display::Display(Container& container) : container(container) {}
 Display::~Display() {}
 
 void Display::print() {
-  int bufferLen =
-      this->container.converting.size() + this->container.pending.size() + 1;
+  int bufferLen = static_cast<int>(this->container.converting.size()) +
+                  static_cast<int>(this->container.pending.size()) + 1;
 
   std::string ob = LogColor::fgGray("[");
   std::string cb = LogColor::fgGray("]");
@@ -75,7 +75,7 @@ void Display::print() {
     int totalFrames = media.video.totalFrames;
 
     float crf = media.working.quality;
-    float v_crf = media.video.crf;
+    int v_crf = media.video.crf;
 
     float workingFPS = media.working.fps;
     float videoFPS = media.video.fps;
