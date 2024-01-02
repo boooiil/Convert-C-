@@ -9,7 +9,7 @@ class MediaProcess {
   MediaProcess(Container&, Media&);
   ~MediaProcess();
 
-  enum Status { WAIT, DONE, RUNNING, ERROR };
+  enum Status { WAIT, DONE, RUNNING, _ERROR };
 
   virtual void start(std::string command);
   virtual void parse(std::string);

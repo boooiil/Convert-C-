@@ -130,7 +130,7 @@ bool MediaProcess::isRunning(void) const {
  * @return false Process is not in an error state.
  */
 bool MediaProcess::isError(void) const {
-  return MediaProcess::status == MediaProcess::Status::ERROR;
+  return MediaProcess::status == MediaProcess::Status::_ERROR;
 }
 
 /**
