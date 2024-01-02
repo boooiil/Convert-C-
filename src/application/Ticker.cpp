@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <fstream>
+#include <future>
 #include <thread>
 
 #include "../utils/RegexUtils.h"
@@ -10,6 +11,7 @@
 
 Container* Ticker::container = nullptr;
 Display* Ticker::display = nullptr;
+std::vector<std::thread> workerThreads;
 
 void Ticker::init() {
   Ticker::container = new Container();
@@ -21,8 +23,8 @@ void Ticker::start() {
   while (true) {
     int currentAmount = container->converting.size();
 
-    container->log.send(
-        {std::to_string(currentAmount),
+    container->log.debug(
+        {"[Ticker.cpp]", std::to_string(currentAmount),
          std::to_string(container->appEncodingDecision.amount)});
 
     if (currentAmount < container->appEncodingDecision.amount) {
@@ -77,13 +79,15 @@ void Ticker::start() {
     while (!container->converting.empty()) {
       Media& media = container->converting.front();
 
-      container->log.send({media.name, Activity::getValue(media.activity)});
+      container->log.debug(
+          {"[Ticker.cpp]", media.name, Activity::getValue(media.activity)});
 
       if (!media.isProcessing()) {
         if (media.activity == Activity::WAITING_STATISTICS)
           media.doStatistics(*container);
         else if (media.activity == Activity::WAITING_CONVERT)
-          media.doConversion(*container);
+          workerThreads.emplace_back(
+              [&media]() { media.doConversion(*container); });
         else if (media.activity == Activity::WAITING_VALIDATE)
           media.doValidation(*container);
       }
@@ -122,6 +126,14 @@ void Ticker::end() {
         {LogColor::fgRed("Debugging enabled. Writing debug file.")});
     Ticker::writeDebug();
     container->log.debug({LogColor::fgRed("Debug file written.")});
+  }
+
+  auto it = std::find_if(workerThreads.begin(), workerThreads.end(),
+                         [](const std::thread& t) { return t.joinable(); });
+
+  if (it != workerThreads.end()) {
+    it->join();
+    workerThreads.erase(it);
   }
 
   delete Ticker::container;
