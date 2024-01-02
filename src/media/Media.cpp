@@ -43,6 +43,11 @@ void Media::doStatistics(Container& container) {
       "-show_streams \"" +
       Media::file.path + "\"");
 
+  if (RegexUtils::isMatch(Activity::getValue(Media::activity), "failed",
+                          std::regex::icase)) {
+    return;
+  }
+
   Media::activity = Activity::WAITING_CONVERT;
 
   // TODO: implement in a way where this isn't necessary
@@ -58,7 +63,11 @@ void Media::doConversion(Container& container) {
                    ListUtils::join(Media::ffmpegArguments, " ") + "\"" +
                    Media::file.conversionPath + "\" -y");
 
-  // TODO: implement this
+  if (RegexUtils::isMatch(Activity::getValue(Media::activity), "failed",
+                          std::regex::icase)) {
+    return;
+  }
+
   Media::activity = Activity::WAITING_VALIDATE;
 
   // TODO: implement in a way where this isn't necessary
@@ -69,6 +78,10 @@ void Media::doValidation(Container& container) {
 
   container.log.debug({"[Media.cpp] Starting validation for: ", Media::name});
 
+  if (RegexUtils::isMatch(Activity::getValue(Media::activity), "failed",
+                          std::regex::icase)) {
+    return;
+  }
   // TODO: implement this
   Media::activity = Activity::FINISHED;
 
