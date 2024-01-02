@@ -21,7 +21,7 @@ void Ticker::init() {
 void Ticker::start() {
   // once every second
   while (true) {
-    int currentAmount = container->converting.size();
+    int currentAmount = static_cast<int>(container->converting.size());
 
     container->log.debug(
         {"[Ticker.cpp]", std::to_string(currentAmount),
@@ -128,13 +128,15 @@ void Ticker::end() {
     container->log.debug({LogColor::fgRed("Debug file written.")});
   }
 
-  auto it = std::find_if(workerThreads.begin(), workerThreads.end(),
-                         [](const std::thread& t) { return t.joinable(); });
-
-  if (it != workerThreads.end()) {
-    it->join();
-    workerThreads.erase(it);
+  // iterate over running threads and join
+  for (auto& t : workerThreads) {
+    if (t.joinable()) {
+      t.join();
+    }
   }
+
+  // call threads descructor and clear the vector
+  workerThreads.clear();
 
   delete Ticker::container;
   delete Ticker::display;
