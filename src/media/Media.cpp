@@ -4,8 +4,10 @@
 #include <string>
 
 #include "../application/Container.h"
+#include "../utils/ListUtils.h"
 #include "../utils/RegexUtils.h"
 #include "../utils/StringUtils.h"
+#include "./MediaProcessConversion.h"
 #include "./MediaProcessStatistics.h"
 
 Media::Media() : started(0), ended(0) {}
@@ -50,6 +52,11 @@ void Media::doConversion(Container& container) {
   Media::activity = Activity::CONVERT;
 
   container.log.debug({"[Media.cpp] Starting conversion for: ", Media::name});
+
+  MediaProcessConversion conversion(container, *this);
+  conversion.start("ffmpeg -v quiet -stats -i \"" + Media::file.path + "\" " +
+                   ListUtils::join(Media::ffmpegArguments, " ") + "\"" +
+                   Media::file.conversionPath + "\" -y");
 
   // TODO: implement this
   Media::activity = Activity::WAITING_VALIDATE;
