@@ -56,8 +56,13 @@ void Display::print() {
     header += " " + crop;
   }
 
-  // clear console?
-  this->container.log.send({"\x1B[2J\x1B[H"});
+// clear console?
+#ifdef _WIN32
+  system("cls");
+#else
+  system("clear");
+#endif
+
   this->container.log.sendBuffer(bufferLen, header);
 
   std::queue<Media> t_queue;
