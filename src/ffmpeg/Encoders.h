@@ -1,9 +1,20 @@
+/*********************************************************************
+ * @file   Encoders.h
+ * @brief  Enum of encoders and utility functions.
+ *
+ * @author boooiil
+ * @date   January 2024
+ *********************************************************************/
 #if !defined(ENCODERS)
 #define ENCODERS
 
 #include <string>
 #include <unordered_map>
 
+/**
+ * @brief Class for encoders.
+ *
+ */
 class Encoders {
  public:
   Encoders();
@@ -31,8 +42,9 @@ class Encoders {
   /**
    * @brief Get the string value of the enum.
    *
-   * @param codec Desired codec.
-   * @return std::string String value of enum.
+   * @param[in] codec - Desired codec.
+   *
+   * @return String value of enum.
    */
   static std::string getValue(Codec codec);
 

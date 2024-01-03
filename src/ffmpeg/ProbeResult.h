@@ -1,3 +1,10 @@
+/*********************************************************************
+ * @file   ProbeResult.h
+ * @brief  Probe result class header file.
+ *
+ * @author boooiil
+ * @date   January 2024
+ *********************************************************************/
 #if !defined(PROBE_RESULT)
 #define PROBE_RESULT
 
@@ -19,9 +26,9 @@ class ProbeResult {
   /**
    * @brief Construct a new Probe Result object
    *
-   * @param JSON The FFProbe result JSON.
+   * @param[in] JSON - The FFProbe result JSON.
    */
-  ProbeResult(nlohmann::json JSON);
+  ProbeResult(const nlohmann::json JSON);
   ~ProbeResult();
 
   /**

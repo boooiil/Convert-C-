@@ -1,3 +1,11 @@
+/*********************************************************************
+ * @file   ProbeResultFormatTags.h
+ * @brief  Probe Result Format Tags header.
+ *
+ * @author boooiil
+ * @date   January 2024
+ *********************************************************************/
+
 #if !defined(PROBE_RESULT_FORMAT_TAGS)
 #define PROBE_RESULT_FORMAT_TAGS
 
@@ -5,6 +13,9 @@
 
 #include "nlohmann/json.hpp"
 
+/**
+ * @brief This class represents the FFProbe format tags.
+ */
 class ProbeResultFormatTags {
  public:
   /** This constructor should never be called. */
@@ -13,11 +24,12 @@ class ProbeResultFormatTags {
   /**
    * @brief Construct a new Probe Result Format Tags object
    *
-   * @param JSON The FFProbe tag JSON.
+   * @param[in] JSON - The FFProbe tag JSON.
    */
-  ProbeResultFormatTags(nlohmann::json JSON);
+  ProbeResultFormatTags(const nlohmann::json JSON);
   ~ProbeResultFormatTags();
 
+  /// @brief full encoder name
   std::string ENCODER;
 };
 
