@@ -1,14 +1,25 @@
+/*********************************************************************
+ * @file   LogColor.h
+ * @brief  Log Color class header.
+ *
+ * @author boooiil
+ * @date   January 2024
+ *********************************************************************/
+
 #if !defined(LOG_COLOR)
 #define LOG_COLOR
 
 #include <string>
 
+/**
+ * @brief Static class to colorize the terminal output.
+ */
 class LogColor {
  public:
-  LogColor(void);
-  ~LogColor(void);
+  /** ********************** *
+   *      TERMINAL CODES     *
+   * *********************** */
 
-  // terminal related
   static std::string reset(std::string);
   static std::string bright(std::string);
   static std::string dim(std::string);
@@ -18,7 +29,10 @@ class LogColor {
   static std::string hidden(std::string);
   static std::string none(std::string);
 
-  // text color
+  /** ********************** *
+   *        TEXT CODES       *
+   * *********************** */
+
   static std::string fgBlack(std::string);
   static std::string fgRed(std::string);
   static std::string fgGreen(std::string);
@@ -29,7 +43,10 @@ class LogColor {
   static std::string fgCyan(std::string);
   static std::string fgWhite(std::string);
 
-  // background color
+  /** ********************** *
+   *     BACKGROUND CODES    *
+   * *********************** */
+
   static std::string bgBlack(std::string);
   static std::string bgRed(std::string);
   static std::string bgGreen(std::string);

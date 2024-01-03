@@ -1,8 +1,19 @@
+/*********************************************************************
+ * @file   LogBuffer.h
+ * @brief  Log Buffer class header.
+ *
+ * @author boooiil
+ * @date   January 2024
+ *********************************************************************/
+
 #if !defined(LOG_BUFFER)
 #define LOG_BUFFER
 
 #include <string>
 
+/**
+ * @brief A class to store the output of the log.
+ */
 class LogBuffer {
  public:
   /** This constructor should not be used. */
@@ -11,7 +22,7 @@ class LogBuffer {
   /**
    * @brief Construct a new Log Buffer object
    *
-   * @param max The maximum number of lines to store.
+   * @param[in] max - The maximum number of lines to store.
    */
   LogBuffer(int max);
   ~LogBuffer(void);
@@ -19,9 +30,9 @@ class LogBuffer {
   /**
    * @brief Add a line to the buffer.
    *
-   * @param line The line to add.
+   * @param[in] line - The line to add.
    */
-  void addLine(std::string);
+  void addLine(std::string line);
 
   /**
    * @brief Check if the buffer is full.
@@ -34,14 +45,14 @@ class LogBuffer {
   /**
    * @brief Get the output of the buffer.
    *
-   * @return std::string The output of the buffer.
+   * @return The output of the buffer.
    */
   std::string output(void);
 
  private:
-  int current;
-  int max;
-  std::string line;
+  int current;       /// @brief The current number of lines in the buffer.
+  int max;           /// @brief The maximum number of lines to store.
+  std::string line;  /// @brief The line to add.
 };
 
 #endif  // LOG_BUFFER

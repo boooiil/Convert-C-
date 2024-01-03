@@ -1,62 +1,70 @@
+/*********************************************************************
+ * @file   MediaFormat.h
+ * @brief  Media format class header file.
+ *
+ * @author boooiil
+ * @date   January 2024
+ *********************************************************************/
+
 #ifndef MEDIA_FORMAT
 #define MEDIA_FORMAT
 
 #include <string>
 
+/**
+ * @brief Hold information about a media format.
+ */
 class MediaFormat {
  public:
-  /**
-   * @brief This constructor should not be used.
-   *
-   */
   MediaFormat();
-
   /**
    * @brief Construct a new Media Format object.
    *
-   * @param name Name of the format.
-   * @param crf Constant rate factor.
-   * @param bitrate Bitrate of the format.
-   * @param min Minimum bitrate of the format.
-   * @param max Maximum bitrate of the format.
-   * @param width Width of the format.
-   * @param height Height of the format.
-   * @param crop Crop of the format.
-   * @param scale Scale of the format.
+   * @param[in] name    - Name of the format.
+   * @param[in] crf     - Constant rate factor.
+   * @param[in] bitrate - Bitrate of the format.
+   * @param[in] min     - Minimum bitrate of the format.
+   * @param[in] max     - Maximum bitrate of the format.
+   * @param[in] width   - Width of the format.
+   * @param[in] height  - Height of the format.
+   * @param[in] crop    - Crop of the format.
+   * @param[in] scale   - Scale of the format.
    */
-  MediaFormat(std::string, int, double, double, double, int, int, std::string,
-              std::string);
+  MediaFormat(std::string name, int crf, double bitrate, double min, double max,
+              int width, int height, std::string crop, std::string scale);
   ~MediaFormat();
 
-  std::string name;
-  std::string crop;
-  std::string scale;
+  std::string name;   /// @brief Name of the format.
+  std::string crop;   /// @brief Crop of the format.
+  std::string scale;  /// @brief Scale of the format.
 
-  int crf;
-  double bitrate;
-  double min;
-  double max;
-  int width;
-  int height;
+  int crf;         /// @brief Constant rate factor.
+  double bitrate;  /// @brief Bitrate of the format.
+  double min;      /// @brief Minimum bitrate of the format.
+  double max;      /// @brief Maximum bitrate of the format.
+  int width;       /// @brief Width of the format.
+  int height;      /// @brief Height of the format.
 
   /**
    * @brief Get the greatest common denominator of two numbers.
    *
-   * @param a First number.
-   * @param b Second number.
-   * @return int Greatest common denominator.
+   * @param[in] a - First number.
+   * @param[in] b - Second number.
+   *
+   * @return Greatest common denominator.
    */
   static int getGCD(int, int);
 
   /**
    * @brief Get the resolution of the media.
    *
-   * @param width Width of the media.
-   * @param height Height of the media.
-   * @param newWidth New width of the media.
-   * @return int Resolution of the media.
+   * @param[in] width Width of the media.
+   * @param[in] height Height of the media.
+   * @param[in] newWidth New width of the media.
+   *
+   * @return Calculated height of the media.
    */
-  static int getResolution(int, int, int);
+  static int getResolution(int width, int height, int newWidth);
 };
 
 #endif  // !MEDIA_FORMAT

@@ -1,3 +1,11 @@
+/*********************************************************************
+ * @file   Log.h
+ * @brief  Log class header file.
+ *
+ * @author boooiil
+ * @date   January 2024
+ *********************************************************************/
+
 #if !defined(LOG)
 #define LOG
 
@@ -10,60 +18,61 @@ class Log {
   ~Log(void);
 
   /**
-   * @brief      Sends a message to the console.
-   * *
-   * * @param[in]  messages  The messages
+   * @brief Sends a message to the console.
+   *
+   * @param[in] messages The messages to send to the console.
    *
    */
-  static void send(std::initializer_list<std::string>);
+  static void send(std::initializer_list<std::string> messages);
 
   /**
-   * @brief      Sends a message to debug.
+   * @brief Sends a message to debug.
    *
-   * @param[in]  Args...     Messages to send to debug
+   * @param[in] messages Messages to send to debug
    */
-  static void debug(std::initializer_list<std::string>);
+  static void debug(std::initializer_list<std::string> messages);
 
   /**
-   * @brief      Sends a message to the buffer.
-   * *
-   * * @param[in]  length    The length of the buffer
-   * * @param[in]  messages  The messages
+   * @brief Sends a message to the buffer.
+   *
+   * @param[in] length    - The length of the buffer
+   * @param[in] messages  - The messages
    *
    * */
   void sendBuffer(int, std::string);
 
   /**
-   * @brief      Sends a message to the buffer.
-   * *
-   * * @param[in]  length    The length of the buffer
-   * * @param[in]  messages  The messages
+   * @brief Sends a message to the buffer.
+   *
+   * @param[in] length    - The length of the buffer
+   * @param[in] messages  - The messages
    *
    * */
   void sendBuffer(int, const char*);
 
   /**
-   * @brief      Sends a message to the console in plain format.
+   * @brief Sends a message to the console in plain format.
    *
-   * @param[in]  messages  The messages
+   * @param[in] messages - The messages
    *
    */
-  void sendPlain(std::initializer_list<std::string>);
+  void sendPlain(std::initializer_list<std::string> messages);
 
   /**
-   * @brief      Flushes the buffer.
+   * @brief Flushes the buffer.
    */
   void flushBuffer(void);
 
   /**
-   * @brief      Determines if buffer has messages.
+   * @brief Determines if buffer has messages.
    *
-   * @return     True if buffer has messages, False otherwise.
+   * @return true if buffer has messages
+   * @return false if buffer has no messages
    */
   bool hasBuffer(void);
 
  private:
-  LogBuffer* buffer;
+  LogBuffer* buffer;  /// @brief The buffer
 };
 
 #endif  // LOG

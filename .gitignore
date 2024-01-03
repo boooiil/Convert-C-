@@ -17,3 +17,4 @@
 *.mkv
 convert*
 container_debug.json
+/docs
