@@ -1,3 +1,11 @@
+/*********************************************************************
+ * @file   Container.h
+ * @brief  Container class header.
+ *
+ * @author boooiil
+ * @date   January 2024
+ *********************************************************************/
+
 #ifndef CONTAINER
 #define CONTAINER
 
@@ -10,10 +18,14 @@
 #include "../media/Media.h"
 #include "ApplicationEncodingDecision.h"
 
+/**
+ * @brief Holds all media files necessary for running the application.
+ * @brief Also holds application setttings and user arguments.
+ */
 class Container {
  public:
-  Container();
-  ~Container();
+  Container(void);
+  ~Container(void);
 
   Log log;
 
@@ -22,11 +34,17 @@ class Container {
   UserArguments userArguments;
   UserCapabilities userCapabilities;
 
-  // std::unordered_map<std::string, Media> converting;
+  /// @brief Holds current media file(s) being converted.
   std::queue<Media> converting;
+  /// @brief Holds media files that are waiting to be converted.
   std::queue<Media> pending;
 
-  void scanWorkingDir();
+  /**
+   * @brief Scans working directory for media files and adds them to pending
+   * queue.
+   *
+   */
+  void scanWorkingDir(void);
 };
 
 #endif  // !CONTAINER
