@@ -1,11 +1,11 @@
 #include "Ticker.h"
 
-#include <chrono>
 #include <fstream>
 #include <future>
 #include <thread>
 
 #include "../utils/RegexUtils.h"
+#include "../utils/TimeUtils.h"
 #include "./Debug.h"
 #include "nlohmann/json.hpp"
 
@@ -41,9 +41,7 @@ void Ticker::start() {
 
         // TODO: this is probably going to be an issue at some point?
         // havent tested it, just making predictions
-        media.started = std::chrono::duration_cast<std::chrono::milliseconds>(
-                            std::chrono::system_clock::now().time_since_epoch())
-                            .count();
+        media.started = TimeUtils::getEpoch();
 
         container->converting.push(media);
         container->pending.pop();
@@ -96,9 +94,7 @@ void Ticker::start() {
                               R"(finished|failed)",
                               std::regex_constants::icase)) {
         // todo: again, chrono stuff
-        media.ended = std::chrono::duration_cast<std::chrono::milliseconds>(
-                          std::chrono::system_clock::now().time_since_epoch())
-                          .count();
+        media.ended = TimeUtils::getEpoch();
 
         container->pending.push(media);
       } else {
