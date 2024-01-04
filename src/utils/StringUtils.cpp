@@ -2,8 +2,8 @@
 
 #include <cmath>
 
-std::string StringUtils::truncateString(std::string str) {
-  const int MAX_LENGTH = 25;
+std::string StringUtils::truncateString(std::string str, int length = 25) {
+  const int MAX_LENGTH = length;
   if (str.length() <= MAX_LENGTH) {
     return str;
   }
@@ -38,21 +38,6 @@ std::string StringUtils::replaceAll(std::string str, std::string from,
 std::string StringUtils::replaceAll(std::string str, std::regex from,
                                     std::string to) {
   return std::regex_replace(str, from, to);
-}
-
-std::vector<std::string> StringUtils::split(std::string str,
-                                            std::string delim) {
-  std::vector<std::string> tokens;
-  size_t prev = 0, pos = 0;
-  do {
-    pos = str.find(delim, prev);
-    if (pos == std::string::npos) pos = str.length();
-    std::string token = str.substr(prev, pos - prev);
-    if (!token.empty()) tokens.push_back(token);
-    prev = pos + delim.length();
-  } while (pos < str.length() && prev < str.length());
-
-  return tokens;
 }
 
 std::string StringUtils::toLowerCase(std::string str) {
