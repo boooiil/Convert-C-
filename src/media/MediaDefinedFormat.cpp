@@ -27,9 +27,6 @@ std::unordered_map<std::string, MediaFormat> MediaDefinedFormat::formats = {
 
 };
 
-MediaDefinedFormat::MediaDefinedFormat() {}
-MediaDefinedFormat::~MediaDefinedFormat() {}
-
 void MediaDefinedFormat::addCustomFormat(int height) {
   MediaFormat format =
       MediaFormat(std::to_string(height) + "p", 24, 0, 0, 0, 0, 0, "", "");
