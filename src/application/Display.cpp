@@ -73,10 +73,11 @@ void Display::print() {
     Media media = this->container.converting.front();
     this->container.converting.pop();
 
-    int mediaFPS = media.working.fps > 0 ? media.working.fps : 1;
+    float mediaFPS = media.working.fps > 0 ? media.working.fps : 1;
     int totalFrames = media.video.totalFrames;
     int completedFrames = media.working.completedFrames;
-    int diff = ceil((totalFrames - completedFrames) / mediaFPS) * 1000;
+    int diff = static_cast<int>(
+        ceil((totalFrames - completedFrames) / mediaFPS) * 1000);
 
     // create a time util to get this
     std::string started = ob + LogColor::fgCyan("START") + cb + " " +
@@ -139,8 +140,8 @@ void Display::print() {
                            Activity::getValue(media.activity);
 
     if (media.activity == Activity::FINISHED) {
-      int calculatedSize = floor(
-          ((media.file.size - media.file.newSize) / media.file.size) * 100);
+      int calculatedSize = static_cast<int>(floor(
+          ((media.file.size - media.file.newSize) / media.file.size) * 100));
 
       std::string ended = ob + LogColor::fgCyan("END") + cb + " " +
                           TimeUtils::timeFormat(media.ended);
