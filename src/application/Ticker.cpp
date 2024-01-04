@@ -83,10 +83,13 @@ void Ticker::start() {
       if (!media.isProcessing()) {
         if (media.activity == Activity::WAITING_STATISTICS)
           media.doStatistics(*container);
-        else if (media.activity == Activity::WAITING_CONVERT)
+        else if (media.activity == Activity::WAITING_CONVERT) {
+          media.buildFFmpegArguments(*container, false);
+
           workerThreads.emplace_back(
               [&media]() { media.doConversion(*container); });
-        else if (media.activity == Activity::WAITING_VALIDATE)
+
+        } else if (media.activity == Activity::WAITING_VALIDATE)
           media.doValidation(*container);
       }
 
