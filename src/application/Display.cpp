@@ -2,7 +2,9 @@
 
 #include <math.h>
 
+#include "../utils/NumberUtils.h"
 #include "../utils/StringUtils.h"
+#include "../utils/TimeUtils.h"
 #include "Debug.h"
 
 Display::Display(Container& container) : container(container) {}
@@ -16,8 +18,8 @@ void Display::print() {
   std::string ob = LogColor::fgGray("[");
   std::string cb = LogColor::fgGray("]");
 
-  std::string time = ob + LogColor::fgCyan("TIME") + cb +
-                     LogColor::fgGray(" 00:00:00 00-00-0000");
+  std::string time = ob + LogColor::fgCyan("TIME") + cb + " " +
+                     TimeUtils::dateFormat(TimeUtils::getEpoch());
   std::string encoder =
       ob + LogColor::fgCyan("TARGET ENC") + cb + " " +
       LogColor::fgGray(this->container.appEncodingDecision.wantedEncoder);
@@ -71,13 +73,17 @@ void Display::print() {
     Media media = this->container.converting.front();
     this->container.converting.pop();
 
-    // create a time util to get this
-    std::string started = ob + LogColor::fgCyan("START") + cb + "00:00:00";
-    // create a time util to get this
-    std::string eta = ob + LogColor::fgCyan("ETA") + cb + "00:00:00";
-
-    int completedFrames = media.working.completedFrames;
+    int mediaFPS = media.working.fps > 0 ? media.working.fps : 1;
     int totalFrames = media.video.totalFrames;
+    int completedFrames = media.working.completedFrames;
+    int diff = ceil((totalFrames - completedFrames) / mediaFPS) * 1000;
+
+    // create a time util to get this
+    std::string started = ob + LogColor::fgCyan("START") + cb + " " +
+                          TimeUtils::timeFormat(media.started);
+    // create a time util to get this
+    std::string eta = ob + LogColor::fgCyan("ETA") + cb + " " +
+                      TimeUtils::durationFormat(diff);
 
     float crf = media.working.quality;
     int v_crf = media.video.crf;
@@ -104,12 +110,12 @@ void Display::print() {
 
     std::string cq = ob + LogColor::fgCyan("QUAL") + cb + " " +
                      std::to_string(static_cast<int>(v_crf / crf) * 100);
-    std::string speed =
-        ob + LogColor::fgCyan("SPEED") + cb + " " +
-        std::to_string(trunc((workingFPS / videoFPS) * 100) / 100);
+    std::string speed = ob + LogColor::fgCyan("SPEED") + cb + " " +
+                        NumberUtils::formatNumber(workingFPS / videoFPS, 2);
 
     std::string bitrate = ob + LogColor::fgCyan("BITRATE") + cb + " " +
-                          std::to_string(media.working.bitrate) + "kb/s";
+                          NumberUtils::formatNumber(media.working.bitrate, 2) +
+                          "kb/s";
 
     this->container.log.sendBuffer(
         bufferLen, fileName + " " + activity + " " + started + " " + percent +
@@ -133,13 +139,17 @@ void Display::print() {
                            Activity::getValue(media.activity);
 
     if (media.activity == Activity::FINISHED) {
-      std::string ended = ob + LogColor::fgCyan("END") + cb + " " + "00:00:00";
-      std::string elapsed = ob + LogColor::fgCyan("ELAPSED") + cb + " " +
-                            std::to_string(media.ended - media.started);
+      int calculatedSize = floor(
+          ((media.file.size - media.file.newSize) / media.file.size) * 100);
+
+      std::string ended = ob + LogColor::fgCyan("END") + cb + " " +
+                          TimeUtils::timeFormat(media.ended);
+      std::string elapsed =
+          ob + LogColor::fgCyan("ELAPSED") + cb + " " +
+          TimeUtils::durationFormat((media.ended - media.started) * 1000);
+
       std::string reduced = ob + LogColor::fgCyan("REDUCED") + cb + " " +
-                            std::to_string(media.working.completedFrames -
-                                           media.video.totalFrames) +
-                            " frames";
+                            std::to_string(calculatedSize) + "%";
 
       this->container.log.sendBuffer(bufferLen, fileName + " " + activity +
                                                     " " + reduced + " " +
