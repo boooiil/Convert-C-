@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <cmath>
+#include <ctime>
 
 long TimeUtils::getTime() { return 0; };
 
@@ -20,9 +21,9 @@ long TimeUtils::getEpoch() {
 std::string TimeUtils::durationFormat(long ms) {
   std::string duration("");
 
-  long s = floor(ms / 1000);
-  long m = 0;
-  long h = 0;
+  double s = floor(ms / 1000);
+  double m = 0;
+  double h = 0;
 
   // get minutes and subtract from seconds
   m = floor(s / 60);
@@ -34,25 +35,25 @@ std::string TimeUtils::durationFormat(long ms) {
 
   if (h > 0) {
     if (h < 10) {
-      duration += '0' + h + ':';
+      duration += "0" + std::to_string(h) + ":";
     } else if (h > 0) {
-      duration += std::to_string(h) + ':';
+      duration += std::to_string(h) + ":";
     } else {
       duration += "00:";
     }
   }
   if (m > 0 || h) {
     if (m < 10) {
-      duration += '0' + m + ':';
+      duration += ":" + std::to_string(m) + ":";
     } else if (m > 0) {
-      duration += std::to_string(m) + ':';
+      duration += std::to_string(m) + ":";
     } else {
       duration += "00:";
     }
   }
   if (s > 0 || h || m) {
     if (s < 10) {
-      duration += '0' + s;
+      duration += "0" + std::to_string(s);
     } else {
       duration += std::to_string(s);
     }
@@ -66,11 +67,13 @@ std::string TimeUtils::dateFormat(long epoch) {
   std::time_t epochTime = epoch;
 
   // Convert to local time
-  std::tm *localTime = std::localtime(&epochTime);
+  std::tm localTime;
+
+  localtime_s(&localTime, &epochTime);
 
   // Format the time as a string
   char timeString[80];
-  std::strftime(timeString, 80, "%H:%M:%S %Y-%m-%d", localTime);
+  std::strftime(timeString, 80, "%H:%M:%S %Y-%m-%d", &localTime);
 
   return std::string(timeString);
 };
@@ -80,11 +83,13 @@ std::string TimeUtils::timeFormat(long epoch) {
   std::time_t epochTime = epoch;
 
   // Convert to local time
-  std::tm *localTime = std::localtime(&epochTime);
+  std::tm localTime;
+
+  localtime_s(&localTime, &epochTime);
 
   // Format the time as a string
   char timeString[80];
-  std::strftime(timeString, 80, "%H:%M:%S-%p", localTime);
+  std::strftime(timeString, 80, "%H:%M:%S-%p", &localTime);
 
   return std::string(timeString);
 };
