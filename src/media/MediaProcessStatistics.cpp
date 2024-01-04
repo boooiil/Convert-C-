@@ -12,6 +12,7 @@
 #include "../ffmpeg/ProbeResult.h"
 #include "../ffmpeg/ProbeResultStreamVideo.h"
 #include "../media/MediaDefinedFormat.h"
+#include "../utils/ListUtils.h"
 #include "../utils/RegexUtils.h"
 
 #ifdef _WIN32
@@ -30,11 +31,6 @@ MediaProcessStatistics::~MediaProcessStatistics() {
   MediaProcess::~MediaProcess();
 }
 
-/**
- * @brief Start the process.
- *
- * @param command The command to execute.
- */
 void MediaProcessStatistics::start(std::string command) {
   MediaProcessStatistics::container.log.debug(
       {"[MediaProcessStatistics.cpp] SENDING COMMAND:", command});
@@ -52,8 +48,7 @@ void MediaProcessStatistics::start(std::string command) {
   }
 
   // Read from pipe
-  while (fgets(buffer.data(), static_cast<int>(buffer.size()), pipe.get()) !=
-         nullptr) {
+  while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
     // MediaProcessStatistics::container.log.debug(
     //     {"[MediaProcessStatistics.cpp] RAW OUTPUT: ", buffer.data()});
     result += buffer.data();
@@ -82,10 +77,13 @@ void MediaProcessStatistics::parse(std::string data) {
   rateStream >> numerator >> slash >> denominator;
 
   // TODO: calc duration??
-  const auto timeMatch = prsv.tags.DURATION;
-  size_t pos = 0;
+  std::vector<std::string> timeParts =
+      ListUtils::splitv(prsv.tags.DURATION, std::string(":"));
 
-  int duration = 0;
+  int hours = std::stoi(timeParts[0]);
+  int minutes = std::stoi(timeParts[1]);
+  int seconds = std::stoi(timeParts[2]);
+  int duration = (hours * 60 * 60) + (minutes * 60) + seconds;
 
   media.file.size = std::stoi(pr.format.size);
   media.video.fps =
