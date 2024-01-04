@@ -49,7 +49,7 @@ void MediaProcessConversion::parse(std::string data) {
   } else if (RegexUtils::isMatch(data, "matches no streams",
                                  std::regex::icase)) {
     this->media.activity = Activity::FAILED_INVALID_AUDIO_STREAMS;
-  } else {
+  } else if (RegexUtils::isMatch(data, "frame=.+?(\\d+)")) {
     this->container.log.debug({"[MediaProcessConversion.cpp] PARSING LINE"});
 
     std::string quality =
@@ -59,7 +59,8 @@ void MediaProcessConversion::parse(std::string data) {
     std::string size = RegexUtils::getFirstMatch(data, "size=.+?(\\d+)");
     std::string completedFrames =
         RegexUtils::getFirstMatch(data, "frame=.+?(\\d+)");
-    std::string fps = RegexUtils::getFirstMatch(data, "fps=(\\d+\\.\\d+|\\d+)");
+    std::string fps =
+        RegexUtils::getFirstMatch(data, "fps=.+?(\\d+\\.\\d+|\\d+)");
     ;
 
     assert(quality != "");
