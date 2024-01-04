@@ -6,7 +6,6 @@
 #include "ProbeResultStreamSubtitle.h"
 #include "ProbeResultStreamVideo.h"
 
-/** This constructor should not be used. */
 ProbeResult::ProbeResult(){};
 ProbeResult::~ProbeResult(){};
 

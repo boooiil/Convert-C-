@@ -1,3 +1,11 @@
+/*********************************************************************
+ * @file   Media.cpp
+ * @brief  Media class implementation file.
+ *
+ * @author boooiil
+ * @date   January 2024
+ *********************************************************************/
+
 #include "Media.h"
 
 #include <regex>
@@ -19,12 +27,6 @@ Media::Media(std::string name, std::string path) : started(0), ended(0) {
 
 Media::~Media() {}
 
-/**
- * @brief Check if the media is currently processing.
- *
- * @return true Media is processing.
- * @return false Media is not processing.
- */
 bool Media::isProcessing() {
   if (activity == Activity::STATISTICS || activity == Activity::CONVERT ||
       activity == Activity::VALIDATE) {
@@ -86,12 +88,6 @@ void Media::doValidation(Container& container) {
   Media::activity = Activity::FINISHED;
 }
 
-/**
- * @brief Build the FFMpeg arguments for the media.
- *
- * @param container The container to use for the arguments.
- * @param isValidate True if the arguments are for validation.
- */
 void Media::buildFFmpegArguments(Container& container, bool isValidate) {}
 void Media::rename(Container& container) {
   Media::file.path = Media::path + "/" + Media::name;
@@ -160,12 +156,10 @@ void Media::rename(Container& container) {
 
 // if the pattern doesnt match, the mod file name is the same as the original
 
-// original file path
 void Media::resolvePath(std::string original_filename, std::string cwd) {
   Media::file.path = cwd + "/" + original_filename;
 }
 
-// original file extension
 void Media::resolveExtension(std::string original_filename) {
   std::string ext = RegexUtils::getFirstMatch(
       original_filename, R"((\.mkv|\.avi|\.srt|\.idx|\.sub))",
@@ -179,7 +173,6 @@ void Media::resolveExtension(std::string original_filename) {
   }
 }
 
-// should be the series name
 void Media::resolveSeries(std::string series_match) {
   if (series_match == "") {
     throw std::runtime_error("Could not find series name for file: " +
@@ -192,6 +185,7 @@ void Media::resolveSeries(std::string series_match) {
 // should be a match of
 // season ## || s##
 // resolves to an integer
+
 void Media::resolveSeason(std::string season_match) {
   if (season_match == "") {
     throw std::runtime_error("Could not find season number for file: " +
@@ -205,6 +199,7 @@ void Media::resolveSeason(std::string season_match) {
 // should be a match of
 // e## || x##
 // e##-e## || x##-x##
+
 void Media::resolveEpisode(std::string episode_match) {
   if (episode_match == "") {
     throw std::runtime_error("Could not find episode number for file: " +
@@ -215,9 +210,6 @@ void Media::resolveEpisode(std::string episode_match) {
       StringUtils::replaceAll(episode_match, std::regex(R"([XxE])"), "e");
 }
 
-// should be a match of
-// 1080p || 720p || 480p
-// resolves to an integer
 void Media::resolveQuality(std::string original_filename) {
   std::string quality_match = RegexUtils::getFirstMatch(
       original_filename, R"((1080p|720p|480p))", std::regex::icase);
@@ -231,8 +223,6 @@ void Media::resolveQuality(std::string original_filename) {
   }
 }
 
-// set renamed media name without extension
-// this will be the season name without periods
 void Media::resolveModifiedFileName(std::string series, std::string season,
                                     std::string episode, std::string quality) {
   if (quality == "") {
@@ -248,6 +238,7 @@ void Media::resolveModifiedFileName(std::string series, std::string season,
 // it will also need to account for mkv and avi files
 // if mkv || avi, make ext mkv
 // else make original ext
+
 void Media::resolveModifiedFileNameExt(std::string modified_filename,
                                        std::string ext) {
   if (ext == ".mkv" || ext == ".avi") {
@@ -260,6 +251,7 @@ void Media::resolveModifiedFileNameExt(std::string modified_filename,
 // path to the renamed file
 // (cwd)/(modified_filename)
 // ie: /path/to/renamed/file/some season.mkv
+
 void Media::resolveRenamePath(std::string modified_filename, std::string ext,
                               std::string cwd) {
   Media::file.renamePath = cwd + "/" + modified_filename + ext;
@@ -272,6 +264,7 @@ void Media::resolveConversionName(std::string modified_filename,
 
 // path to the converted file
 // (cwd)/(series name) (series number)/(conversion_name)
+
 void Media::resolveConversionPath(std::string conversion_filename,
                                   std::string series, std::string season,
                                   std::string cwd) {

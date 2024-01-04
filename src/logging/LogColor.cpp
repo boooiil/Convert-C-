@@ -1,9 +1,9 @@
 #include "LogColor.h"
 
-LogColor::LogColor() {}
-LogColor::~LogColor() {}
+/** ********************** *
+ *      TERMINAL CODES     *
+ * *********************** */
 
-// terminal related
 std::string LogColor::reset(std::string str) {
   return "\033[0m" + str + "\x1b[0m";
 }
@@ -29,7 +29,10 @@ std::string LogColor::none(std::string str) {
   return "\033[0m" + str + "\x1b[0m";
 }
 
-// text color
+/** ********************** *
+ *        TEXT CODES       *
+ * *********************** */
+
 std::string LogColor::fgBlack(std::string str) {
   return "\033[30m" + str + "\x1b[0m";
 }
@@ -58,7 +61,10 @@ std::string LogColor::fgWhite(std::string str) {
   return "\033[37m" + str + "\x1b[0m";
 }
 
-// background color
+/** ********************** *
+ *     BACKGROUND CODES    *
+ * *********************** */
+
 std::string LogColor::bgBlack(std::string str) {
   return "\033[40m" + str + "\x1b[0m";
 }

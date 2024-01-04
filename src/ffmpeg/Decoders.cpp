@@ -8,12 +8,6 @@ std::unordered_map<Decoders::Codec, std::string> Decoders::codecMap = {
 Decoders::Decoders() {}
 Decoders::~Decoders() {}
 
-/**
- * @brief Get the value of the codec to be used in FFMpeg arguments.
- *
- * @param codec The decoder codec.
- * @return std::string The FFMpeg value of the codec.
- */
 std::string Decoders::getValue(Decoders::Codec codec) {
   return codecMap.at(codec);
 }
