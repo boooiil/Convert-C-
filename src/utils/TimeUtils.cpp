@@ -69,7 +69,11 @@ std::string TimeUtils::dateFormat(long epoch) {
   // Convert to local time
   std::tm localTime;
 
+#ifdef _WIN32
   localtime_s(&localTime, &epochTime);
+#else
+  localtime_r(&epochTime, &localTime);
+#endif
 
   // Format the time as a string
   char timeString[80];
@@ -85,7 +89,11 @@ std::string TimeUtils::timeFormat(long epoch) {
   // Convert to local time
   std::tm localTime;
 
+#ifdef _WIN32
   localtime_s(&localTime, &epochTime);
+#else
+  localtime_r(&epochTime, &localTime);
+#endif
 
   // Format the time as a string
   char timeString[80];
