@@ -2,6 +2,7 @@
 
 #include "../logging/LogColor.h"
 #include "../media/MediaDefinedFormat.h"
+#include "../utils/ListUtils.h"
 #include "../utils/RegexUtils.h"
 #include "../utils/StringUtils.h"
 #include "./Container.h"
@@ -29,7 +30,7 @@ void UserArguments::parse(Container& container, int argc, char* argv[]) {
       std::string value = StringUtils::toLowerCase(argv[++i]);
       container.log.debug({"[UserArguments.cpp] Value:", value});
       container.appEncodingDecision.audioStreams =
-          StringUtils::split(value, ",");
+          ListUtils::splitv(value, ",");
     }
 
     else if (option == "-h" || option == "--help") {
