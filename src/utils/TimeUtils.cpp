@@ -21,9 +21,9 @@ long TimeUtils::getEpoch() {
 std::string TimeUtils::durationFormat(long ms) {
   std::string duration("");
 
-  double s = floor(ms / 1000);
-  double m = 0;
-  double h = 0;
+  long s = floor(ms / 1000);
+  long m = 0;
+  long h = 0;
 
   // get minutes and subtract from seconds
   m = floor(s / 60);
