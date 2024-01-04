@@ -85,9 +85,12 @@ void Display::print() {
     float workingFPS = media.working.fps;
     float videoFPS = media.video.fps;
 
+    container.log.sendPlain(
+        {std::to_string(completedFrames), std::to_string(totalFrames)});
+
     std::string fileName = ob + LogColor::fgCyan("FILE") + cb + " " +
                            LogColor::fgGray(StringUtils::truncateString(
-                               media.file.modifiedFileName));
+                               media.file.modifiedFileName, 25));
 
     std::string activity = ob + LogColor::fgCyan("ACT") + cb + " " +
                            Activity::getValue(media.activity);
@@ -124,7 +127,7 @@ void Display::print() {
 
     std::string fileName = ob + LogColor::fgCyan("FILE") + cb + " " +
                            LogColor::fgGray(StringUtils::truncateString(
-                               media.file.modifiedFileName));
+                               media.file.modifiedFileName, 25));
 
     std::string activity = ob + LogColor::fgCyan("ACT") + cb + " " +
                            Activity::getValue(media.activity);
