@@ -12,6 +12,7 @@
 #include <string>
 
 #include "../application/Container.h"
+#include "../media/MediaDefinedFormat.h"
 #include "../utils/ListUtils.h"
 #include "../utils/RegexUtils.h"
 #include "../utils/StringUtils.h"
@@ -60,9 +61,7 @@ void Media::doConversion(Container& container) {
 
   MediaProcessConversion conversion(container, *this);
 
-  conversion.start("ffmpeg -v quiet -stats -i \"" + Media::file.path + "\" " +
-                   ListUtils::join(Media::ffmpegArguments, " ") + "\"" +
-                   Media::file.conversionPath + "\" -y");
+  conversion.start("ffmpeg " + ListUtils::join(Media::ffmpegArguments, " "));
 
   if (RegexUtils::isMatch(Activity::getValue(Media::activity), "failed",
                           std::regex::icase)) {
@@ -88,7 +87,120 @@ void Media::doValidation(Container& container) {
   Media::activity = Activity::FINISHED;
 }
 
-void Media::buildFFmpegArguments(Container& container, bool isValidate) {}
+void Media::buildFFmpegArguments(Container& container, bool isValidate) {
+  MediaFormat format =
+      MediaDefinedFormat::formats[container.appEncodingDecision.quality];
+
+  this->ffmpegArguments.clear();
+
+  this->ffmpegArguments.push_back("-v quiet -stats");
+
+  if (container.appEncodingDecision.useHardwareEncode) {
+    if (container.userCapabilities.GPU_Provider == "amd") {
+      this->ffmpegArguments.push_back("-hwaccel amf");
+    } else if (container.userCapabilities.GPU_Provider == "intel") {
+      this->ffmpegArguments.push_back("-hwaccel qsv");
+    } else if (container.userCapabilities.GPU_Provider == "nvidia") {
+      this->ffmpegArguments.push_back("-hwaccel cuda");
+    }
+  }
+
+  this->ffmpegArguments.push_back("-i \"" + this->file.path + "\"");
+
+  this->ffmpegArguments.push_back("-map 0:v:0");
+
+  if (container.appEncodingDecision.audioStreams.size()) {
+    for (const std::string stream :
+         container.appEncodingDecision.audioStreams) {
+      this->ffmpegArguments.push_back("-map 0:a:" + stream);
+    }
+  } else {
+    this->ffmpegArguments.push_back("-map 0:a?");
+  }
+
+  this->ffmpegArguments.push_back("-map 0:s?");
+  this->ffmpegArguments.push_back("-map 0:t?");
+
+  this->ffmpegArguments.push_back("-c:v " +
+                                  container.appEncodingDecision.runningEncoder);
+  this->ffmpegArguments.push_back("-c:t copy");
+  this->ffmpegArguments.push_back("-c:a copy");
+
+  this->ffmpegArguments.push_back("-preset slow");
+
+  this->ffmpegArguments.push_back("-level 4.1");
+
+  if (container.appEncodingDecision.useBitrate) {
+    this->ffmpegArguments.push_back("-b:v " + std::to_string(format.bitrate) +
+                                    "M");
+    this->ffmpegArguments.push_back("-bufsize " +
+                                    std::to_string(format.bitrate * 2) + "M");
+    this->ffmpegArguments.push_back("-maxrate " +
+                                    std::to_string(format.max * 2) + "M");
+    this->ffmpegArguments.push_back("-minrate " +
+                                    std::to_string(format.min * 2) + "M");
+  } else if (container.appEncodingDecision.useConstrain) {
+    this->ffmpegArguments.push_back("-crf " + std::to_string(format.crf));
+    this->ffmpegArguments.push_back("-bufsize " +
+                                    std::to_string(format.bitrate * 2) + "M");
+    this->ffmpegArguments.push_back("-maxrate " +
+                                    std::to_string(format.max * 2) + "M");
+  } else {
+    this->ffmpegArguments.push_back("-crf " + std::to_string(format.crf));
+  }
+
+  if (container.appEncodingDecision.crop) {
+    this->ffmpegArguments.push_back(
+        "-vf scale=" + this->video.convertedResolution +
+        ":flags=lanczos,crop=" + format.crop);
+
+  }
+
+  else
+    this->ffmpegArguments.push_back(
+        "-vf scale=" + this->video.convertedResolution + ":flags=lanczos");
+
+  if (container.appEncodingDecision.startBeginning != "") {
+    this->ffmpegArguments.push_back(
+        "-ss " + container.appEncodingDecision.startBeginning);
+  }
+
+  if (container.appEncodingDecision.trim != "") {
+    std::vector<std::string> trim =
+        ListUtils::splitv(container.appEncodingDecision.trim, ",");
+
+    this->ffmpegArguments.push_back("-ss " + trim[0]);
+    this->ffmpegArguments.push_back("-to " + trim[1]);
+  }
+
+  /** TODO: flesh out later */
+  // if (this.video.subtitle_provider) {
+
+  //     if (this.video.subtitle_provider === "mov")
+  //     this.ffmpeg_argument.push("-c:s mov_text") else
+  //     this.ffmpeg_argument.push("-c:s copy")
+
+  // }
+
+  this->ffmpegArguments.push_back("-c:s copy");
+
+  if (container.appEncodingDecision.tune != "") {
+    this->ffmpegArguments.push_back("-tune " +
+                                    container.appEncodingDecision.tune);
+  }
+
+  this->ffmpegArguments.push_back("\"" + this->file.conversionPath + "\"");
+
+  if (isValidate || container.appEncodingDecision.overwrite)
+    this->ffmpegArguments.push_back("-y");
+  else {
+    this->ffmpegArguments.push_back("-n");
+  }
+
+  container.log.debug(
+      {"FFMPEG ARGUMENTS: ", ListUtils::join(this->ffmpegArguments, " ")});
+}
+
 void Media::rename(Container& container) {
   Media::file.path = Media::path + "/" + Media::name;
 
