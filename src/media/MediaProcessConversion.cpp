@@ -63,11 +63,17 @@ void MediaProcessConversion::parse(std::string data) {
         RegexUtils::getFirstMatch(data, "fps=.+?(\\d+\\.\\d+|\\d+)");
     ;
 
-    assert(quality != "");
-    assert(bitrate != "");
-    assert(size != "");
-    assert(completedFrames != "");
-    assert(fps != "");
+    if (quality == "") quality = "-1.0";
+    if (bitrate == "") bitrate = "-1.0";
+    if (size == "") size = "-1";
+    if (completedFrames == "") completedFrames = "-1";
+    if (fps == "") fps = "-1.0";
+
+    // assert(quality != "");
+    // assert(bitrate != "");
+    // assert(size != "");
+    // assert(completedFrames != "");
+    // assert(fps != "");
 
     if (quality != "-1.0") this->media.working.quality = std::stof(quality);
     this->media.working.bitrate = std::stof(bitrate);
