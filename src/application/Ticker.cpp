@@ -28,20 +28,20 @@ void Ticker::start() {
          std::to_string(container->appEncodingDecision.amount)});
 
     if (currentAmount < container->appEncodingDecision.amount) {
-      Media& media = container->pending.front();
+      Media* media = container->pending.front();
 
-      if (media.activity != Activity::WAITING) {
+      if (media->activity != Activity::WAITING) {
         if (currentAmount == 0) {
           container->log.flushBuffer();
           Ticker::end();
           exit(0);
         }
       } else {
-        media.activity = Activity::WAITING_STATISTICS;
+        media->activity = Activity::WAITING_STATISTICS;
 
         // TODO: this is probably going to be an issue at some point?
         // havent tested it, just making predictions
-        media.started = TimeUtils::getEpoch();
+        media->started = TimeUtils::getEpoch();
 
         container->converting.push(media);
         container->pending.pop();
@@ -63,41 +63,41 @@ void Ticker::start() {
 
       // iterate over converting
       while (!container->converting.empty()) {
-        Media& value = container->converting.front();
+        Media* value = container->converting.front();
         container->log.send(
-            {LogColor::fgRed("CURRENT FILE: " + value.file.modifiedFileName)});
+            {LogColor::fgRed("CURRENT FILE: " + value->file.modifiedFileName)});
         container->converting.pop();
       }
     }
 
     // temp queue for conversion iteration
-    std::queue<Media> t_queue;
+    std::queue<Media*> t_queue;
 
     // iterate over converting media
     while (!container->converting.empty()) {
-      Media& media = container->converting.front();
+      Media* media = container->converting.front();
 
       container->log.debug(
-          {"[Ticker.cpp]", media.name, Activity::getValue(media.activity)});
+          {"[Ticker.cpp]", media->name, Activity::getValue(media->activity)});
 
-      if (!media.isProcessing()) {
-        if (media.activity == Activity::WAITING_STATISTICS)
-          media.doStatistics(*container);
-        else if (media.activity == Activity::WAITING_CONVERT) {
-          media.buildFFmpegArguments(*container, false);
+      if (!media->isProcessing()) {
+        if (media->activity == Activity::WAITING_STATISTICS)
+          media->doStatistics(*container);
+        else if (media->activity == Activity::WAITING_CONVERT) {
+          media->buildFFmpegArguments(*container, false);
 
           workerThreads.emplace_back(
-              [&media]() { media.doConversion(*container); });
+              [&media]() { media->doConversion(*container); });
 
-        } else if (media.activity == Activity::WAITING_VALIDATE)
-          media.doValidation(*container);
+        } else if (media->activity == Activity::WAITING_VALIDATE)
+          media->doValidation(*container);
       }
 
-      if (RegexUtils::isMatch(Activity::getValue(media.activity),
+      if (RegexUtils::isMatch(Activity::getValue(media->activity),
                               R"(finished|failed)",
                               std::regex_constants::icase)) {
         // todo: again, chrono stuff
-        media.ended = TimeUtils::getEpoch();
+        media->ended = TimeUtils::getEpoch();
 
         container->pending.push(media);
       } else {
@@ -151,50 +151,50 @@ void Ticker::writeDebug() {
 
   // converting file
   while (!container->converting.empty()) {
-    Media& media = container->converting.front();
+    Media* media = container->converting.front();
 
     nlohmann::json mediaDebug;
     nlohmann::json mediaFileDebug;
     nlohmann::json mediaVideoDebug;
     nlohmann::json mediaWorkingDebug;
 
-    mediaDebug["name"] = media.name;
-    mediaDebug["activity"] = Activity::getValue(media.activity);
-    mediaDebug["path"] = media.file.path;
-    mediaDebug["started"] = media.started;
-    mediaDebug["ended"] = media.ended;
+    mediaDebug["name"] = media->name;
+    mediaDebug["activity"] = Activity::getValue(media->activity);
+    mediaDebug["path"] = media->file.path;
+    mediaDebug["started"] = media->started;
+    mediaDebug["ended"] = media->ended;
     // this might not work
-    mediaDebug["ffmpegArguments"] = media.ffmpegArguments;
+    mediaDebug["ffmpegArguments"] = media->ffmpegArguments;
 
-    mediaFileDebug["modifiedFileName"] = media.file.modifiedFileName;
-    mediaFileDebug["modifiedFileNameExt"] = media.file.modifiedFileNameExt;
-    mediaFileDebug["conversionName"] = media.file.conversionName;
-    mediaFileDebug["ext"] = media.file.ext;
-    mediaFileDebug["size"] = media.file.size;
-    mediaFileDebug["newSize"] = media.file.newSize;
-    mediaFileDebug["validationSize"] = media.file.validationSize;
-    mediaFileDebug["path"] = media.file.path;
-    mediaFileDebug["conversionPath"] = media.file.conversionPath;
-    mediaFileDebug["quality"] = media.file.quality;
-    mediaFileDebug["series"] = media.file.series;
-    mediaFileDebug["season"] = media.file.season;
+    mediaFileDebug["modifiedFileName"] = media->file.modifiedFileName;
+    mediaFileDebug["modifiedFileNameExt"] = media->file.modifiedFileNameExt;
+    mediaFileDebug["conversionName"] = media->file.conversionName;
+    mediaFileDebug["ext"] = media->file.ext;
+    mediaFileDebug["size"] = media->file.size;
+    mediaFileDebug["newSize"] = media->file.newSize;
+    mediaFileDebug["validationSize"] = media->file.validationSize;
+    mediaFileDebug["path"] = media->file.path;
+    mediaFileDebug["conversionPath"] = media->file.conversionPath;
+    mediaFileDebug["quality"] = media->file.quality;
+    mediaFileDebug["series"] = media->file.series;
+    mediaFileDebug["season"] = media->file.season;
 
-    mediaVideoDebug["fps"] = media.video.fps;
-    mediaVideoDebug["totalFrames"] = media.video.totalFrames;
-    mediaVideoDebug["subtitleProvider"] = media.video.subtitleProvider;
-    mediaVideoDebug["width"] = media.video.width;
-    mediaVideoDebug["height"] = media.video.height;
-    mediaVideoDebug["ratio"] = media.video.ratio;
-    mediaVideoDebug["convertedWidth"] = media.video.convertedWidth;
-    mediaVideoDebug["convertedHeight"] = media.video.convertedHeight;
-    mediaVideoDebug["convertedResolution"] = media.video.convertedResolution;
-    mediaVideoDebug["crop"] = media.video.crop;
-    mediaVideoDebug["crf"] = media.video.crf;
+    mediaVideoDebug["fps"] = media->video.fps;
+    mediaVideoDebug["totalFrames"] = media->video.totalFrames;
+    mediaVideoDebug["subtitleProvider"] = media->video.subtitleProvider;
+    mediaVideoDebug["width"] = media->video.width;
+    mediaVideoDebug["height"] = media->video.height;
+    mediaVideoDebug["ratio"] = media->video.ratio;
+    mediaVideoDebug["convertedWidth"] = media->video.convertedWidth;
+    mediaVideoDebug["convertedHeight"] = media->video.convertedHeight;
+    mediaVideoDebug["convertedResolution"] = media->video.convertedResolution;
+    mediaVideoDebug["crop"] = media->video.crop;
+    mediaVideoDebug["crf"] = media->video.crf;
 
-    mediaWorkingDebug["fps"] = media.working.fps;
-    mediaWorkingDebug["completedFrames"] = media.working.completedFrames;
-    mediaWorkingDebug["quality"] = media.working.quality;
-    mediaWorkingDebug["bitrate"] = media.working.bitrate;
+    mediaWorkingDebug["fps"] = media->working.fps;
+    mediaWorkingDebug["completedFrames"] = media->working.completedFrames;
+    mediaWorkingDebug["quality"] = media->working.quality;
+    mediaWorkingDebug["bitrate"] = media->working.bitrate;
 
     mediaDebug["file"] = mediaFileDebug;
     mediaDebug["video"] = mediaVideoDebug;
@@ -207,48 +207,48 @@ void Ticker::writeDebug() {
 
   // pending file
   while (!container->pending.empty()) {
-    Media& media = container->pending.front();
+    Media* media = container->pending.front();
     nlohmann::json mediaDebug;
     nlohmann::json mediaFileDebug;
     nlohmann::json mediaVideoDebug;
     nlohmann::json mediaWorkingDebug;
 
-    mediaDebug["name"] = media.name;
-    mediaDebug["activity"] = Activity::getValue(media.activity);
-    mediaDebug["path"] = media.file.path;
-    mediaDebug["started"] = media.started;
-    mediaDebug["ended"] = media.ended;
-    mediaDebug["ffmpegArguments"] = media.ffmpegArguments;
+    mediaDebug["name"] = media->name;
+    mediaDebug["activity"] = Activity::getValue(media->activity);
+    mediaDebug["path"] = media->file.path;
+    mediaDebug["started"] = media->started;
+    mediaDebug["ended"] = media->ended;
+    mediaDebug["ffmpegArguments"] = media->ffmpegArguments;
 
-    mediaFileDebug["modifiedFileName"] = media.file.modifiedFileName;
-    mediaFileDebug["modifiedFileNameExt"] = media.file.modifiedFileNameExt;
-    mediaFileDebug["conversionName"] = media.file.conversionName;
-    mediaFileDebug["ext"] = media.file.ext;
-    mediaFileDebug["size"] = media.file.size;
-    mediaFileDebug["newSize"] = media.file.newSize;
-    mediaFileDebug["validationSize"] = media.file.validationSize;
-    mediaFileDebug["path"] = media.file.path;
-    mediaFileDebug["conversionPath"] = media.file.conversionPath;
-    mediaFileDebug["quality"] = media.file.quality;
-    mediaFileDebug["series"] = media.file.series;
-    mediaFileDebug["season"] = media.file.season;
+    mediaFileDebug["modifiedFileName"] = media->file.modifiedFileName;
+    mediaFileDebug["modifiedFileNameExt"] = media->file.modifiedFileNameExt;
+    mediaFileDebug["conversionName"] = media->file.conversionName;
+    mediaFileDebug["ext"] = media->file.ext;
+    mediaFileDebug["size"] = media->file.size;
+    mediaFileDebug["newSize"] = media->file.newSize;
+    mediaFileDebug["validationSize"] = media->file.validationSize;
+    mediaFileDebug["path"] = media->file.path;
+    mediaFileDebug["conversionPath"] = media->file.conversionPath;
+    mediaFileDebug["quality"] = media->file.quality;
+    mediaFileDebug["series"] = media->file.series;
+    mediaFileDebug["season"] = media->file.season;
 
-    mediaVideoDebug["fps"] = media.video.fps;
-    mediaVideoDebug["totalFrames"] = media.video.totalFrames;
-    mediaVideoDebug["subtitleProvider"] = media.video.subtitleProvider;
-    mediaVideoDebug["width"] = media.video.width;
-    mediaVideoDebug["height"] = media.video.height;
-    mediaVideoDebug["ratio"] = media.video.ratio;
-    mediaVideoDebug["convertedWidth"] = media.video.convertedWidth;
-    mediaVideoDebug["convertedHeight"] = media.video.convertedHeight;
-    mediaVideoDebug["convertedResolution"] = media.video.convertedResolution;
-    mediaVideoDebug["crop"] = media.video.crop;
-    mediaVideoDebug["crf"] = media.video.crf;
+    mediaVideoDebug["fps"] = media->video.fps;
+    mediaVideoDebug["totalFrames"] = media->video.totalFrames;
+    mediaVideoDebug["subtitleProvider"] = media->video.subtitleProvider;
+    mediaVideoDebug["width"] = media->video.width;
+    mediaVideoDebug["height"] = media->video.height;
+    mediaVideoDebug["ratio"] = media->video.ratio;
+    mediaVideoDebug["convertedWidth"] = media->video.convertedWidth;
+    mediaVideoDebug["convertedHeight"] = media->video.convertedHeight;
+    mediaVideoDebug["convertedResolution"] = media->video.convertedResolution;
+    mediaVideoDebug["crop"] = media->video.crop;
+    mediaVideoDebug["crf"] = media->video.crf;
 
-    mediaWorkingDebug["fps"] = media.working.fps;
-    mediaWorkingDebug["completedFrames"] = media.working.completedFrames;
-    mediaWorkingDebug["quality"] = media.working.quality;
-    mediaWorkingDebug["bitrate"] = media.working.bitrate;
+    mediaWorkingDebug["fps"] = media->working.fps;
+    mediaWorkingDebug["completedFrames"] = media->working.completedFrames;
+    mediaWorkingDebug["quality"] = media->working.quality;
+    mediaWorkingDebug["bitrate"] = media->working.bitrate;
 
     mediaDebug["file"] = mediaFileDebug;
     mediaDebug["video"] = mediaVideoDebug;

@@ -35,9 +35,17 @@ class Container {
   UserCapabilities userCapabilities;
 
   /// @brief Holds current media file(s) being converted.
-  std::queue<Media> converting;
+  std::queue<Media*> converting;
   /// @brief Holds media files that are waiting to be converted.
-  std::queue<Media> pending;
+  std::queue<Media*> pending;
+
+  // std::vector<Media*> mediaFiles;
+
+  /**
+   * Idea for above ^^^.
+   *
+   * Hold media files and then iterate through the list.
+   */
 
   /**
    * @brief Scans working directory for media files and adds them to pending

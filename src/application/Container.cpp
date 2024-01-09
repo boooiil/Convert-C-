@@ -5,7 +5,23 @@
 #include "../logging/Log.h"
 
 Container::Container() {}
-Container::~Container() {}
+Container::~Container() {
+  while (!Container::converting.empty()) {
+    Media* media = Container::converting.front();
+    this->log.debug(
+        {"[Container.cpp] Deleting media file:", media->file.conversionName});
+    Container::converting.pop();
+    delete media;
+  }
+
+  while (!Container::pending.empty()) {
+    Media* media = Container::pending.front();
+    this->log.debug(
+        {"[Container.cpp] Deleting media file:", media->file.conversionName});
+    Container::pending.pop();
+    delete media;
+  }
+}
 
 void Container::scanWorkingDir() {
   namespace fs = std::filesystem;
@@ -21,26 +37,26 @@ void Container::scanWorkingDir() {
         Container::log.debug({"[Container.cpp] Found file:",
                               entry.path().filename().generic_string()});
 
-        Media media = Media(entry.path().filename().generic_string(),
-                            Container::settings.workingDir);
-        media.rename(*this);
+        Media* media = new Media(entry.path().filename().generic_string(),
+                                 Container::settings.workingDir);
+        media->rename(*this);
 
         // if series folder doesn't exist, create it
         if (!fs::exists(Container::settings.workingDir + "/" +
-                        media.file.series + " Season " +
-                        std::to_string(media.file.season))) {
+                        media->file.series + " Season " +
+                        std::to_string(media->file.season))) {
           Container::log.debug(
               {"[Container.cpp] Series folder does not exist for series:",
-               media.file.series});
+               media->file.series});
           // create directory
           Container::log.debug({"[Container.cpp] Creating directory:",
                                 Container::settings.workingDir + "/" +
-                                    media.file.series + " Season " +
-                                    std::to_string(media.file.season)});
+                                    media->file.series + " Season " +
+                                    std::to_string(media->file.season)});
 
           fs::create_directory(Container::settings.workingDir + "/" +
-                               media.file.series + " Season " +
-                               std::to_string(media.file.season));
+                               media->file.series + " Season " +
+                               std::to_string(media->file.season));
         }
 
         // log.sendPlain({"Media conversion name:", media.file.conversionName});

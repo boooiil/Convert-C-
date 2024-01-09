@@ -64,43 +64,42 @@ void Display::print() {
 #else
   system("clear");
 #endif
-
   this->container.log.sendBuffer(bufferLen, header);
 
-  std::queue<Media> t_queue;
+  std::queue<Media*> t_queue;
 
   while (!this->container.converting.empty()) {
-    Media media = this->container.converting.front();
+    Media* media = this->container.converting.front();
     this->container.converting.pop();
 
-    float mediaFPS = media.working.fps > 0 ? media.working.fps : 1;
-    int totalFrames = media.video.totalFrames;
-    int completedFrames = media.working.completedFrames;
+    float mediaFPS = media->working.fps > 0 ? media->working.fps : 1;
+    int totalFrames = media->video.totalFrames;
+    int completedFrames = media->working.completedFrames;
     int diff = static_cast<int>(
         ceil((totalFrames - completedFrames) / mediaFPS) * 1000);
 
     // create a time util to get this
     std::string started = ob + LogColor::fgCyan("START") + cb + " " +
-                          TimeUtils::timeFormat(media.started);
+                          TimeUtils::timeFormat(media->started);
     // create a time util to get this
     std::string eta = ob + LogColor::fgCyan("ETA") + cb + " " +
                       TimeUtils::durationFormat(diff);
 
-    float crf = media.working.quality;
-    int v_crf = media.video.crf;
+    float crf = media->working.quality;
+    int v_crf = media->video.crf;
 
-    float workingFPS = media.working.fps;
-    float videoFPS = media.video.fps;
+    float workingFPS = media->working.fps;
+    float videoFPS = media->video.fps;
 
     container.log.sendPlain(
         {std::to_string(completedFrames), std::to_string(totalFrames)});
 
     std::string fileName = ob + LogColor::fgCyan("FILE") + cb + " " +
                            LogColor::fgGray(StringUtils::truncateString(
-                               media.file.modifiedFileName, 25));
+                               media->file.modifiedFileName, 25));
 
     std::string activity = ob + LogColor::fgCyan("ACT") + cb + " " +
-                           Activity::getValue(media.activity);
+                           Activity::getValue(media->activity);
 
     std::string percent =
         ob + LogColor::fgCyan("PROG") + cb + " " +
@@ -115,7 +114,7 @@ void Display::print() {
                         NumberUtils::formatNumber(workingFPS / videoFPS, 2);
 
     std::string bitrate = ob + LogColor::fgCyan("BITRATE") + cb + " " +
-                          NumberUtils::formatNumber(media.working.bitrate, 2) +
+                          NumberUtils::formatNumber(media->working.bitrate, 2) +
                           "kb/s";
 
     this->container.log.sendBuffer(
@@ -126,28 +125,28 @@ void Display::print() {
   }
 
   this->container.converting = t_queue;
-  t_queue = std::queue<Media>();
+  t_queue = std::queue<Media*>();
 
   while (!this->container.pending.empty()) {
-    Media media = this->container.pending.front();
+    Media* media = this->container.pending.front();
     this->container.pending.pop();
 
     std::string fileName = ob + LogColor::fgCyan("FILE") + cb + " " +
                            LogColor::fgGray(StringUtils::truncateString(
-                               media.file.modifiedFileName, 25));
+                               media->file.modifiedFileName, 25));
 
     std::string activity = ob + LogColor::fgCyan("ACT") + cb + " " +
-                           Activity::getValue(media.activity);
+                           Activity::getValue(media->activity);
 
-    if (media.activity == Activity::FINISHED) {
+    if (media->activity == Activity::FINISHED) {
       int calculatedSize = static_cast<int>(floor(
-          ((media.file.size - media.file.newSize) / media.file.size) * 100));
+          ((media->file.size - media->file.newSize) / media->file.size) * 100));
 
       std::string ended = ob + LogColor::fgCyan("END") + cb + " " +
-                          TimeUtils::timeFormat(media.ended);
+                          TimeUtils::timeFormat(media->ended);
       std::string elapsed =
           ob + LogColor::fgCyan("ELAPSED") + cb + " " +
-          TimeUtils::durationFormat((media.ended - media.started) * 1000);
+          TimeUtils::durationFormat((media->ended - media->started) * 1000);
 
       std::string reduced = ob + LogColor::fgCyan("REDUCED") + cb + " " +
                             std::to_string(calculatedSize) + "%";
