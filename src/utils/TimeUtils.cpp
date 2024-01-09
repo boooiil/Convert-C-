@@ -21,16 +21,16 @@ long TimeUtils::getEpoch() {
 std::string TimeUtils::durationFormat(long ms) {
   std::string duration("");
 
-  long s = floor(ms / 1000);
+  long s = static_cast<long>(floor(ms / 1000.0));
   long m = 0;
   long h = 0;
 
   // get minutes and subtract from seconds
-  m = floor(s / 60);
+  m = static_cast<long>(floor(s / 60.0));
   s -= m * 60;
 
   // get hours and subtract from minutes
-  h = floor(m / 60);
+  h = static_cast<long>(floor(m / 60.0));
   m -= h * 60;
 
   if (h > 0) {
