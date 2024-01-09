@@ -6,6 +6,12 @@
 
 Container::Container() {}
 Container::~Container() {
+  this->log.debug({"[Container.cpp] deconstructing Container"});
+  this->log.debug({"[Container.cpp] converting size:",
+                   std::to_string(Container::converting.size())});
+  this->log.debug({"[Container.cpp] pending size:",
+                   std::to_string(Container::pending.size())});
+
   while (!Container::converting.empty()) {
     Media* media = Container::converting.front();
     this->log.debug(
@@ -21,6 +27,11 @@ Container::~Container() {
     Container::pending.pop();
     delete media;
   }
+
+  this->log.debug({"[Container.cpp] converting size after:",
+                   std::to_string(Container::converting.size())});
+  this->log.debug({"[Container.cpp] pending size after:",
+                   std::to_string(Container::pending.size())});
 }
 
 void Container::scanWorkingDir() {
