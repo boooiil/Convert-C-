@@ -9,7 +9,9 @@
 
 Display::Display(Container& container) : container(container) {}
 
-Display::~Display() {}
+Display::~Display() {
+  this->container.log.debug({"[Display.cpp] deconstructing Display"});
+}
 
 void Display::print() {
   int bufferLen = static_cast<int>(this->container.converting.size()) +

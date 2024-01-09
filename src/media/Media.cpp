@@ -26,7 +26,9 @@ Media::Media(std::string name, std::string path) : started(0), ended(0) {
   Media::path = path;
 }
 
-Media::~Media() {}
+Media::~Media() {
+  Log::debug({"[Media.cpp] Destroying media: ", Media::name});
+}
 
 bool Media::isProcessing() {
   if (activity == Activity::STATISTICS || activity == Activity::CONVERT ||
