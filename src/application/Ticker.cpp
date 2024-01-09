@@ -32,10 +32,12 @@ void Ticker::start() {
       Media* media = container->pending.front();
 
       if (media->activity != Activity::WAITING) {
+        container->log.debug({"[Ticker.cpp] Media is not waiting:", media->name,
+                              Activity::getValue(media->activity)});
         if (currentAmount == 0) {
           container->log.flushBuffer();
           Ticker::end();
-          exit(0);
+          return exit(0);
         }
       } else {
         media->activity = Activity::WAITING_STATISTICS;
@@ -88,7 +90,7 @@ void Ticker::start() {
           media->buildFFmpegArguments(*container, false);
 
           workerThreads.emplace_back(
-              [&media]() { media->doConversion(*container); });
+              [media]() { media->doConversion(*container); });
 
         } else if (media->activity == Activity::WAITING_VALIDATE)
           media->doValidation(*container);
@@ -100,13 +102,19 @@ void Ticker::start() {
         // todo: again, chrono stuff
         media->ended = TimeUtils::getEpoch();
 
+        container->log.debug(
+            {"[Ticker.cpp] Media ended:", media->file.modifiedFileName});
         container->pending.push(media);
+        container->log.debug({"[Ticker.cpp] pending size after finish:",
+                              std::to_string(container->pending.size())});
       } else {
         t_queue.push(media);
       }
       container->converting.pop();
     }
 
+    container->log.debug(
+        {"[Ticker.cpp] t_queue size:", std::to_string(t_queue.size())});
     container->converting = t_queue;
 
     if (Debug::toggle)
@@ -138,13 +146,14 @@ void Ticker::end() {
   // call threads descructor and clear the vector
   workerThreads.clear();
 
-  delete Ticker::container;
   delete Ticker::display;
+  delete Ticker::container;
 
   exit(0);
 }
 
 void Ticker::writeDebug() {
+  std::queue<Media*> t_queue;
   nlohmann::json json;
 
   json["pending"] = nlohmann::json::array();
@@ -204,7 +213,11 @@ void Ticker::writeDebug() {
     json["converting"].push_back(mediaDebug);
 
     container->converting.pop();
+    t_queue.push(media);
   }
+
+  container->converting = t_queue;
+  t_queue = std::queue<Media*>();
 
   // pending file
   while (!container->pending.empty()) {
@@ -257,7 +270,10 @@ void Ticker::writeDebug() {
 
     json["pending"].push_back(mediaDebug);
     container->pending.pop();
+    t_queue.push(media);
   }
+
+  container->pending = t_queue;
 
   container->log.sendPlain({container->appEncodingDecision.quality});
 
