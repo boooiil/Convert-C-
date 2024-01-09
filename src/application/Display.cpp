@@ -111,7 +111,7 @@ void Display::print() {
         "%";
 
     std::string cq = ob + LogColor::fgCyan("QUAL") + cb + " " +
-                     std::to_string(static_cast<int>(v_crf / crf) * 100);
+                     NumberUtils::formatNumber((v_crf / crf) * 100, 2) + "%";
     std::string speed = ob + LogColor::fgCyan("SPEED") + cb + " " +
                         NumberUtils::formatNumber(workingFPS / videoFPS, 2);
 
@@ -141,8 +141,8 @@ void Display::print() {
                            Activity::getValue(media->activity);
 
     if (media->activity == Activity::FINISHED) {
-      int calculatedSize = static_cast<int>(floor(
-          ((media->file.size - media->file.newSize) / media->file.size) * 100));
+      int calculatedSize = floor(
+          ((media->file.size - media->file.newSize) / media->file.size) * 100);
 
       std::string ended = ob + LogColor::fgCyan("END") + cb + " " +
                           TimeUtils::timeFormat(media->ended);
