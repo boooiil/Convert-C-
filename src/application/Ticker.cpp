@@ -27,7 +27,8 @@ void Ticker::start() {
         {"[Ticker.cpp]", std::to_string(currentAmount),
          std::to_string(container->appEncodingDecision.amount)});
 
-    if (currentAmount < container->appEncodingDecision.amount) {
+    if ((currentAmount < container->appEncodingDecision.amount) &&
+        !container->pending.empty()) {
       Media* media = container->pending.front();
 
       if (media->activity != Activity::WAITING) {
