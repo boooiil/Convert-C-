@@ -16,6 +16,15 @@
 #include "media/MediaProcessStatistics.h"
 
 /**
+ * WALK AWAY NOTES:
+ *
+ * Somewhere after completion the media is not getting pushed back into the
+ * pending queue before the program exits. This means that we cannot free up
+ * that memory.
+ *
+ */
+
+/**
  * ************************************* *
  *          CTRL / SIG HANDLERS          *
  * ************************************* *
