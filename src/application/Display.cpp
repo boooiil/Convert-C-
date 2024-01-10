@@ -7,15 +7,13 @@
 #include "../utils/TimeUtils.h"
 #include "Debug.h"
 
-Display::Display(Container& container) : container(container) {}
+Display::Display(Container* container) : container(container) {}
 
-Display::~Display() {
-  this->container.log.debug({"[Display.cpp] deconstructing Display"});
-}
+Display::~Display() { Log::debug({"[Display.cpp] deconstructing Display"}); }
 
 void Display::print() {
-  int bufferLen = static_cast<int>(this->container.converting.size()) +
-                  static_cast<int>(this->container.pending.size()) + 1;
+  int bufferLen = static_cast<int>(this->container->converting.size()) +
+                  static_cast<int>(this->container->pending.size()) + 1;
 
   std::string ob = LogColor::fgGray("[");
   std::string cb = LogColor::fgGray("]");
@@ -24,21 +22,22 @@ void Display::print() {
                      TimeUtils::dateFormat(TimeUtils::getEpoch());
   std::string encoder =
       ob + LogColor::fgCyan("TARGET ENC") + cb + " " +
-      LogColor::fgGray(this->container.appEncodingDecision.wantedEncoder);
+      LogColor::fgGray(this->container->appEncodingDecision.wantedEncoder);
   std::string runningEncoder =
       ob + LogColor::fgCyan("ENC") + cb + " " +
-      LogColor::fgGray(this->container.appEncodingDecision.runningEncoder);
+      LogColor::fgGray(this->container->appEncodingDecision.runningEncoder);
   std::string runningDecoder =
       ob + LogColor::fgCyan("DEC") + cb + " " +
-      LogColor::fgGray(this->container.appEncodingDecision.runningDecoder);
+      LogColor::fgGray(this->container->appEncodingDecision.runningDecoder);
   std::string resolution =
       ob + LogColor::fgCyan("RES") + cb + " " +
-      LogColor::fgGray(this->container.appEncodingDecision.quality);
-  std::string tune = ob + LogColor::fgCyan("TUNE") + cb + " " +
-                     LogColor::fgGray(this->container.appEncodingDecision.tune);
+      LogColor::fgGray(this->container->appEncodingDecision.quality);
+  std::string tune =
+      ob + LogColor::fgCyan("TUNE") + cb + " " +
+      LogColor::fgGray(this->container->appEncodingDecision.tune);
   std::string amount =
       ob + LogColor::fgCyan("AMOUNT") + cb + " " +
-      LogColor::fgGray(std::to_string(container.appEncodingDecision.amount));
+      LogColor::fgGray(std::to_string(container->appEncodingDecision.amount));
 
   std::string constrain = ob + LogColor::fgRed("CONSTRAIN") + cb;
   std::string debug = ob + LogColor::fgRed("DEBUG") + cb;
@@ -48,7 +47,7 @@ void Display::print() {
                        runningDecoder + " " + resolution + " " + tune + " " +
                        amount;
 
-  if (this->container.appEncodingDecision.useConstrain) {
+  if (this->container->appEncodingDecision.useConstrain) {
     header += " " + constrain;
   }
 
@@ -56,7 +55,7 @@ void Display::print() {
     header += " " + debug;
   }
 
-  if (this->container.appEncodingDecision.crop) {
+  if (this->container->appEncodingDecision.crop) {
     header += " " + crop;
   }
 
@@ -66,13 +65,13 @@ void Display::print() {
 #else
   system("clear");
 #endif
-  this->container.log.sendBuffer(bufferLen, header);
+  this->container->log.sendBuffer(bufferLen, header);
 
   std::queue<Media*> t_queue;
 
-  while (!this->container.converting.empty()) {
-    Media* media = this->container.converting.front();
-    this->container.converting.pop();
+  while (!this->container->converting.empty()) {
+    Media* media = this->container->converting.front();
+    this->container->converting.pop();
 
     float mediaFPS = media->working.fps > 0 ? media->working.fps : 1;
     int totalFrames = media->video.totalFrames;
@@ -92,9 +91,6 @@ void Display::print() {
 
     float workingFPS = media->working.fps;
     float videoFPS = media->video.fps;
-
-    container.log.sendPlain(
-        {std::to_string(completedFrames), std::to_string(totalFrames)});
 
     std::string fileName = ob + LogColor::fgCyan("FILE") + cb + " " +
                            LogColor::fgGray(StringUtils::truncateString(
@@ -119,19 +115,19 @@ void Display::print() {
                           NumberUtils::formatNumber(media->working.bitrate, 2) +
                           "kb/s";
 
-    this->container.log.sendBuffer(
+    this->container->log.sendBuffer(
         bufferLen, fileName + " " + activity + " " + started + " " + percent +
                        " " + cq + " " + bitrate + " " + speed + " " + eta);
 
     t_queue.push(media);
   }
 
-  this->container.converting = t_queue;
+  this->container->converting = t_queue;
   t_queue = std::queue<Media*>();
 
-  while (!this->container.pending.empty()) {
-    Media* media = this->container.pending.front();
-    this->container.pending.pop();
+  while (!this->container->pending.empty()) {
+    Media* media = this->container->pending.front();
+    this->container->pending.pop();
 
     std::string fileName = ob + LogColor::fgCyan("FILE") + cb + " " +
                            LogColor::fgGray(StringUtils::truncateString(
@@ -153,15 +149,15 @@ void Display::print() {
       std::string reduced = ob + LogColor::fgCyan("REDUCED") + cb + " " +
                             std::to_string(calculatedSize) + "%";
 
-      this->container.log.sendBuffer(bufferLen, fileName + " " + activity +
-                                                    " " + reduced + " " +
-                                                    ended + " " + elapsed);
+      this->container->log.sendBuffer(bufferLen, fileName + " " + activity +
+                                                     " " + reduced + " " +
+                                                     ended + " " + elapsed);
     } else {
-      this->container.log.sendBuffer(bufferLen, fileName + " " + activity);
+      this->container->log.sendBuffer(bufferLen, fileName + " " + activity);
     }
 
     t_queue.push(media);
   }
-  this->container.pending = t_queue;
+  this->container->pending = t_queue;
 }
 void Display::printDebug() {}
