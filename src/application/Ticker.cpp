@@ -15,7 +15,7 @@ std::vector<std::thread> workerThreads;
 
 void Ticker::init() {
   Ticker::container = new Container();
-  Ticker::display = new Display(*container);
+  Ticker::display = new Display(container);
 }
 
 void Ticker::start() {
@@ -83,15 +83,15 @@ void Ticker::start() {
 
       if (!media->isProcessing()) {
         if (media->activity == Activity::WAITING_STATISTICS)
-          media->doStatistics(*container);
+          media->doStatistics(container);
         else if (media->activity == Activity::WAITING_CONVERT) {
-          media->buildFFmpegArguments(*container, false);
+          media->buildFFmpegArguments(container, false);
 
           workerThreads.emplace_back(
-              [media]() { media->doConversion(*container); });
+              [media]() { media->doConversion(container); });
 
         } else if (media->activity == Activity::WAITING_VALIDATE)
-          media->doValidation(*container);
+          media->doValidation(container);
       }
 
       if (RegexUtils::isMatch(Activity::getValue(media->activity),
