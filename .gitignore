@@ -7,7 +7,7 @@
 /.vscode
 /vcpkg_installed/x64-windows
 /vcpkg.json
-/x64/Debug
+/x64
 /CppProperties.json
 /dist
 /obj
