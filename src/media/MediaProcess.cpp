@@ -21,8 +21,11 @@
 
 /* TODO: I don't really need to pass container and media to this class */
 
-MediaProcess::MediaProcess()
-    : status(MediaProcess::Status::WAIT), stop_req(false) {}
+MediaProcess::MediaProcess(Container* container, Media* media)
+    : container(container),
+      media(media),
+      status(MediaProcess::Status::WAIT),
+      stop_req(false) {}
 
 MediaProcess::~MediaProcess() {
   Log::debug({"[MediaProcess.cpp] DESTRUCTOR CALLED"});
