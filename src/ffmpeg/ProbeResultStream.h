@@ -11,6 +11,7 @@
 
 #include <string>
 
+#include "../logging/Log.h"
 #include "ProbeResultStreamDisposition.h"
 #include "ProbeResultStreamTags.h"
 

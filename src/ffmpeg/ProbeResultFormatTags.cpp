@@ -4,5 +4,5 @@ ProbeResultFormatTags::ProbeResultFormatTags() {}
 ProbeResultFormatTags::~ProbeResultFormatTags() {}
 
 ProbeResultFormatTags::ProbeResultFormatTags(nlohmann::json JSON) {
-  ProbeResultFormatTags::ENCODER = JSON["ENCODER"];
+  // ProbeResultFormatTags::ENCODER = JSON["ENCODER"];
 }

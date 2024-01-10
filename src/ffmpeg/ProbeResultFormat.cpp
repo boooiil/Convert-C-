@@ -2,11 +2,14 @@
 
 #include <iostream>
 
+#include "../logging/Log.h"
+
 ProbeResultFormat::ProbeResultFormat()
     : nb_programs(-1), nb_streams(-1), probe_score(-1) {}
 ProbeResultFormat::~ProbeResultFormat() {}
 
 ProbeResultFormat::ProbeResultFormat(nlohmann::json JSON) {
+  Log::debug({"[ProbeResultFormat.cpp] filename: ", JSON["filename"]});
   ProbeResultFormat::filename = JSON["filename"];
   ProbeResultFormat::nb_streams = JSON["nb_streams"];
   ProbeResultFormat::nb_programs = JSON["nb_programs"];
