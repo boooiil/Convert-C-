@@ -23,7 +23,7 @@ class MediaProcessStatistics : public MediaProcess {
    * @param[out] container - Container object.
    * @param[out] media     - Media object that will be getting statistics.
    */
-  MediaProcessStatistics(Container& container, Media& media);
+  MediaProcessStatistics(Container* container, Media* media);
   ~MediaProcessStatistics(void);
 
   /**

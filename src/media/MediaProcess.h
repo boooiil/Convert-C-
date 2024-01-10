@@ -20,7 +20,7 @@ class MediaProcess {
   /**
    * @brief Construct a new Media Process object.
    */
-  MediaProcess(void);
+  MediaProcess(Container* container, Media* media);
   ~MediaProcess(void);
 
   /**
@@ -95,6 +95,8 @@ class MediaProcess {
   Status getStatus(void) const;
 
  protected:
+  Container* container;
+  Media* media;
   Status status;  /// @brief Status of the process.
 
  private:

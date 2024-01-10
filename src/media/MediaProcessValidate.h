@@ -22,7 +22,7 @@ class MediaProcessValidate : public MediaProcess {
    * @param[out] container - Container object.
    * @param[out] media     - Media object that will be validating.
    */
-  MediaProcessValidate(Container& container, Media& media);
+  MediaProcessValidate(Container* container, Media* media);
   ~MediaProcessValidate(void);
 
   /**

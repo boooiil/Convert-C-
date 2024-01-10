@@ -19,10 +19,10 @@ class MediaProcessConversion : public MediaProcess {
   /**
    * @brief Construct a new Media Process Conversion object
    *
-   * @param[out] container - Container object.
-   * @param[out] media     - Media object that will be converted.
+   * @param[out] container - Ptr to Container object.
+   * @param[out] media     - Ptr to Media object that will be converted.
    */
-  MediaProcessConversion(Container& container, Media& media);
+  MediaProcessConversion(Container* container, Media* media);
   ~MediaProcessConversion(void);
 
   /**
