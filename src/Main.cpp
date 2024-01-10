@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
    */
 
   try {
-    Ticker::container->userArguments.parse(*Ticker::container, argc, argv);
+    Ticker::container->userArguments.parse(Ticker::container, argc, argv);
     Ticker::container->userCapabilities.findHardwareDetails();
     Ticker::container->appEncodingDecision.validateSettings();
 
