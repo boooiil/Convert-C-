@@ -19,9 +19,9 @@ class Display {
   /**
    * @brief Construct a new Display object
    *
-   * @param[in] container - Container object.
+   * @param[in] container - Ptr to the Container object.
    */
-  Display(Container& container);
+  Display(Container* container);
   ~Display(void);
 
   /**
@@ -38,7 +38,7 @@ class Display {
 
  private:
   /// @brief Container object.
-  Container& container;
+  Container* container;
 };
 
 #endif  // !DISPLAY_H
