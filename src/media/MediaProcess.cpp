@@ -9,6 +9,8 @@
 #include <string>
 #include <thread>
 
+#include "../logging/Log.h"
+
 #ifdef _WIN32
 #include <cstdio>
 #define popen _popen
@@ -19,20 +21,16 @@
 
 /* TODO: I don't really need to pass container and media to this class */
 
-MediaProcess::MediaProcess(Container& container, Media& media)
-    : container(container),
-      media(media),
-      status(MediaProcess::Status::WAIT),
-      stop_req(false) {}
+MediaProcess::MediaProcess()
+    : status(MediaProcess::Status::WAIT), stop_req(false) {}
 
 MediaProcess::~MediaProcess() {
-  MediaProcess::container.log.debug({"[MediaProcess.cpp] DESTRUCTOR CALLED"});
+  Log::debug({"[MediaProcess.cpp] DESTRUCTOR CALLED"});
 }
 
 void MediaProcess::start(std::string command) {
   command += " 2>&1";
-  MediaProcess::container.log.debug(
-      {"[MediaProcess.cpp] SENDING COMMAND:", command});
+  Log::debug({"[MediaProcess.cpp] SENDING COMMAND:", command});
 
   MediaProcess::status = MediaProcess::Status::RUNNING;
 
@@ -47,8 +45,7 @@ void MediaProcess::start(std::string command) {
   }
 
   if (stop_req) {
-    MediaProcess::container.log.debug(
-        {"Stop request received before starting the loop"});
+    Log::debug({"Stop request received before starting the loop"});
     return;
   }
 
@@ -64,8 +61,7 @@ void MediaProcess::start(std::string command) {
     }
 
     if (stop_req) {
-      MediaProcess::container.log.debug(
-          {"Stop request received during the loop"});
+      Log::debug({"Stop request received during the loop"});
       break;
     }
   }
@@ -76,7 +72,7 @@ void MediaProcess::setStatus(MediaProcess::Status status) {
 }
 
 void MediaProcess::parse(std::string data) {
-  container.log.debug({"WARNING, USING DEFAULT PARSER", data});
+  Log::debug({"WARNING, USING DEFAULT PARSER", data});
 }
 
 void MediaProcess::stop(void) { stop_req = true; }

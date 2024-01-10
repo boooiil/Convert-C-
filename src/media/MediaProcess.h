@@ -19,11 +19,8 @@ class MediaProcess {
  public:
   /**
    * @brief Construct a new Media Process object.
-   *
-   * @param[out] container  - Container object.
-   * @param[out] media      - Media that will be processed.
    */
-  MediaProcess(Container& container, Media& media);
+  MediaProcess(void);
   ~MediaProcess(void);
 
   /**
@@ -98,9 +95,7 @@ class MediaProcess {
   Status getStatus(void) const;
 
  protected:
-  Container& container;  /// @brief Container object.
-  Media& media;          /// @brief Media that is being processed.
-  Status status;         /// @brief Status of the process.
+  Status status;  /// @brief Status of the process.
 
  private:
   bool stop_req;  /// @brief Stop request.
