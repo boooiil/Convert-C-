@@ -26,5 +26,4 @@ void MediaProcessValidate::parse(std::string data) {
     this->media.working.completedFrames = std::stoi(completedFrames);
     this->media.working.fps = std::stof(fps);
   }
-  // TODO: implement this
 }

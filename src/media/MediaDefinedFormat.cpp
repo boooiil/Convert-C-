@@ -49,6 +49,4 @@ void MediaDefinedFormat::addCustomFormat(int height) {
       std::to_string(format.width) + ":" + std::to_string(format.height);
 
   MediaDefinedFormat::formats[format.name] = format;
-
-  // TODO: test this
 };

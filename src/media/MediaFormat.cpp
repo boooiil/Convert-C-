@@ -33,12 +33,10 @@ int MediaFormat::getGCD(int a, int b) {
     return a;
   }
   return getGCD(b, a % b);
-  // TODO: test this
 }
 
 int MediaFormat::getResolution(int width, int height, int newWidth) {
   int newHeight =
       static_cast<int>(ceil(static_cast<double>(height) / width * newWidth));
   return newHeight % 2 == 0 ? newHeight : newHeight + 1;
-  // TODO: test this
 }

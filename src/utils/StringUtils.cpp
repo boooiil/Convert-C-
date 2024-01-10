@@ -19,8 +19,6 @@ std::string StringUtils::truncateString(std::string str, int length = 25) {
   const std::string rightHalf = str.substr(str.length() - rightHalfLength);
 
   return leftHalf + ellipsis + rightHalf;
-
-  // TODO: test this
 }
 
 std::string StringUtils::replaceAll(std::string str, std::string from,

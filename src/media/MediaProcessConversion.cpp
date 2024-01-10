@@ -93,6 +93,4 @@ void MediaProcessConversion::parse(std::string data) {
 
   MediaProcessConversion::container.log.debug(
       {"[MediaProcessConversion.cpp] PARSING END"});
-
-  // TODO: implement this
 }
