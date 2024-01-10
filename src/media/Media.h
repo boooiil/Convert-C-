@@ -56,6 +56,13 @@ class Media {
   ~Media();
 
   /**
+   * @brief Set the activity type.
+   *
+   * @param[in] activity - Activity type.
+   */
+  void setActivity(Activity::ActivityType activity);
+
+  /**
    * @brief Do the statistics process.
    *
    * @param[out] container - The container object.
