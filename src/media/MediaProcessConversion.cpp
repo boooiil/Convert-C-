@@ -5,8 +5,8 @@
 #include "../utils/RegexUtils.h"
 #include "../utils/StringUtils.h"
 
-MediaProcessConversion::MediaProcessConversion(Container& container,
-                                               Media& media)
+MediaProcessConversion::MediaProcessConversion(Container* container,
+                                               Media* media)
     : MediaProcess(container, media) {}
 
 MediaProcessConversion::~MediaProcessConversion() {
@@ -14,8 +14,7 @@ MediaProcessConversion::~MediaProcessConversion() {
 }
 
 void MediaProcessConversion::parse(std::string data) {
-  MediaProcessConversion::container.log.debug(
-      {"[MediaProcessConversion.cpp] PARSING LINE:", data});
+  Log::debug({"[MediaProcessConversion.cpp] PARSING LINE:", data});
 
   // Return fail IF:
   // 1&2. Encode fails to find a device
@@ -29,12 +28,12 @@ void MediaProcessConversion::parse(std::string data) {
       RegexUtils::isMatch(data, "device type cuda needed for codec",
                           std::regex::icase)) {
     // if the user wants to use hardware encoding (nvenc, amf, qsv)
-    if (this->container.appEncodingDecision.useHardwareEncode) {
-      this->media.activity = Activity::FAILED_HARDWARE;
+    if (this->container->appEncodingDecision.useHardwareEncode) {
+      this->media->activity = Activity::FAILED_HARDWARE;
     } else if (RegexUtils::isMatch(
-                   this->container.appEncodingDecision.wantedEncoder,
+                   this->container->appEncodingDecision.wantedEncoder,
                    R"(nvenc|amf|qsv)", std::regex::icase)) {
-      this->media.activity = Activity::FAILED_HARDWARE;
+      this->media->activity = Activity::FAILED_HARDWARE;
     } else
       throw std::runtime_error(
           "Out of memory even though hardware encoding is disabled. This "
@@ -43,14 +42,14 @@ void MediaProcessConversion::parse(std::string data) {
 
   // If the file is already encoded, set the process status to validating
   else if (RegexUtils::isMatch(data, "already exists", std::regex::icase)) {
-    this->media.activity = Activity::WAITING_VALIDATE;
+    this->media->activity = Activity::WAITING_VALIDATE;
   } else if (RegexUtils::isMatch(data, "no such file", std::regex::icase)) {
-    this->media.activity = Activity::FAILED_FILE_MISSING;
+    this->media->activity = Activity::FAILED_FILE_MISSING;
   } else if (RegexUtils::isMatch(data, "matches no streams",
                                  std::regex::icase)) {
-    this->media.activity = Activity::FAILED_INVALID_AUDIO_STREAMS;
+    this->media->activity = Activity::FAILED_INVALID_AUDIO_STREAMS;
   } else if (RegexUtils::isMatch(data, "frame=.+?(\\d+)")) {
-    this->container.log.debug({"[MediaProcessConversion.cpp] PARSING LINE"});
+    Log::debug({"[MediaProcessConversion.cpp] PARSING LINE"});
 
     std::string quality =
         RegexUtils::getFirstMatch(data, "q=(\\d+\\.\\d+|-\\d+\\.\\d+)");
@@ -75,22 +74,19 @@ void MediaProcessConversion::parse(std::string data) {
     // assert(completedFrames != "");
     // assert(fps != "");
 
-    if (quality != "-1.0") this->media.working.quality = std::stof(quality);
-    this->media.working.bitrate = std::stof(bitrate);
-    this->media.file.newSize = std::stoi(size) * 1000;
-    this->media.working.completedFrames = std::stoi(completedFrames);
-    this->media.working.fps = std::stof(fps);
+    if (quality != "-1.0") this->media->working.quality = std::stof(quality);
+    this->media->working.bitrate = std::stof(bitrate);
+    this->media->file.newSize = std::stoi(size) * 1000;
+    this->media->working.completedFrames = std::stoi(completedFrames);
+    this->media->working.fps = std::stof(fps);
 
-    this->container.log.debug(
-        {"[MediaProcessConversion.cpp] QUALITY:", quality});
-    this->container.log.debug(
-        {"[MediaProcessConversion.cpp] BITRATE:", bitrate});
-    this->container.log.debug({"[MediaProcessConversion.cpp] SIZE:", size});
-    this->container.log.debug(
+    Log::debug({"[MediaProcessConversion.cpp] QUALITY:", quality});
+    Log::debug({"[MediaProcessConversion.cpp] BITRATE:", bitrate});
+    Log::debug({"[MediaProcessConversion.cpp] SIZE:", size});
+    Log::debug(
         {"[MediaProcessConversion.cpp] COMPLETED FRAMES:", completedFrames});
-    this->container.log.debug({"[MediaProcessConversion.cpp] FPS:", fps});
+    Log::debug({"[MediaProcessConversion.cpp] FPS:", fps});
   }
 
-  MediaProcessConversion::container.log.debug(
-      {"[MediaProcessConversion.cpp] PARSING END"});
+  Log::debug({"[MediaProcessConversion.cpp] PARSING END"});
 }

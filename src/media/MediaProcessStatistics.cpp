@@ -23,8 +23,8 @@
 #include <cstdio>
 #endif
 
-MediaProcessStatistics::MediaProcessStatistics(Container& container,
-                                               Media& media)
+MediaProcessStatistics::MediaProcessStatistics(Container* container,
+                                               Media* media)
     : MediaProcess(container, media) {}
 
 MediaProcessStatistics::~MediaProcessStatistics() {
@@ -32,8 +32,7 @@ MediaProcessStatistics::~MediaProcessStatistics() {
 }
 
 void MediaProcessStatistics::start(std::string command) {
-  MediaProcessStatistics::container.log.debug(
-      {"[MediaProcessStatistics.cpp] SENDING COMMAND:", command});
+  Log::debug({"[MediaProcessStatistics.cpp] SENDING COMMAND:", command});
 
   MediaProcessStatistics::status = MediaProcessStatistics::Status::RUNNING;
 
@@ -63,8 +62,6 @@ void MediaProcessStatistics::start(std::string command) {
 
 void MediaProcessStatistics::parse(std::string data) {
   nlohmann::json JSON = nlohmann::json::parse(data);
-  Container& container = MediaProcessStatistics::container;
-  Media& media = MediaProcessStatistics::media;
   ProbeResult pr = ProbeResult(JSON);
 
   assert(pr.videoStreams.size() > 0);
@@ -85,23 +82,25 @@ void MediaProcessStatistics::parse(std::string data) {
   int seconds = std::stoi(timeParts[2]);
   int duration = (hours * 60 * 60) + (minutes * 60) + seconds;
 
-  media.file.size = std::stoi(pr.format.size);
-  media.video.fps =
+  this->media->file.size = std::stoi(pr.format.size);
+  this->media->video.fps =
       round((static_cast<float>(numerator) / denominator) * 100) / 100;
-  media.video.width = prsv.width;
-  media.video.height = prsv.height;
-  media.video.totalFrames =
-      static_cast<int>(std::ceil(duration * media.video.fps));
+  this->media->video.width = prsv.width;
+  this->media->video.height = prsv.height;
+  this->media->video.totalFrames =
+      static_cast<int>(std::ceil(duration * this->media->video.fps));
 
-  assert(RegexUtils::isMatch(container.appEncodingDecision.quality, "720p"));
+  assert(RegexUtils::isMatch(this->container->appEncodingDecision.quality,
+                             "720p"));
 
   MediaFormat format =
-      MediaDefinedFormat::formats[container.appEncodingDecision.quality];
+      MediaDefinedFormat::formats[this->container->appEncodingDecision.quality];
 
-  media.video.convertedWidth = std::to_string(format.width);
-  media.video.convertedHeight = std::to_string(format.getResolution(
-      media.video.width, media.video.height, format.width));
-  media.video.convertedResolution =
-      media.video.convertedWidth + ":" + media.video.convertedHeight;
-  media.video.crf = format.crf;
+  this->media->video.convertedWidth = std::to_string(format.width);
+  this->media->video.convertedHeight = std::to_string(format.getResolution(
+      this->media->video.width, this->media->video.height, format.width));
+  this->media->video.convertedResolution = this->media->video.convertedWidth +
+                                           ":" +
+                                           this->media->video.convertedHeight;
+  this->media->video.crf = format.crf;
 }
