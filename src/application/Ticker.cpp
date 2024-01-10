@@ -42,8 +42,6 @@ void Ticker::start() {
       } else {
         media->activity = Activity::WAITING_STATISTICS;
 
-        // TODO: this is probably going to be an issue at some point?
-        // havent tested it, just making predictions
         media->started = TimeUtils::getEpoch();
 
         container->converting.push(media);

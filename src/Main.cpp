@@ -41,7 +41,7 @@ BOOL WINAPI winHandle(DWORD signal) {
 void unixHandle(int signum) {
   std::cout << "Interrupt signal (" << signum << ") received.\n";
   Ticker::end();
-  // TODO: implement exit
+
   exit(signum);
 }
 #endif

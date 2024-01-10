@@ -26,9 +26,7 @@ Media::Media(std::string name, std::string path) : started(0), ended(0) {
   Media::path = path;
 }
 
-Media::~Media() {
-  Log::debug({"[Media.cpp] Destroying media: ", Media::name});
-}
+Media::~Media() { Log::debug({"[Media.cpp] Destroying media: ", Media::name}); }
 
 bool Media::isProcessing() {
   if (activity == Activity::STATISTICS || activity == Activity::CONVERT ||
@@ -36,6 +34,10 @@ bool Media::isProcessing() {
     return true;
   }
   return false;
+}
+
+void Media::setActivity(Activity::ActivityType activity) {
+  Media::activity = activity;
 }
 
 void Media::doStatistics(Container& container) {
@@ -85,7 +87,7 @@ void Media::doValidation(Container& container) {
                           std::regex::icase)) {
     return;
   }
-  // TODO: implement this
+
   Media::activity = Activity::FINISHED;
 }
 
