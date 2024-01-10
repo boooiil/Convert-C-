@@ -40,12 +40,12 @@ void Media::setActivity(Activity::ActivityType activity) {
   Media::activity = activity;
 }
 
-void Media::doStatistics(Container& container) {
+void Media::doStatistics(Container* container) {
   Media::activity = Activity::STATISTICS;
 
-  container.log.debug({"[Media.cpp] Starting statistics for: ", Media::name});
+  Log::debug({"[Media.cpp] Starting statistics for: ", Media::name});
 
-  MediaProcessStatistics statistics(container, *this);
+  MediaProcessStatistics statistics(container, this);
   statistics.start(
       "ffprobe -v quiet -print_format json -show_format "
       "-show_streams \"" +
@@ -58,12 +58,12 @@ void Media::doStatistics(Container& container) {
 
   Media::activity = Activity::WAITING_CONVERT;
 }
-void Media::doConversion(Container& container) {
+void Media::doConversion(Container* container) {
   Media::activity = Activity::CONVERT;
 
-  container.log.debug({"[Media.cpp] Starting conversion for: ", Media::name});
+  Log::debug({"[Media.cpp] Starting conversion for: ", Media::name});
 
-  MediaProcessConversion conversion(container, *this);
+  MediaProcessConversion conversion(container, this);
 
   conversion.start("ffmpeg " + ListUtils::join(Media::ffmpegArguments, " "));
 
@@ -74,12 +74,12 @@ void Media::doConversion(Container& container) {
 
   Media::activity = Activity::WAITING_VALIDATE;
 }
-void Media::doValidation(Container& container) {
+void Media::doValidation(Container* container) {
   Media::activity = Activity::VALIDATE;
 
-  container.log.debug({"[Media.cpp] Starting validation for: ", Media::name});
+  Log::debug({"[Media.cpp] Starting validation for: ", Media::name});
 
-  MediaProcessValidate validate(container, *this);
+  MediaProcessValidate validate(container, this);
   validate.start("ffmpeg -v quiet -stats -i \"" + Media::file.conversionPath +
                  "\" -f null -");
 
@@ -91,20 +91,20 @@ void Media::doValidation(Container& container) {
   Media::activity = Activity::FINISHED;
 }
 
-void Media::buildFFmpegArguments(Container& container, bool isValidate) {
+void Media::buildFFmpegArguments(Container* container, bool isValidate) {
   MediaFormat format =
-      MediaDefinedFormat::formats[container.appEncodingDecision.quality];
+      MediaDefinedFormat::formats[container->appEncodingDecision.quality];
 
   this->ffmpegArguments.clear();
 
   this->ffmpegArguments.push_back("-v quiet -stats");
 
-  if (container.appEncodingDecision.useHardwareEncode) {
-    if (container.userCapabilities.GPU_Provider == "amd") {
+  if (container->appEncodingDecision.useHardwareEncode) {
+    if (container->userCapabilities.GPU_Provider == "amd") {
       this->ffmpegArguments.push_back("-hwaccel amf");
-    } else if (container.userCapabilities.GPU_Provider == "intel") {
+    } else if (container->userCapabilities.GPU_Provider == "intel") {
       this->ffmpegArguments.push_back("-hwaccel qsv");
-    } else if (container.userCapabilities.GPU_Provider == "nvidia") {
+    } else if (container->userCapabilities.GPU_Provider == "nvidia") {
       this->ffmpegArguments.push_back("-hwaccel cuda");
     }
   }
@@ -113,9 +113,9 @@ void Media::buildFFmpegArguments(Container& container, bool isValidate) {
 
   this->ffmpegArguments.push_back("-map 0:v:0");
 
-  if (container.appEncodingDecision.audioStreams.size()) {
+  if (container->appEncodingDecision.audioStreams.size()) {
     for (const std::string stream :
-         container.appEncodingDecision.audioStreams) {
+         container->appEncodingDecision.audioStreams) {
       this->ffmpegArguments.push_back("-map 0:a:" + stream);
     }
   } else {
@@ -125,8 +125,8 @@ void Media::buildFFmpegArguments(Container& container, bool isValidate) {
   this->ffmpegArguments.push_back("-map 0:s?");
   this->ffmpegArguments.push_back("-map 0:t?");
 
-  this->ffmpegArguments.push_back("-c:v " +
-                                  container.appEncodingDecision.runningEncoder);
+  this->ffmpegArguments.push_back(
+      "-c:v " + container->appEncodingDecision.runningEncoder);
   this->ffmpegArguments.push_back("-c:t copy");
   this->ffmpegArguments.push_back("-c:a copy");
 
@@ -134,7 +134,7 @@ void Media::buildFFmpegArguments(Container& container, bool isValidate) {
 
   this->ffmpegArguments.push_back("-level 4.1");
 
-  if (container.appEncodingDecision.useBitrate) {
+  if (container->appEncodingDecision.useBitrate) {
     this->ffmpegArguments.push_back("-b:v " + std::to_string(format.bitrate) +
                                     "M");
     this->ffmpegArguments.push_back("-bufsize " +
@@ -143,7 +143,7 @@ void Media::buildFFmpegArguments(Container& container, bool isValidate) {
                                     std::to_string(format.max * 2) + "M");
     this->ffmpegArguments.push_back("-minrate " +
                                     std::to_string(format.min * 2) + "M");
-  } else if (container.appEncodingDecision.useConstrain) {
+  } else if (container->appEncodingDecision.useConstrain) {
     this->ffmpegArguments.push_back("-crf " + std::to_string(format.crf));
     this->ffmpegArguments.push_back("-bufsize " +
                                     std::to_string(format.bitrate * 2) + "M");
@@ -153,7 +153,7 @@ void Media::buildFFmpegArguments(Container& container, bool isValidate) {
     this->ffmpegArguments.push_back("-crf " + std::to_string(format.crf));
   }
 
-  if (container.appEncodingDecision.crop) {
+  if (container->appEncodingDecision.crop) {
     this->ffmpegArguments.push_back(
         "-vf scale=" + this->video.convertedResolution +
         ":flags=lanczos,crop=" + format.crop);
@@ -164,14 +164,14 @@ void Media::buildFFmpegArguments(Container& container, bool isValidate) {
     this->ffmpegArguments.push_back(
         "-vf scale=" + this->video.convertedResolution + ":flags=lanczos");
 
-  if (container.appEncodingDecision.startBeginning != "") {
+  if (container->appEncodingDecision.startBeginning != "") {
     this->ffmpegArguments.push_back(
-        "-ss " + container.appEncodingDecision.startBeginning);
+        "-ss " + container->appEncodingDecision.startBeginning);
   }
 
-  if (container.appEncodingDecision.trim != "") {
+  if (container->appEncodingDecision.trim != "") {
     std::vector<std::string> trim =
-        ListUtils::splitv(container.appEncodingDecision.trim, ",");
+        ListUtils::splitv(container->appEncodingDecision.trim, ",");
 
     this->ffmpegArguments.push_back("-ss " + trim[0]);
     this->ffmpegArguments.push_back("-to " + trim[1]);
@@ -188,24 +188,24 @@ void Media::buildFFmpegArguments(Container& container, bool isValidate) {
 
   this->ffmpegArguments.push_back("-c:s copy");
 
-  if (container.appEncodingDecision.tune != "") {
+  if (container->appEncodingDecision.tune != "") {
     this->ffmpegArguments.push_back("-tune " +
-                                    container.appEncodingDecision.tune);
+                                    container->appEncodingDecision.tune);
   }
 
   this->ffmpegArguments.push_back("\"" + this->file.conversionPath + "\"");
 
-  if (isValidate || container.appEncodingDecision.overwrite)
+  if (isValidate || container->appEncodingDecision.overwrite)
     this->ffmpegArguments.push_back("-y");
   else {
     this->ffmpegArguments.push_back("-n");
   }
 
-  container.log.debug(
+  Log::debug(
       {"FFMPEG ARGUMENTS: ", ListUtils::join(this->ffmpegArguments, " ")});
 }
 
-void Media::rename(Container& container) {
+void Media::rename(Container* container) {
   Media::file.path = Media::path + "/" + Media::name;
 
   // pattern for matching media names
@@ -232,7 +232,7 @@ void Media::rename(Container& container) {
 
     Media::resolveModifiedFileName(
         Media::file.series, std::to_string(Media::file.season),
-        Media::file.episode, container.appEncodingDecision.quality);
+        Media::file.episode, container->appEncodingDecision.quality);
     Media::resolveModifiedFileNameExt(Media::file.modifiedFileName,
                                       Media::file.ext);
 
@@ -244,9 +244,8 @@ void Media::rename(Container& container) {
                                  std::to_string(Media::file.season),
                                  Media::path);
 
-    container.log.debug({"[Media.cpp] Original file:", Media::name});
-    container.log.debug(
-        {"[Media.cpp] Renamed file:", Media::file.conversionName});
+    Log::debug({"[Media.cpp] Original file:", Media::name});
+    Log::debug({"[Media.cpp] Renamed file:", Media::file.conversionName});
   } else {
     // TODO: finish
   }
