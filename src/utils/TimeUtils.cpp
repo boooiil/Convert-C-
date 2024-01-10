@@ -44,7 +44,7 @@ std::string TimeUtils::durationFormat(long ms) {
   }
   if (m > 0 || h) {
     if (m < 10) {
-      duration += ":" + std::to_string(m) + ":";
+      duration += std::to_string(m) + ":";
     } else if (m > 0) {
       duration += std::to_string(m) + ":";
     } else {
