@@ -65,39 +65,39 @@ class Media {
   /**
    * @brief Do the statistics process.
    *
-   * @param[out] container - The container object.
+   * @param[out] container - Ptr to the Container object.
    */
-  void doStatistics(class Container& container);
+  void doStatistics(class Container* container);
 
   /**
    * @brief Do the conversion process.
    *
-   * @param[out] container - The container object.
+   * @param[out] container - Ptr to the Container object.
    */
-  void doConversion(class Container& container);
+  void doConversion(class Container* container);
 
   /**
    * @brief Do the validation process.
    *
-   * @param[out] container - The container object.
+   * @param[out] container - Ptr to the Container object.
    */
-  void doValidation(class Container& container);
+  void doValidation(class Container* container);
 
   /**
    * @brief Build arguments required to process FFmpeg media with given
    * parameters.
    *
-   * @param[out] container  - The container object.
+   * @param[out] container  - Ptr to the Container object.
    * @param[in] isValidate  - TODO: I'm not sure what this does.
    */
-  void buildFFmpegArguments(class Container& container, bool isValidate);
+  void buildFFmpegArguments(class Container* container, bool isValidate);
 
   /**
    * @brief Rename the current media name to a standard format.
    *
-   * @param[out] container - The container object.
+   * @param[out] container - Ptr to the Container object.
    */
-  void rename(class Container& container);
+  void rename(class Container* container);
 
   /**
    * @brief Check if the current media is processing.
