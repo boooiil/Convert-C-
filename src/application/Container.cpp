@@ -50,7 +50,7 @@ void Container::scanWorkingDir() {
 
         Media* media = new Media(entry.path().filename().generic_string(),
                                  Container::settings.workingDir);
-        media->rename(*this);
+        media->rename(this);
 
         // if series folder doesn't exist, create it
         if (!fs::exists(Container::settings.workingDir + "/" +
