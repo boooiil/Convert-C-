@@ -31,16 +31,16 @@ void Ticker::start() {
         !container->pending.empty()) {
       Media* media = container->pending.front();
 
-      if (media->activity != Activity::WAITING) {
+      if (!media->isWaiting()) {
         container->log.debug({"[Ticker.cpp] Media is not waiting:", media->name,
-                              Activity::getValue(media->activity)});
+                              Activity::getValue(media->getActivity())});
         if (currentAmount == 0) {
           container->log.flushBuffer();
           Ticker::end();
           return exit(0);
         }
       } else {
-        media->activity = Activity::WAITING_STATISTICS;
+        media->setActivity(Activity::WAITING_STATISTICS);
 
         media->started = TimeUtils::getEpoch();
 
@@ -78,25 +78,23 @@ void Ticker::start() {
     while (!container->converting.empty()) {
       Media* media = container->converting.front();
 
-      container->log.debug(
-          {"[Ticker.cpp]", media->name, Activity::getValue(media->activity)});
+      container->log.debug({"[Ticker.cpp]", media->name,
+                            Activity::getValue(media->getActivity())});
 
       if (!media->isProcessing()) {
-        if (media->activity == Activity::WAITING_STATISTICS)
+        if (media->isWaitingToStatistics())
           media->doStatistics(container);
-        else if (media->activity == Activity::WAITING_CONVERT) {
+        else if (media->isWaitingToConvert()) {
           media->buildFFmpegArguments(container, false);
 
           workerThreads.emplace_back(
               [media]() { media->doConversion(container); });
 
-        } else if (media->activity == Activity::WAITING_VALIDATE)
+        } else if (media->isWaitingToValidate())
           media->doValidation(container);
       }
 
-      if (RegexUtils::isMatch(Activity::getValue(media->activity),
-                              R"(finished|failed)",
-                              std::regex_constants::icase)) {
+      if (media->hasFailed() || media->hasFinished()) {
         // todo: again, chrono stuff
         media->ended = TimeUtils::getEpoch();
 
@@ -167,7 +165,7 @@ void Ticker::writeDebug() {
     nlohmann::json mediaWorkingDebug;
 
     mediaDebug["name"] = media->name;
-    mediaDebug["activity"] = Activity::getValue(media->activity);
+    mediaDebug["activity"] = Activity::getValue(media->getActivity());
     mediaDebug["path"] = media->file.path;
     mediaDebug["started"] = media->started;
     mediaDebug["ended"] = media->ended;
@@ -226,7 +224,7 @@ void Ticker::writeDebug() {
     nlohmann::json mediaWorkingDebug;
 
     mediaDebug["name"] = media->name;
-    mediaDebug["activity"] = Activity::getValue(media->activity);
+    mediaDebug["activity"] = Activity::getValue(media->getActivity());
     mediaDebug["path"] = media->file.path;
     mediaDebug["started"] = media->started;
     mediaDebug["ended"] = media->ended;
