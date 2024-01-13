@@ -31,10 +31,19 @@
 
 #ifdef _WIN32
 BOOL WINAPI winHandle(DWORD signal) {
-  std::cout << "Interrupt signal (" << signal << ") received.\n";
-  // TODO: test
-  // TODO: implement exit
-  Ticker::end();
+  HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+  if (hConsole != INVALID_HANDLE_VALUE) {
+    Ticker::end();
+
+    DWORD bytesWritten;
+    std::string message =
+        "Interrupt signal (" + std::to_string(signal) + ") received.\n";
+
+    WriteConsole(hConsole, message.c_str(), message.length(), &bytesWritten,
+                 NULL);
+  }
+
   exit(0);
 }
 #else
