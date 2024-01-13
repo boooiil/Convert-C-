@@ -136,7 +136,7 @@ void Media::buildFFmpegArguments(Container* container, bool isValidate) {
 
   this->ffmpegArguments.clear();
 
-  this->ffmpegArguments.push_back("-v quiet -stats");
+  this->ffmpegArguments.push_back("-v error -stats");
 
   if (container->appEncodingDecision.useHardwareDecode) {
     if (container->userCapabilities.GPU_Provider == "amd") {
