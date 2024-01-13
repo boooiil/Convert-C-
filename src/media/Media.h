@@ -25,9 +25,6 @@
  */
 class Media {
  public:
-  /// @brief activity type
-  Activity::ActivityType activity = Activity::WAITING;
-
   std::string path;  /// @brief cwd path
   std::string name;  /// @brief original filename
 
@@ -100,15 +97,67 @@ class Media {
   void rename(class Container* container);
 
   /**
+   * @brief Get the activity type.
+   *
+   * @return Activity::ActivityType - Activity type.
+   */
+  Activity::ActivityType getActivity(void);
+
+  /**
    * @brief Check if the current media is processing.
    *
    * @return true if the media activity is STATISTICS, CONVERT or VALIDATE.
    * @return false if the media activity is WAITING-like, FINISHED, or
    * FAILED-like.
    */
-  bool isProcessing(void);
+  const bool isProcessing(void);
+
+  /**
+   * @brief Check if the current media has failed processing.
+   *
+   * @return true if the media activity is FAILED-like.
+   */
+  const bool hasFailed(void);
+
+  /**
+   * @brief Check if the current media has failed processing.
+   *
+   * @return true if the media activity is FINISHED.
+   */
+  const bool hasFinished(void);
+
+  /**
+   * @brief Check if the current media is waiting to be processed.
+   *
+   * @return true if the media activity is WAITING.
+   */
+  const bool isWaiting(void);
+
+  /**
+   * @brief Check if the current media is waiting for statistics.
+   *
+   * @return true if the media activity is WAITING_STATISTICS.
+   */
+  const bool isWaitingToStatistics(void);
+
+  /**
+   * @brief Check if the current media is waiting to convert.
+   *
+   * @return true if the media activity is WAITING_CONVERT.
+   */
+  const bool isWaitingToConvert(void);
+
+  /**
+   * @brief Check if the current media is waiting to validate.
+   *
+   * @return true if the media activity is WAITING_VALIDATE.
+   */
+  const bool isWaitingToValidate(void);
 
  private:
+  /// @brief activity type
+  Activity::ActivityType activity = Activity::WAITING;
+
   /**
    * @brief Compile the path with filename.
    *
