@@ -10,7 +10,7 @@ MediaProcessValidate::~MediaProcessValidate() { MediaProcess::~MediaProcess(); }
 void MediaProcessValidate::parse(std::string data) {
   // Get the converted frame amount and fps
   if (RegexUtils::isMatch(data, "corrupt", std::regex::icase)) {
-    this->media->activity = Activity::FAILED_CORRUPT;
+    this->media->setActivity(Activity::FAILED_CORRUPT);
   }
 
   else {

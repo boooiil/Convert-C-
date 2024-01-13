@@ -29,11 +29,11 @@ void MediaProcessConversion::parse(std::string data) {
                           std::regex::icase)) {
     // if the user wants to use hardware encoding (nvenc, amf, qsv)
     if (this->container->appEncodingDecision.useHardwareEncode) {
-      this->media->activity = Activity::FAILED_HARDWARE;
+      this->media->setActivity(Activity::FAILED_HARDWARE);
     } else if (RegexUtils::isMatch(
                    this->container->appEncodingDecision.wantedEncoder,
                    R"(nvenc|amf|qsv)", std::regex::icase)) {
-      this->media->activity = Activity::FAILED_HARDWARE;
+      this->media->setActivity(Activity::FAILED_HARDWARE);
     } else
       throw std::runtime_error(
           "Out of memory even though hardware encoding is disabled. This "
@@ -42,12 +42,12 @@ void MediaProcessConversion::parse(std::string data) {
 
   // If the file is already encoded, set the process status to validating
   else if (RegexUtils::isMatch(data, "already exists", std::regex::icase)) {
-    this->media->activity = Activity::WAITING_VALIDATE;
+    this->media->setActivity(Activity::WAITING_VALIDATE);
   } else if (RegexUtils::isMatch(data, "no such file", std::regex::icase)) {
-    this->media->activity = Activity::FAILED_FILE_MISSING;
+    this->media->setActivity(Activity::FAILED_FILE_MISSING);
   } else if (RegexUtils::isMatch(data, "matches no streams",
                                  std::regex::icase)) {
-    this->media->activity = Activity::FAILED_INVALID_AUDIO_STREAMS;
+    this->media->setActivity(Activity::FAILED_INVALID_AUDIO_STREAMS);
   } else if (RegexUtils::isMatch(data, "frame=.+?(\\d+)")) {
     Log::debug({"[MediaProcessConversion.cpp] PARSING LINE"});
 
