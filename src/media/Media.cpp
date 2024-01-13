@@ -28,12 +28,53 @@ Media::Media(std::string name, std::string path) : started(0), ended(0) {
 
 Media::~Media() { Log::debug({"[Media.cpp] Destroying media: ", Media::name}); }
 
-bool Media::isProcessing() {
-  if (activity == Activity::STATISTICS || activity == Activity::CONVERT ||
-      activity == Activity::VALIDATE) {
-    return true;
+Activity::ActivityType Media::getActivity() { return Media::activity; }
+
+const bool Media::isProcessing() {
+  switch (Media::activity) {
+    case Activity::STATISTICS:
+    case Activity::CONVERT:
+    case Activity::VALIDATE:
+      return true;
+    default:
+      return false;
   }
-  return false;
+}
+
+const bool Media::hasFailed() {
+  switch (Media::activity) {
+    case Activity::FAILED:
+    case Activity::FAILED_CODEC:
+    case Activity::FAILED_CONTAINER:
+    case Activity::FAILED_CORRUPT:
+    case Activity::FAILED_FILE:
+    case Activity::FAILED_FILE_MISSING:
+    case Activity::FAILED_FILE_NOT_RECOGNIZED:
+    case Activity::FAILED_FILE_PERMISSIONS:
+    case Activity::FAILED_HARDWARE:
+    case Activity::FAILED_INVALID_AUDIO_STREAMS:
+      return true;
+    default:
+      return false;
+  }
+}
+
+const bool Media::hasFinished() {
+  return Media::activity == Activity::FINISHED;
+}
+
+const bool Media::isWaiting() { return Media::activity == Activity::WAITING; }
+
+const bool Media::isWaitingToStatistics() {
+  return Media::activity == Activity::WAITING_STATISTICS;
+}
+
+const bool Media::isWaitingToConvert() {
+  return Media::activity == Activity::WAITING_CONVERT;
+}
+
+const bool Media::isWaitingToValidate() {
+  return Media::activity == Activity::WAITING_VALIDATE;
 }
 
 void Media::setActivity(Activity::ActivityType activity) {
@@ -41,7 +82,7 @@ void Media::setActivity(Activity::ActivityType activity) {
 }
 
 void Media::doStatistics(Container* container) {
-  Media::activity = Activity::STATISTICS;
+  this->setActivity(Activity::STATISTICS);
 
   Log::debug({"[Media.cpp] Starting statistics for: ", Media::name});
 
@@ -56,10 +97,10 @@ void Media::doStatistics(Container* container) {
     return;
   }
 
-  Media::activity = Activity::WAITING_CONVERT;
+  this->setActivity(Activity::WAITING_CONVERT);
 }
 void Media::doConversion(Container* container) {
-  Media::activity = Activity::CONVERT;
+  this->setActivity(Activity::CONVERT);
 
   Log::debug({"[Media.cpp] Starting conversion for: ", Media::name});
 
@@ -67,15 +108,14 @@ void Media::doConversion(Container* container) {
 
   conversion.start("ffmpeg " + ListUtils::join(Media::ffmpegArguments, " "));
 
-  if (RegexUtils::isMatch(Activity::getValue(Media::activity), "failed",
-                          std::regex::icase)) {
+  if (this->hasFailed()) {
     return;
   }
 
-  Media::activity = Activity::WAITING_VALIDATE;
+  this->setActivity(Activity::WAITING_VALIDATE);
 }
 void Media::doValidation(Container* container) {
-  Media::activity = Activity::VALIDATE;
+  this->setActivity(Activity::VALIDATE);
 
   Log::debug({"[Media.cpp] Starting validation for: ", Media::name});
 
@@ -83,12 +123,11 @@ void Media::doValidation(Container* container) {
   validate.start("ffmpeg -v quiet -stats -i \"" + Media::file.conversionPath +
                  "\" -f null -");
 
-  if (RegexUtils::isMatch(Activity::getValue(Media::activity), "failed",
-                          std::regex::icase)) {
+  if (this->hasFailed()) {
     return;
   }
 
-  Media::activity = Activity::FINISHED;
+  this->setActivity(Activity::FINISHED);
 }
 
 void Media::buildFFmpegArguments(Container* container, bool isValidate) {
@@ -99,7 +138,7 @@ void Media::buildFFmpegArguments(Container* container, bool isValidate) {
 
   this->ffmpegArguments.push_back("-v quiet -stats");
 
-  if (container->appEncodingDecision.useHardwareEncode) {
+  if (container->appEncodingDecision.useHardwareDecode) {
     if (container->userCapabilities.GPU_Provider == "amd") {
       this->ffmpegArguments.push_back("-hwaccel amf");
     } else if (container->userCapabilities.GPU_Provider == "intel") {
