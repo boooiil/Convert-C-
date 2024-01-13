@@ -97,7 +97,7 @@ void Display::print() {
                                media->file.modifiedFileName, 25));
 
     std::string activity = ob + LogColor::fgCyan("ACT") + cb + " " +
-                           Activity::getValue(media->activity);
+                           Activity::getValue(media->getActivity());
 
     std::string percent =
         ob + LogColor::fgCyan("PROG") + cb + " " +
@@ -134,9 +134,9 @@ void Display::print() {
                                media->file.modifiedFileName, 25));
 
     std::string activity = ob + LogColor::fgCyan("ACT") + cb + " " +
-                           Activity::getValue(media->activity);
+                           Activity::getValue(media->getActivity());
 
-    if (media->activity == Activity::FINISHED) {
+    if (media->hasFinished()) {
       int calculatedSize = floor(
           ((media->file.size - media->file.newSize) / media->file.size) * 100);
 
