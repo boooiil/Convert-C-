@@ -15,18 +15,32 @@
 #include "../media/MediaDefinedFormat.h"
 #include "../utils/ListUtils.h"
 #include "../utils/RegexUtils.h"
-#include "../utils/StringUtils.h"
 #include "./MediaProcessConversion.h"
 #include "./MediaProcessStatistics.h"
 #include "./MediaProcessValidate.h"
 
-Media::Media() : started(0), ended(0) {}
-Media::Media(std::string name, std::string path) : started(0), ended(0) {
-  Media::name = name;
-  Media::path = path;
-}
+Media::Media()
+    : started(0),
+      ended(0),
+      file(new MediaFile()),
+      video(new MediaVideoProperties()),
+      working(new MediaWorkingProperties()) {}
 
-Media::~Media() { Log::debug({"[Media.cpp] Destroying media: ", Media::name}); }
+Media::Media(std::string name, std::string path)
+    : started(0),
+      ended(0),
+      file(new MediaFile(name, path)),
+      video(new MediaVideoProperties()),
+      working(new MediaWorkingProperties()) {}
+
+Media::~Media() {
+  Log::debug(
+      {"[Media.cpp] Deconstructing media: ", this->file->originalFileName});
+
+  delete file;
+  delete video;
+  delete working;
+}
 
 Activity::ActivityType Media::getActivity() { return Media::activity; }
 
@@ -84,13 +98,14 @@ void Media::setActivity(Activity::ActivityType activity) {
 void Media::doStatistics(Container* container) {
   this->setActivity(Activity::STATISTICS);
 
-  Log::debug({"[Media.cpp] Starting statistics for: ", Media::name});
+  Log::debug(
+      {"[Media.cpp] Starting statistics for: ", this->file->originalFileName});
 
   MediaProcessStatistics statistics(container, this);
   statistics.start(
       "ffprobe -v quiet -print_format json -show_format "
       "-show_streams \"" +
-      Media::file.path + "\"");
+      this->file->originalFullPath + "\"");
 
   if (RegexUtils::isMatch(Activity::getValue(Media::activity), "failed",
                           std::regex::icase)) {
@@ -102,7 +117,8 @@ void Media::doStatistics(Container* container) {
 void Media::doConversion(Container* container) {
   this->setActivity(Activity::CONVERT);
 
-  Log::debug({"[Media.cpp] Starting conversion for: ", Media::name});
+  Log::debug(
+      {"[Media.cpp] Starting conversion for: ", this->file->originalFileName});
 
   MediaProcessConversion conversion(container, this);
 
@@ -117,10 +133,11 @@ void Media::doConversion(Container* container) {
 void Media::doValidation(Container* container) {
   this->setActivity(Activity::VALIDATE);
 
-  Log::debug({"[Media.cpp] Starting validation for: ", Media::name});
+  Log::debug(
+      {"[Media.cpp] Starting validation for: ", this->file->originalFileName});
 
   MediaProcessValidate validate(container, this);
-  validate.start("ffmpeg -v quiet -stats -i \"" + Media::file.conversionPath +
+  validate.start("ffmpeg -v quiet -stats -i \"" + this->file->conversionPath +
                  "\" -f null -");
 
   if (this->hasFailed()) {
@@ -140,15 +157,19 @@ void Media::buildFFmpegArguments(Container* container, bool isValidate) {
 
   if (container->appEncodingDecision.useHardwareDecode) {
     if (container->userCapabilities.GPU_Provider == "amd") {
-      this->ffmpegArguments.push_back("-hwaccel amf");
+      this->ffmpegArguments.push_back(
+          "-hwaccel " + HWAccelerators::getValue(HWAccelerators::AMD));
     } else if (container->userCapabilities.GPU_Provider == "intel") {
-      this->ffmpegArguments.push_back("-hwaccel qsv");
+      this->ffmpegArguments.push_back(
+          "-hwaccel " + HWAccelerators::getValue(HWAccelerators::INTEL));
     } else if (container->userCapabilities.GPU_Provider == "nvidia") {
-      this->ffmpegArguments.push_back("-hwaccel cuda");
+      this->ffmpegArguments.push_back(
+          "-hwaccel " + HWAccelerators::getValue(HWAccelerators::NVIDIA));
     }
   }
 
-  this->ffmpegArguments.push_back("-i \"" + this->file.path + "\"");
+  this->ffmpegArguments.push_back("-i \"" + this->file->originalFullPath +
+                                  "\"");
 
   this->ffmpegArguments.push_back("-map 0:v:0");
 
@@ -194,14 +215,14 @@ void Media::buildFFmpegArguments(Container* container, bool isValidate) {
 
   if (container->appEncodingDecision.crop) {
     this->ffmpegArguments.push_back(
-        "-vf scale=" + this->video.convertedResolution +
+        "-vf scale=" + this->video->convertedResolution +
         ":flags=lanczos,crop=" + format.crop);
 
   }
 
   else
     this->ffmpegArguments.push_back(
-        "-vf scale=" + this->video.convertedResolution + ":flags=lanczos");
+        "-vf scale=" + this->video->convertedResolution + ":flags=lanczos");
 
   if (container->appEncodingDecision.startBeginning != "") {
     this->ffmpegArguments.push_back(
@@ -232,7 +253,7 @@ void Media::buildFFmpegArguments(Container* container, bool isValidate) {
                                     container->appEncodingDecision.tune);
   }
 
-  this->ffmpegArguments.push_back("\"" + this->file.conversionPath + "\"");
+  this->ffmpegArguments.push_back("\"" + this->file->conversionPath + "\"");
 
   if (isValidate || container->appEncodingDecision.overwrite)
     this->ffmpegArguments.push_back("-y");
@@ -242,186 +263,4 @@ void Media::buildFFmpegArguments(Container* container, bool isValidate) {
 
   Log::debug(
       {"FFMPEG ARGUMENTS: ", ListUtils::join(this->ffmpegArguments, " ")});
-}
-
-void Media::rename(Container* container) {
-  Media::file.path = Media::path + "/" + Media::name;
-
-  // pattern for matching media names
-  // ex: The.Big.Bang.Theory.S01E01.720p.HDTV.ReEnc-Max.mkv
-  // ex: The Big Bang Theory - S01E01 - Pilot.mkv
-  // ex: The Big Bang Theory - 1x01 - Pilot.mkv
-  std::string mediaPattern =
-      R"((.+?)(?:[-\. ]+)(season.?\d{1,}|s\d{1,}).?((?:E|X)[0-9]{2}(?:-(?:E|X)[0-9]{2}|(?:E|X)[0-9]{2})*(?:-(?:E|X)[0-9]{2})?))";
-
-  // if the media name matches the media pattern
-  if (RegexUtils::isMatch(Media::name, mediaPattern, std::regex::icase)) {
-    // get all matches of the media name
-    std::vector<std::string> media_matches =
-        RegexUtils::getAllMatches(Media::name, mediaPattern, std::regex::icase);
-
-    Media::resolvePath(Media::name, Media::path);
-    Media::resolveExtension(Media::name);
-
-    Media::resolveSeries(media_matches[0]);
-    Media::resolveSeason(media_matches[1]);
-    Media::resolveEpisode(media_matches[2]);
-
-    Media::resolveQuality(Media::name);
-
-    Media::resolveModifiedFileName(
-        Media::file.series, std::to_string(Media::file.season),
-        Media::file.episode, container->appEncodingDecision.quality);
-    Media::resolveModifiedFileNameExt(Media::file.modifiedFileName,
-                                      Media::file.ext);
-
-    Media::resolveRenamePath(Media::file.modifiedFileName, Media::file.ext,
-                             Media::path);
-
-    Media::resolveConversionName(Media::file.modifiedFileName, Media::file.ext);
-    Media::resolveConversionPath(Media::file.conversionName, Media::file.series,
-                                 std::to_string(Media::file.season),
-                                 Media::path);
-
-    Log::debug({"[Media.cpp] Original file:", Media::name});
-    Log::debug({"[Media.cpp] Renamed file:", Media::file.conversionName});
-  } else {
-    // TODO: finish
-  }
-}
-
-/**
- * Checklist:
- *
- *   Make these all separate private functions
- *
- *   [x] - Path (full path with file name)
- *   [x] - Extension
- *   [x] - Modified file name
- *   [x] - Modified file name ext
- *   [x] - Conversion name
- *   [x] - Conversion path
- *   [x] - Rename path
- *   [] - Episode (episodes are matching e00- instead of e00)
- *   [x] - Series
- *   [x] - Quality
- *   [x] - Season
- */
-
-// if the pattern doesnt match, the mod file name is the same as the original
-
-void Media::resolvePath(std::string original_filename, std::string cwd) {
-  Media::file.path = cwd + "/" + original_filename;
-}
-
-void Media::resolveExtension(std::string original_filename) {
-  std::string ext = RegexUtils::getFirstMatch(
-      original_filename, R"((\.mkv|\.avi|\.srt|\.idx|\.sub))",
-      std::regex::icase);
-
-  if (ext != "") {
-    Media::file.ext = ext;
-  } else {
-    throw std::runtime_error("Could not find extension for file: " +
-                             original_filename);
-  }
-}
-
-void Media::resolveSeries(std::string series_match) {
-  if (series_match == "") {
-    throw std::runtime_error("Could not find series name for file: " +
-                             Media::file.path);
-  }
-
-  Media::file.series = StringUtils::replaceAll(series_match, ".", " ");
-}
-
-// should be a match of
-// season ## || s##
-// resolves to an integer
-
-void Media::resolveSeason(std::string season_match) {
-  if (season_match == "") {
-    throw std::runtime_error("Could not find season number for file: " +
-                             Media::file.path);
-  }
-
-  Media::file.season = std::stoi(StringUtils::replaceAll(
-      season_match, std::regex(R"(season|s)", std::regex::icase), ""));
-}
-
-// should be a match of
-// e## || x##
-// e##-e## || x##-x##
-
-void Media::resolveEpisode(std::string episode_match) {
-  if (episode_match == "") {
-    throw std::runtime_error("Could not find episode number for file: " +
-                             Media::file.path);
-  }
-
-  Media::file.episode =
-      StringUtils::replaceAll(episode_match, std::regex(R"([XxE])"), "e");
-}
-
-void Media::resolveQuality(std::string original_filename) {
-  std::string quality_match = RegexUtils::getFirstMatch(
-      original_filename, R"((1080p|720p|480p))", std::regex::icase);
-
-  if (quality_match == "") {
-    Log::debug(
-        {"[Media.cpp] Could not find quality for file: ", Media::file.path});
-  } else {
-    Media::file.quality =
-        std::stoi(StringUtils::replaceAll(quality_match, "p", ""));
-  }
-}
-
-void Media::resolveModifiedFileName(std::string series, std::string season,
-                                    std::string episode, std::string quality) {
-  if (quality == "") {
-    Media::file.modifiedFileName =
-        StringUtils::replaceAll(series, ".", "") + " - s" + season + episode;
-  } else {
-    Media::file.modifiedFileName =
-        series + " - s" + season + episode + " [" + quality + "]";
-  }
-}
-
-// set renamed media name with extension
-// it will also need to account for mkv and avi files
-// if mkv || avi, make ext mkv
-// else make original ext
-
-void Media::resolveModifiedFileNameExt(std::string modified_filename,
-                                       std::string ext) {
-  if (ext == ".mkv" || ext == ".avi") {
-    Media::file.modifiedFileNameExt = modified_filename + ".mkv";
-  } else {
-    Media::file.modifiedFileNameExt = modified_filename + ext;
-  }
-}
-
-// path to the renamed file
-// (cwd)/(modified_filename)
-// ie: /path/to/renamed/file/some season.mkv
-
-void Media::resolveRenamePath(std::string modified_filename, std::string ext,
-                              std::string cwd) {
-  Media::file.renamePath = cwd + "/" + modified_filename + ext;
-}
-
-void Media::resolveConversionName(std::string modified_filename,
-                                  std::string extension) {
-  Media::file.conversionName = modified_filename + extension;
-}
-
-// path to the converted file
-// (cwd)/(series name) (series number)/(conversion_name)
-
-void Media::resolveConversionPath(std::string conversion_filename,
-                                  std::string series, std::string season,
-                                  std::string cwd) {
-  Media::file.conversionPath =
-      cwd + "/" + series + " Season " + season + "/" + conversion_filename;
 }

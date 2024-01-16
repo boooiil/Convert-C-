@@ -74,11 +74,11 @@ void MediaProcessConversion::parse(std::string data) {
     // assert(completedFrames != "");
     // assert(fps != "");
 
-    if (quality != "-1.0") this->media->working.quality = std::stof(quality);
-    this->media->working.bitrate = std::stof(bitrate);
-    this->media->file.newSize = std::stoi(size) * 1000;
-    this->media->working.completedFrames = std::stoi(completedFrames);
-    this->media->working.fps = std::stof(fps);
+    if (quality != "-1.0") this->media->working->quality = std::stof(quality);
+    this->media->working->bitrate = std::stof(bitrate);
+    this->media->file->newSize = std::stoi(size) * 1000;
+    this->media->working->completedFrames = std::stoi(completedFrames);
+    this->media->working->fps = std::stof(fps);
 
     Log::debug({"[MediaProcessConversion.cpp] QUALITY:", quality});
     Log::debug({"[MediaProcessConversion.cpp] BITRATE:", bitrate});

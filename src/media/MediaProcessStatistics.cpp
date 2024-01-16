@@ -82,13 +82,13 @@ void MediaProcessStatistics::parse(std::string data) {
   int seconds = std::stoi(timeParts[2]);
   int duration = (hours * 60 * 60) + (minutes * 60) + seconds;
 
-  this->media->file.size = std::stoi(pr.format.size);
-  this->media->video.fps =
+  this->media->file->size = std::stoi(pr.format.size);
+  this->media->video->fps =
       round((static_cast<float>(numerator) / denominator) * 100) / 100;
-  this->media->video.width = prsv.width;
-  this->media->video.height = prsv.height;
-  this->media->video.totalFrames =
-      static_cast<int>(std::ceil(duration * this->media->video.fps));
+  this->media->video->width = prsv.width;
+  this->media->video->height = prsv.height;
+  this->media->video->totalFrames =
+      static_cast<int>(std::ceil(duration * this->media->video->fps));
 
   assert(RegexUtils::isMatch(this->container->appEncodingDecision.quality,
                              "720p"));
@@ -96,11 +96,11 @@ void MediaProcessStatistics::parse(std::string data) {
   MediaFormat format =
       MediaDefinedFormat::formats[this->container->appEncodingDecision.quality];
 
-  this->media->video.convertedWidth = std::to_string(format.width);
-  this->media->video.convertedHeight = std::to_string(format.getResolution(
-      this->media->video.width, this->media->video.height, format.width));
-  this->media->video.convertedResolution = this->media->video.convertedWidth +
-                                           ":" +
-                                           this->media->video.convertedHeight;
-  this->media->video.crf = format.crf;
+  this->media->video->convertedWidth = std::to_string(format.width);
+  this->media->video->convertedHeight = std::to_string(format.getResolution(
+      this->media->video->width, this->media->video->height, format.width));
+  this->media->video->convertedResolution = this->media->video->convertedWidth +
+                                            ":" +
+                                            this->media->video->convertedHeight;
+  this->media->video->crf = format.crf;
 }

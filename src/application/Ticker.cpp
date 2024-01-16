@@ -32,7 +32,8 @@ void Ticker::start() {
       Media* media = container->pending.front();
 
       if (!media->isWaiting()) {
-        container->log.debug({"[Ticker.cpp] Media is not waiting:", media->name,
+        container->log.debug({"[Ticker.cpp] Media is not waiting:",
+                              media->file->originalFileName,
                               Activity::getValue(media->getActivity())});
         if (currentAmount == 0) {
           container->log.flushBuffer();
@@ -65,8 +66,8 @@ void Ticker::start() {
       // iterate over converting
       while (!container->converting.empty()) {
         Media* value = container->converting.front();
-        container->log.send(
-            {LogColor::fgRed("CURRENT FILE: " + value->file.modifiedFileName)});
+        container->log.send({LogColor::fgRed("CURRENT FILE: " +
+                                             value->file->modifiedFileName)});
         container->converting.pop();
       }
     }
@@ -78,7 +79,7 @@ void Ticker::start() {
     while (!container->converting.empty()) {
       Media* media = container->converting.front();
 
-      container->log.debug({"[Ticker.cpp]", media->name,
+      container->log.debug({"[Ticker.cpp]", media->file->originalFileName,
                             Activity::getValue(media->getActivity())});
 
       if (!media->isProcessing()) {
@@ -99,7 +100,7 @@ void Ticker::start() {
         media->ended = TimeUtils::getEpoch();
 
         container->log.debug(
-            {"[Ticker.cpp] Media ended:", media->file.modifiedFileName});
+            {"[Ticker.cpp] Media ended:", media->file->modifiedFileName});
         container->pending.push(media);
         container->log.debug({"[Ticker.cpp] pending size after finish:",
                               std::to_string(container->pending.size())});
@@ -127,7 +128,7 @@ void Ticker::end() {
 
   if (Debug::toggle) {
     container->log.debug(
-        {LogColor::fgRed("Debugging enabled. Writing debug file.")});
+        {LogColor::fgRed("Debugging enabled. Writing debug file->")});
     Ticker::writeDebug();
     container->log.debug({LogColor::fgRed("Debug file written.")});
   }
@@ -164,43 +165,43 @@ void Ticker::writeDebug() {
     nlohmann::json mediaVideoDebug;
     nlohmann::json mediaWorkingDebug;
 
-    mediaDebug["name"] = media->name;
+    mediaDebug["name"] = media->file->originalFileName;
     mediaDebug["activity"] = Activity::getValue(media->getActivity());
-    mediaDebug["path"] = media->file.path;
+    mediaDebug["path"] = media->file->cwd;
     mediaDebug["started"] = media->started;
     mediaDebug["ended"] = media->ended;
     // this might not work
     mediaDebug["ffmpegArguments"] = media->ffmpegArguments;
 
-    mediaFileDebug["modifiedFileName"] = media->file.modifiedFileName;
-    mediaFileDebug["modifiedFileNameExt"] = media->file.modifiedFileNameExt;
-    mediaFileDebug["conversionName"] = media->file.conversionName;
-    mediaFileDebug["ext"] = media->file.ext;
-    mediaFileDebug["size"] = media->file.size;
-    mediaFileDebug["newSize"] = media->file.newSize;
-    mediaFileDebug["validationSize"] = media->file.validationSize;
-    mediaFileDebug["path"] = media->file.path;
-    mediaFileDebug["conversionPath"] = media->file.conversionPath;
-    mediaFileDebug["quality"] = media->file.quality;
-    mediaFileDebug["series"] = media->file.series;
-    mediaFileDebug["season"] = media->file.season;
+    mediaFileDebug["modifiedFileName"] = media->file->modifiedFileName;
+    mediaFileDebug["modifiedFileNameExt"] = media->file->modifiedFileNameExt;
+    mediaFileDebug["conversionName"] = media->file->conversionName;
+    mediaFileDebug["ext"] = media->file->ext;
+    mediaFileDebug["size"] = media->file->size;
+    mediaFileDebug["newSize"] = media->file->newSize;
+    mediaFileDebug["validationSize"] = media->file->validationSize;
+    mediaFileDebug["path"] = media->file->originalFullPath;
+    mediaFileDebug["conversionPath"] = media->file->conversionPath;
+    mediaFileDebug["quality"] = media->file->quality;
+    mediaFileDebug["series"] = media->file->series;
+    mediaFileDebug["season"] = media->file->season;
 
-    mediaVideoDebug["fps"] = media->video.fps;
-    mediaVideoDebug["totalFrames"] = media->video.totalFrames;
-    mediaVideoDebug["subtitleProvider"] = media->video.subtitleProvider;
-    mediaVideoDebug["width"] = media->video.width;
-    mediaVideoDebug["height"] = media->video.height;
-    mediaVideoDebug["ratio"] = media->video.ratio;
-    mediaVideoDebug["convertedWidth"] = media->video.convertedWidth;
-    mediaVideoDebug["convertedHeight"] = media->video.convertedHeight;
-    mediaVideoDebug["convertedResolution"] = media->video.convertedResolution;
-    mediaVideoDebug["crop"] = media->video.crop;
-    mediaVideoDebug["crf"] = media->video.crf;
+    mediaVideoDebug["fps"] = media->video->fps;
+    mediaVideoDebug["totalFrames"] = media->video->totalFrames;
+    mediaVideoDebug["subtitleProvider"] = media->video->subtitleProvider;
+    mediaVideoDebug["width"] = media->video->width;
+    mediaVideoDebug["height"] = media->video->height;
+    mediaVideoDebug["ratio"] = media->video->ratio;
+    mediaVideoDebug["convertedWidth"] = media->video->convertedWidth;
+    mediaVideoDebug["convertedHeight"] = media->video->convertedHeight;
+    mediaVideoDebug["convertedResolution"] = media->video->convertedResolution;
+    mediaVideoDebug["crop"] = media->video->crop;
+    mediaVideoDebug["crf"] = media->video->crf;
 
-    mediaWorkingDebug["fps"] = media->working.fps;
-    mediaWorkingDebug["completedFrames"] = media->working.completedFrames;
-    mediaWorkingDebug["quality"] = media->working.quality;
-    mediaWorkingDebug["bitrate"] = media->working.bitrate;
+    mediaWorkingDebug["fps"] = media->working->fps;
+    mediaWorkingDebug["completedFrames"] = media->working->completedFrames;
+    mediaWorkingDebug["quality"] = media->working->quality;
+    mediaWorkingDebug["bitrate"] = media->working->bitrate;
 
     mediaDebug["file"] = mediaFileDebug;
     mediaDebug["video"] = mediaVideoDebug;
@@ -223,42 +224,42 @@ void Ticker::writeDebug() {
     nlohmann::json mediaVideoDebug;
     nlohmann::json mediaWorkingDebug;
 
-    mediaDebug["name"] = media->name;
+    mediaDebug["name"] = media->file->originalFileName;
     mediaDebug["activity"] = Activity::getValue(media->getActivity());
-    mediaDebug["path"] = media->file.path;
+    mediaDebug["path"] = media->file->cwd;
     mediaDebug["started"] = media->started;
     mediaDebug["ended"] = media->ended;
     mediaDebug["ffmpegArguments"] = media->ffmpegArguments;
 
-    mediaFileDebug["modifiedFileName"] = media->file.modifiedFileName;
-    mediaFileDebug["modifiedFileNameExt"] = media->file.modifiedFileNameExt;
-    mediaFileDebug["conversionName"] = media->file.conversionName;
-    mediaFileDebug["ext"] = media->file.ext;
-    mediaFileDebug["size"] = media->file.size;
-    mediaFileDebug["newSize"] = media->file.newSize;
-    mediaFileDebug["validationSize"] = media->file.validationSize;
-    mediaFileDebug["path"] = media->file.path;
-    mediaFileDebug["conversionPath"] = media->file.conversionPath;
-    mediaFileDebug["quality"] = media->file.quality;
-    mediaFileDebug["series"] = media->file.series;
-    mediaFileDebug["season"] = media->file.season;
+    mediaFileDebug["modifiedFileName"] = media->file->modifiedFileName;
+    mediaFileDebug["modifiedFileNameExt"] = media->file->modifiedFileNameExt;
+    mediaFileDebug["conversionName"] = media->file->conversionName;
+    mediaFileDebug["ext"] = media->file->ext;
+    mediaFileDebug["size"] = media->file->size;
+    mediaFileDebug["newSize"] = media->file->newSize;
+    mediaFileDebug["validationSize"] = media->file->validationSize;
+    mediaFileDebug["path"] = media->file->originalFullPath;
+    mediaFileDebug["conversionPath"] = media->file->conversionPath;
+    mediaFileDebug["quality"] = media->file->quality;
+    mediaFileDebug["series"] = media->file->series;
+    mediaFileDebug["season"] = media->file->season;
 
-    mediaVideoDebug["fps"] = media->video.fps;
-    mediaVideoDebug["totalFrames"] = media->video.totalFrames;
-    mediaVideoDebug["subtitleProvider"] = media->video.subtitleProvider;
-    mediaVideoDebug["width"] = media->video.width;
-    mediaVideoDebug["height"] = media->video.height;
-    mediaVideoDebug["ratio"] = media->video.ratio;
-    mediaVideoDebug["convertedWidth"] = media->video.convertedWidth;
-    mediaVideoDebug["convertedHeight"] = media->video.convertedHeight;
-    mediaVideoDebug["convertedResolution"] = media->video.convertedResolution;
-    mediaVideoDebug["crop"] = media->video.crop;
-    mediaVideoDebug["crf"] = media->video.crf;
+    mediaVideoDebug["fps"] = media->video->fps;
+    mediaVideoDebug["totalFrames"] = media->video->totalFrames;
+    mediaVideoDebug["subtitleProvider"] = media->video->subtitleProvider;
+    mediaVideoDebug["width"] = media->video->width;
+    mediaVideoDebug["height"] = media->video->height;
+    mediaVideoDebug["ratio"] = media->video->ratio;
+    mediaVideoDebug["convertedWidth"] = media->video->convertedWidth;
+    mediaVideoDebug["convertedHeight"] = media->video->convertedHeight;
+    mediaVideoDebug["convertedResolution"] = media->video->convertedResolution;
+    mediaVideoDebug["crop"] = media->video->crop;
+    mediaVideoDebug["crf"] = media->video->crf;
 
-    mediaWorkingDebug["fps"] = media->working.fps;
-    mediaWorkingDebug["completedFrames"] = media->working.completedFrames;
-    mediaWorkingDebug["quality"] = media->working.quality;
-    mediaWorkingDebug["bitrate"] = media->working.bitrate;
+    mediaWorkingDebug["fps"] = media->working->fps;
+    mediaWorkingDebug["completedFrames"] = media->working->completedFrames;
+    mediaWorkingDebug["quality"] = media->working->quality;
+    mediaWorkingDebug["bitrate"] = media->working->bitrate;
 
     mediaDebug["file"] = mediaFileDebug;
     mediaDebug["video"] = mediaVideoDebug;
@@ -329,7 +330,7 @@ void Ticker::writeDebug() {
   std::ofstream oFile("container_debug.json");
 
   if (!oFile.is_open()) {
-    container->log.send({LogColor::fgRed("Failed to open debug file.")});
+    container->log.send({LogColor::fgRed("Failed to open debug file->")});
     return;
   }
 

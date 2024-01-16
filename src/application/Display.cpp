@@ -73,9 +73,9 @@ void Display::print() {
     Media* media = this->container->converting.front();
     this->container->converting.pop();
 
-    float mediaFPS = media->working.fps > 0 ? media->working.fps : 1;
-    int totalFrames = media->video.totalFrames;
-    int completedFrames = media->working.completedFrames;
+    float mediaFPS = media->working->fps > 0 ? media->working->fps : 1;
+    int totalFrames = media->video->totalFrames;
+    int completedFrames = media->working->completedFrames;
     int diff = static_cast<int>(
         ceil((totalFrames - completedFrames) / mediaFPS) * 1000);
 
@@ -86,15 +86,15 @@ void Display::print() {
     std::string eta = ob + LogColor::fgCyan("ETA") + cb + " " +
                       TimeUtils::durationFormat(diff);
 
-    float crf = media->working.quality;
-    int v_crf = media->video.crf;
+    float crf = media->working->quality;
+    int v_crf = media->video->crf;
 
-    float workingFPS = media->working.fps;
-    float videoFPS = media->video.fps;
+    float workingFPS = media->working->fps;
+    float videoFPS = media->video->fps;
 
     std::string fileName = ob + LogColor::fgCyan("FILE") + cb + " " +
                            LogColor::fgGray(StringUtils::truncateString(
-                               media->file.modifiedFileName, 25));
+                               media->file->modifiedFileName, 25));
 
     std::string activity = ob + LogColor::fgCyan("ACT") + cb + " " +
                            Activity::getValue(media->getActivity());
@@ -111,9 +111,9 @@ void Display::print() {
     std::string speed = ob + LogColor::fgCyan("SPEED") + cb + " " +
                         NumberUtils::formatNumber(workingFPS / videoFPS, 2);
 
-    std::string bitrate = ob + LogColor::fgCyan("BITRATE") + cb + " " +
-                          NumberUtils::formatNumber(media->working.bitrate, 2) +
-                          "kb/s";
+    std::string bitrate =
+        ob + LogColor::fgCyan("BITRATE") + cb + " " +
+        NumberUtils::formatNumber(media->working->bitrate, 2) + "kb/s";
 
     this->container->log.sendBuffer(
         bufferLen, fileName + " " + activity + " " + started + " " + percent +
@@ -131,14 +131,15 @@ void Display::print() {
 
     std::string fileName = ob + LogColor::fgCyan("FILE") + cb + " " +
                            LogColor::fgGray(StringUtils::truncateString(
-                               media->file.modifiedFileName, 25));
+                               media->file->modifiedFileName, 25));
 
     std::string activity = ob + LogColor::fgCyan("ACT") + cb + " " +
                            Activity::getValue(media->getActivity());
 
     if (media->hasFinished()) {
       int calculatedSize = floor(
-          ((media->file.size - media->file.newSize) / media->file.size) * 100);
+          ((media->file->size - media->file->newSize) / media->file->size) *
+          100);
 
       std::string ended = ob + LogColor::fgCyan("END") + cb + " " +
                           TimeUtils::timeFormat(media->ended);
