@@ -56,7 +56,7 @@ class MediaFile {
   std::string ext;
 
   int number;          /// @brief Unsure?
-  int size;            /// @brief File size in bytes
+  std::size_t size;    /// @brief File size in bytes
   int newSize;         /// @brief File size in bytes after conversion
   int validationSize;  /// @brief File size in bytes after conversion
   int quality;         /// @brief Quality of the file
