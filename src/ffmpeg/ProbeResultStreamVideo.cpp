@@ -22,6 +22,8 @@ ProbeResultStreamVideo::~ProbeResultStreamVideo() {}
 ProbeResultStreamVideo::ProbeResultStreamVideo(nlohmann::json JSON)
     : is_avc(RegexUtils::isMatch(JSON["is_avc"], "true",
                                  std::regex_constants::icase)) {
+  Log::debug(
+      {"[ProbeResultStreamVideo.cpp] Starting ProbeResultStreamVideo..."});
   ProbeResultStreamVideo::index = JSON["index"];
   Log::debug({"[ProbeResultStreamVideo.cpp] codec_name: ", JSON["codec_name"]});
   ProbeResultStreamVideo::codec_name = JSON["codec_name"];
@@ -130,4 +132,6 @@ ProbeResultStreamVideo::ProbeResultStreamVideo(nlohmann::json JSON)
   Log::debug({"[ProbeResultStreamVideo.cpp] bits_per_raw_sample: ",
               JSON["bits_per_raw_sample"]});
   ProbeResultStreamVideo::bits_per_raw_sample = JSON["bits_per_raw_sample"];
+
+  Log::debug({"[ProbeResultStreamVideo.cpp] Ended ProbeResultStreamVideo"});
 }

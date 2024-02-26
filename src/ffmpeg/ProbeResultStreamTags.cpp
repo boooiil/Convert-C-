@@ -44,4 +44,5 @@ ProbeResultStreamTags::ProbeResultStreamTags(nlohmann::json JSON) {
     Log::debug({"[ProbeResultStreamTags.cpp] DURATION: ", JSON["DURATION"]});
     ProbeResultStreamTags::DURATION = JSON["DURATION"];
   }
+  Log::debug({"[ProbeResultStreamTags.cpp] Ended ProbeResultStreamTags"});
 }

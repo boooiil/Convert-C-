@@ -8,6 +8,9 @@ ProbeResultStreamSubtitle::ProbeResultStreamSubtitle() : duration_ts(-1) {}
 ProbeResultStreamSubtitle::~ProbeResultStreamSubtitle() {}
 
 ProbeResultStreamSubtitle::ProbeResultStreamSubtitle(nlohmann::json JSON) {
+  Log::debug(
+      {"[ProbeResultStreamSubtitle.cpp] Starting "
+       "ProbeResultStreamSubtitle..."});
   ProbeResultStreamSubtitle::index = JSON["index"];
   Log::debug(
       {"[ProbeResultStreamSubtitle.cpp] codec_name: ", JSON["codec_name"]});
@@ -49,4 +52,6 @@ ProbeResultStreamSubtitle::ProbeResultStreamSubtitle(nlohmann::json JSON) {
   ProbeResultStreamSubtitle::duration_ts = JSON["duration_ts"];
   Log::debug({"[ProbeResultStreamSubtitle.cpp] duration: ", JSON["duration"]});
   ProbeResultStreamSubtitle::duration = JSON["duration"];
+  Log::debug(
+      {"[ProbeResultStreamSubtitle.cpp] Ended ProbeResultStreamSubtitle"});
 }

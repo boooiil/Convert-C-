@@ -10,6 +10,8 @@ ProbeResultFormat::~ProbeResultFormat() {}
 
 ProbeResultFormat::ProbeResultFormat(nlohmann::json JSON) {
   Log::debug({"[ProbeResultFormat.cpp] filename: ", JSON["filename"]});
+  Log::debug({"[ProbeResultFormat.cpp] json: ", JSON.dump(4)});
+  Log::debug({"[ProbeResultFormat.cpp] size: ", JSON["size"]});
   ProbeResultFormat::filename = JSON["filename"];
   ProbeResultFormat::nb_streams = JSON["nb_streams"];
   ProbeResultFormat::nb_programs = JSON["nb_programs"];

@@ -9,6 +9,8 @@ ProbeResultStreamAudio::ProbeResultStreamAudio()
 ProbeResultStreamAudio::~ProbeResultStreamAudio() {}
 
 ProbeResultStreamAudio::ProbeResultStreamAudio(nlohmann::json JSON) {
+  Log::debug(
+      {"[ProbeResultStreamAudio.cpp] Starting ProbeResultStreamAudio..."});
   ProbeResultStreamAudio::index = JSON["index"];
   Log::debug({"[ProbeResultStreamAudio.cpp] codec_name: ", JSON["codec_name"]});
   ProbeResultStreamAudio::codec_name = JSON["codec_name"];
@@ -56,4 +58,5 @@ ProbeResultStreamAudio::ProbeResultStreamAudio(nlohmann::json JSON) {
   ProbeResultStreamAudio::bits_per_sample = JSON["bits_per_sample"];
   /* Does not appear on linux (ubuntu), apt, ffmpeg=4.4.2-0ubuntu0.22.04.1 */
   // ProbeResultStreamAudio::initial_padding = JSON["initial_padding"];
+  Log::debug({"[ProbeResultStreamAudio.cpp] Ended ProbeResultStreamAudio"});
 }
