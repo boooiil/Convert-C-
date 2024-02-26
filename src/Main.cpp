@@ -110,7 +110,7 @@ int main(int argc, char* argv[]) {
     Ticker::end();
 
   } catch (const std::exception& e) {
-    std::cout << e.what() << std::endl;
+    std::cout << "Error: " << e.what() << std::endl;
 
     Ticker::end();
   }
