@@ -82,7 +82,7 @@ void MediaProcessStatistics::parse(std::string data) {
   int seconds = std::stoi(timeParts[2]);
   int duration = (hours * 60 * 60) + (minutes * 60) + seconds;
 
-  this->media->file->size = std::stoi(pr.format.size);
+  this->media->file->size = std::stoull(pr.format.size);
   this->media->video->fps =
       round((static_cast<float>(numerator) / denominator) * 100) / 100;
   this->media->video->width = prsv.width;
