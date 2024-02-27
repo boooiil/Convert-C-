@@ -23,7 +23,7 @@ void MediaProcessValidate::parse(std::string data) {
 
     if (quality != "-1.0") this->media->working->quality = std::stof(quality);
     this->media->working->bitrate = -1;
-    this->media->working->completedFrames = std::stoi(completedFrames);
+    this->media->working->completedFrames = std::stoll(completedFrames);
     this->media->working->fps = std::stof(fps);
   }
 }
