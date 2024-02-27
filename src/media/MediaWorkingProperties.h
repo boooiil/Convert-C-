@@ -28,7 +28,7 @@ class MediaWorkingProperties {
   float fps;      /// The speed of processing frames.
 
   ///  The number of frames that have been processed.
-  int completedFrames;
+  std::size_t completedFrames;
 };
 
 #endif  // !MEDIA_WORKING_PROPERTIES

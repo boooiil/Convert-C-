@@ -55,12 +55,12 @@ class MediaFile {
   /// @brief File extension
   std::string ext;
 
-  int number;          /// @brief Unsure?
-  std::size_t size;    /// @brief File size in bytes
-  int newSize;         /// @brief File size in bytes after conversion
-  int validationSize;  /// @brief File size in bytes after conversion
-  int quality;         /// @brief Quality of the file
-  int season;          /// @brief Season number
+  int number;                  /// @brief Unsure?
+  std::size_t size;            /// @brief File size in bytes
+  std::size_t newSize;         /// @brief File size in bytes after conversion
+  std::size_t validationSize;  /// @brief File size in bytes after conversion
+  int quality;                 /// @brief Quality of the file
+  int season;                  /// @brief Season number
 
   /**
    * @brief Rename the current media name to a standard format.
