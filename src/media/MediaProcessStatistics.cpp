@@ -73,14 +73,28 @@ void MediaProcessStatistics::parse(std::string data) {
   char slash;
   rateStream >> numerator >> slash >> denominator;
 
-  // TODO: calc duration??
-  std::vector<std::string> timeParts =
-      ListUtils::splitv(prsv.tags.DURATION, std::string(":"));
+  int hours;
+  int minutes;
+  int seconds;
+  int duration;
 
-  int hours = std::stoi(timeParts[0]);
-  int minutes = std::stoi(timeParts[1]);
-  int seconds = std::stoi(timeParts[2]);
-  int duration = (hours * 60 * 60) + (minutes * 60) + seconds;
+  if (!prsv.tags.DURATION.empty()) {
+    // TODO: calc duration??
+    std::vector<std::string> timeParts =
+        ListUtils::splitv(prsv.tags.DURATION, std::string(":"));
+
+    hours = std::stoi(timeParts[0]);
+    minutes = std::stoi(timeParts[1]);
+    seconds = std::stoi(timeParts[2]);
+    duration = (hours * 60 * 60) + (minutes * 60) + seconds;
+  } else {
+    Log::debug({"[MediaProcessStatistics.cpp] DURATION NOT FOUND"});
+    Log::debug(
+        {"[MediaProcessStatistics.cpp] Obtaining duration from format. This "
+         "could be inaccurate."});
+
+    duration = (int)std::stof(pr.format.duration);
+  }
 
   this->media->file->size = std::stoull(pr.format.size);
   this->media->video->fps =
