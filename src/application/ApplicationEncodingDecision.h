@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 
+#include "../media/MediaFormat.h"
+
 /**
  * @brief Holds the user's encoding decision.
  */
@@ -29,7 +31,7 @@ class ApplicationEncodingDecision {
   /// @brief The current decoder being used
   std::string runningDecoder;
   /// @brief Defined MediaFormat quality
-  std::string quality;
+  MediaFormat quality;
   /// @brief Codec tune setting
   std::string tune;
   /// @brief Start the video from this time
@@ -56,6 +58,14 @@ class ApplicationEncodingDecision {
   bool useHardwareEncode;
   /// @brief Overwrite existing file
   bool overwrite;
+
+  // TODO: move this to a different class
+  /// @brief Print information about the video
+  bool printInformation;
+
+  // TODO: move this to a different class
+  /// @brief Print help information
+  bool printHelp;
 
   /**
    * @brief Validate the user's settings.
