@@ -7,6 +7,7 @@
 #include "../utils/StringUtils.h"
 #include "./Container.h"
 #include "./Debug.h"
+#include "./Ticker.h"
 
 UserArguments::UserArguments() {}
 UserArguments::~UserArguments() {}
@@ -34,7 +35,11 @@ void UserArguments::parse(Container* container, int argc, char* argv[]) {
     }
 
     else if (option == "-h" || option == "--help") {
-      // todo: implement
+      container->appEncodingDecision.printHelp = true;
+    }
+
+    else if (option == "-i" || option == "--info") {
+      container->appEncodingDecision.printInformation = true;
     }
 
     else if (option == "-d" || option == "--debug") {
@@ -52,13 +57,15 @@ void UserArguments::parse(Container* container, int argc, char* argv[]) {
       std::string value = StringUtils::toLowerCase(argv[++i]);
       Log::debug({"[UserArguments.cpp] Value:", value});
       if (MediaDefinedFormat::formats.count(value) > 0) {
-        container->appEncodingDecision.quality = value;
+        container->appEncodingDecision.quality =
+            MediaDefinedFormat::formats[value];
       } else if (RegexUtils::isMatch(value, "[0-9]+p")) {
         std::string quality_str = StringUtils::replaceAll(value, "p", "");
         int quality = std::stoi(quality_str);
 
         MediaDefinedFormat::addCustomFormat(quality);
-        container->appEncodingDecision.quality = value;
+        container->appEncodingDecision.quality =
+            MediaDefinedFormat::formats[value];
       }
 
       else {
