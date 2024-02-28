@@ -22,6 +22,10 @@ class Ticker {
 
   /// @brief Initializes the Ticker object.
   static void init();
+  // @brief Determines the next action to take.
+  static void determineNextAction();
+  /// @brief Prints information about the process.
+  static void printInformation();
   /// @brief Starts the main loop of the program.
   static void start();
   /// @brief Ends the main loop of the program.
