@@ -7,6 +7,7 @@
 #include "../utils/RegexUtils.h"
 #include "../utils/TimeUtils.h"
 #include "./Debug.h"
+#include "./Help.h"
 #include "nlohmann/json.hpp"
 
 Container* Ticker::container = nullptr;
@@ -17,6 +18,153 @@ void Ticker::init() {
   Ticker::container = new Container();
   Ticker::display = new Display(container);
 }
+
+void Ticker::determineNextAction() {
+  if (container->appEncodingDecision.printHelp) {
+    Help::printHelp();
+  } else if (container->appEncodingDecision.printInformation) {
+    Ticker::printInformation();
+  } else {
+    Ticker::start();
+  }
+  Ticker::end();
+}
+
+void Ticker::printInformation() {
+  container->log.debug({
+      LogColor::fgBlack("Black"),
+      LogColor::fgRed("Red"),
+      LogColor::fgGreen("Green"),
+      LogColor::fgGray("Gray"),
+      LogColor::fgYellow("Yellow"),
+      LogColor::fgBlue("Blue"),
+      LogColor::fgOrange("Orange"),
+      LogColor::fgMagenta("Magenta"),
+      LogColor::fgCyan("Cyan"),
+      LogColor::fgWhite("White"),
+  });
+
+  if (container->pending.empty()) {
+    container->log.send({LogColor::fgRed("No media files found.")});
+    return;
+  }
+
+  std::queue<Media*> t_queue;
+
+  while (!container->pending.empty()) {
+    Media* media = container->pending.front();
+    container->pending.pop();
+
+    media->doStatistics(container);
+
+    std::string nl = "\n";
+    std::string ob = LogColor::fgGray("[");
+    std::string cb = LogColor::fgGray("]");
+    std::string colon = LogColor::fgGray(": ");
+
+    container->log.send(
+        {nl + ob + LogColor::fgRed(media->file->originalFileName) + cb + nl});
+
+    container->log.send({LogColor::fgWhite("  " + ob + "Format") + cb});
+
+    container->log.send(
+        {LogColor::bgBlue("    Duration") + colon +
+         LogColor::bgOrange(media->probeResult->format.duration)});
+
+    container->log.send(
+        {LogColor::bgBlue("    Format: ") +
+         LogColor::bgOrange(media->probeResult->format.format_name)});
+
+    container->log.send(
+        {LogColor::bgBlue("    Bit Rate: ") +
+         LogColor::bgOrange(media->probeResult->format.bit_rate)});
+
+    container->log.send({LogColor::bgBlue("    Size: ") +
+                         LogColor::bgOrange(media->probeResult->format.size)});
+
+    container->log.send({LogColor::bgBlue("    Stream Count: ") +
+                         LogColor::bgOrange(std::to_string(
+                             media->probeResult->format.nb_streams))});
+
+    container->log.send(
+        {LogColor::fgWhite(nl + "  " + ob + "Video Streams") + cb});
+
+    // video streams
+    for (int i = 0; i < media->probeResult->videoStreams.size(); i++) {
+      ProbeResultStreamVideo prsv = media->probeResult->videoStreams[i];
+
+      container->log.send({"    " + ob + std::to_string(i) + cb + " " +
+                           LogColor::fgOrange(prsv.codec_name)});
+
+      container->log.send(
+          {LogColor::fgBlue("      Profile") + colon +
+           LogColor::fgOrange(prsv.profile.empty() ? "None" : prsv.profile)});
+
+      container->log.send(
+          {LogColor::fgBlue("      Res") + colon +
+           LogColor::fgOrange(std::to_string(prsv.width) + "x" +
+                              std::to_string(prsv.height)) +
+           " (" + LogColor::fgOrange(prsv.display_aspect_ratio) + ")"});
+
+      container->log.send({LogColor::fgBlue("      Listed Duration") + colon +
+                           LogColor::fgOrange(prsv.tags.DURATION.empty()
+                                                  ? "None"
+                                                  : prsv.tags.DURATION)});
+    }
+
+    container->log.send(
+        {LogColor::fgWhite(nl + "  " + ob + "Audio Streams") + cb});
+
+    // audio streams
+    for (int i = 0; i < media->probeResult->audioStreams.size(); i++) {
+      ProbeResultStreamAudio prsa = media->probeResult->audioStreams[i];
+
+      container->log.send({"    " + ob + std::to_string(i) + cb + " " +
+                           LogColor::fgOrange(prsa.tags.language)});
+
+      container->log.send(
+          {LogColor::fgBlue("      Title") + colon +
+           LogColor::fgOrange(prsa.tags.title.empty() ? "None"
+                                                      : prsa.tags.title)});
+
+      container->log.send({LogColor::fgBlue("      Codec") + colon +
+                           LogColor::fgOrange(prsa.codec_name)});
+
+      container->log.send({LogColor::fgBlue("      Channels") + colon +
+                           LogColor::fgOrange(std::to_string(prsa.channels))});
+
+      container->log.send({LogColor::fgBlue("      Channel Layout") + colon +
+                           LogColor::fgOrange(prsa.channel_layout)});
+
+      container->log.send({LogColor::fgBlue("      Sample Rate") + colon +
+                           LogColor::fgOrange(prsa.sample_rate)});
+
+      container->log.send({LogColor::fgBlue("      Bit Rate") + colon +
+                           LogColor::fgOrange(prsa.tags.BPS)});
+    }
+
+    container->log.send(
+        {LogColor::fgWhite(nl + "  " + ob + "Subtitle Streams") + cb});
+
+    // subtitle streams
+    for (int i = 0; i < media->probeResult->subtitleStreams.size(); i++) {
+      ProbeResultStreamSubtitle prss = media->probeResult->subtitleStreams[i];
+
+      container->log.send({"    " + ob + std::to_string(i) + cb + " " +
+                           LogColor::fgOrange(prss.tags.language)});
+
+      container->log.send({LogColor::fgBlue("      Title") + colon +
+                           LogColor::fgOrange(prss.tags.title)});
+
+      container->log.send({LogColor::fgBlue("      Codec") + colon +
+                           LogColor::fgOrange(prss.codec_name)});
+    }
+
+    t_queue.push(media);
+  }
+
+  container->converting = t_queue;
+};
 
 void Ticker::start() {
   // once every second
@@ -91,8 +239,10 @@ void Ticker::start() {
           workerThreads.emplace_back(
               [media]() { media->doConversion(container); });
 
-        } else if (media->isWaitingToValidate())
-          media->doValidation(container);
+        } else if (media->isWaitingToValidate()) {
+          workerThreads.emplace_back(
+              [media]() { media->doValidation(container); });
+        }
       }
 
       if (media->hasFailed() || media->hasFinished()) {
@@ -272,7 +422,7 @@ void Ticker::writeDebug() {
 
   container->pending = t_queue;
 
-  container->log.sendPlain({container->appEncodingDecision.quality});
+  container->log.sendPlain({container->appEncodingDecision.quality.name});
 
   json["appEncodingDecision"]["wantedEncoder"] =
       container->appEncodingDecision.wantedEncoder;
@@ -281,7 +431,7 @@ void Ticker::writeDebug() {
   json["appEncodingDecision"]["runningDecoder"] =
       container->appEncodingDecision.runningDecoder;
   json["appEncodingDecision"]["quality"] =
-      container->appEncodingDecision.quality;
+      container->appEncodingDecision.quality.name;
   json["appEncodingDecision"]["tune"] = container->appEncodingDecision.tune;
   json["appEncodingDecision"]["amount"] = container->appEncodingDecision.amount;
   json["appEncodingDecision"]["crfOverride"] =
