@@ -31,7 +31,7 @@ void Display::print() {
       LogColor::fgGray(this->container->appEncodingDecision.runningDecoder);
   std::string resolution =
       ob + LogColor::fgCyan("RES") + cb + " " +
-      LogColor::fgGray(this->container->appEncodingDecision.quality);
+      LogColor::fgGray(this->container->appEncodingDecision.quality.name);
   std::string tune =
       ob + LogColor::fgCyan("TUNE") + cb + " " +
       LogColor::fgGray(this->container->appEncodingDecision.tune);
