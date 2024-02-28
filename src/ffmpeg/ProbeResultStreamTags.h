@@ -29,6 +29,8 @@ class ProbeResultStreamTags {
   ProbeResultStreamTags(const nlohmann::json JSON);
   ~ProbeResultStreamTags();
 
+  /// @brief language of the stream
+  std::string language;
   /// @brief title of the stream
   std::string title;
   /// @brief bits per second
