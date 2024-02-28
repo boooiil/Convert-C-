@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "../application/Activity.h"
+#include "../ffmpeg/ProbeResult.h"
 #include "MediaFile.h"
 #include "MediaVideoProperties.h"
 #include "MediaWorkingProperties.h"
@@ -30,6 +31,7 @@ class Media {
   long started;  /// @brief start time
   long ended;    /// @brief end time
 
+  ProbeResult* probeResult;         /// @brief ProbeResult object
   MediaFile* file;                  /// @brief MediaFile object
   MediaVideoProperties* video;      /// @brief MediaVideoProperties object
   MediaWorkingProperties* working;  /// @brief MediaWorkingProperties object
