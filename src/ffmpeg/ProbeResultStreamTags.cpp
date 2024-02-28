@@ -8,6 +8,11 @@ ProbeResultStreamTags::~ProbeResultStreamTags() {}
 ProbeResultStreamTags::ProbeResultStreamTags(nlohmann::json JSON) {
   Log::debug({"[ProbeResultStreamTags.cpp] Starting ProbeResultStreamTags..."});
 
+  if (!JSON["language"].is_null()) {
+    Log::debug({"[ProbeResultStreamTags.cpp] language: ", JSON["language"]});
+    ProbeResultStreamTags::language = JSON["language"];
+  }
+
   if (!JSON[title].is_null()) {
     Log::debug({"[ProbeResultStreamTags.cpp] title: ", JSON["title"]});
     ProbeResultStreamTags::title = JSON["title"];
