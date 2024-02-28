@@ -1,7 +1,9 @@
 #include "ApplicationEncodingDecision.h"
 
+#include "../media/MediaDefinedFormat.h"
+
 ApplicationEncodingDecision::ApplicationEncodingDecision()
-    : quality("720p"),
+    : quality(MediaDefinedFormat::formats["720p"]),
       runningDecoder("cuda"),
       runningEncoder("hevc"),
       amount(1),
@@ -12,7 +14,8 @@ ApplicationEncodingDecision::ApplicationEncodingDecision()
       validate(false),
       useHardwareDecode(true),
       useHardwareEncode(false),
-      overwrite(false) {}
+      overwrite(false),
+      printInformation(false) {}
 ApplicationEncodingDecision::~ApplicationEncodingDecision() {}
 
 void ApplicationEncodingDecision::validateSettings() {
