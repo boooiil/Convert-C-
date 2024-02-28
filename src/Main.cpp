@@ -106,8 +106,7 @@ int main(int argc, char* argv[]) {
 
     Ticker::container->scanWorkingDir();
 
-    Ticker::start();
-    Ticker::end();
+    Ticker::determineNextAction();
 
   } catch (const std::exception& e) {
     std::cout << "Error: " << e.what() << std::endl;
