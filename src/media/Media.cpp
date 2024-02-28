@@ -40,6 +40,7 @@ Media::~Media() {
   delete file;
   delete video;
   delete working;
+  delete probeResult;
 }
 
 Activity::ActivityType Media::getActivity() { return Media::activity; }
@@ -148,8 +149,7 @@ void Media::doValidation(Container* container) {
 }
 
 void Media::buildFFmpegArguments(Container* container, bool isValidate) {
-  MediaFormat format =
-      MediaDefinedFormat::formats[container->appEncodingDecision.quality];
+  MediaFormat format = container->appEncodingDecision.quality;
 
   this->ffmpegArguments.clear();
 
