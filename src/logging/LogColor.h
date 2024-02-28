@@ -41,6 +41,7 @@ class LogColor {
   static std::string fgBlue(std::string);
   static std::string fgMagenta(std::string);
   static std::string fgCyan(std::string);
+  static std::string fgOrange(std::string);
   static std::string fgWhite(std::string);
 
   /** ********************** *
@@ -55,6 +56,7 @@ class LogColor {
   static std::string bgBlue(std::string);
   static std::string bgMagenta(std::string);
   static std::string bgCyan(std::string);
+  static std::string bgOrange(std::string);
   static std::string bgWhite(std::string);
 
  private:
