@@ -62,13 +62,14 @@ void MediaProcessStatistics::start(std::string command) {
 
 void MediaProcessStatistics::parse(std::string data) {
   nlohmann::json JSON = nlohmann::json::parse(data);
-  ProbeResult pr = ProbeResult(JSON);
+  this->media->probeResult = new ProbeResult(JSON);
 
-  assert(pr.videoStreams.size() > 0);
+  assert(this->media->probeResult->videoStreams.size() > 0);
 
-  ProbeResultStreamVideo prsv = pr.videoStreams[0];
+  ProbeResultStreamVideo prsv = this->media->probeResult->videoStreams[0];
 
-  std::istringstream rateStream(pr.videoStreams[0].r_frame_rate);
+  std::istringstream rateStream(
+      this->media->probeResult->videoStreams[0].r_frame_rate);
   int numerator, denominator;
   char slash;
   rateStream >> numerator >> slash >> denominator;
@@ -93,10 +94,10 @@ void MediaProcessStatistics::parse(std::string data) {
         {"[MediaProcessStatistics.cpp] Obtaining duration from format. This "
          "could be inaccurate."});
 
-    duration = (int)std::stof(pr.format.duration);
+    duration = (int)std::stof(this->media->probeResult->format.duration);
   }
 
-  this->media->file->size = std::stoull(pr.format.size);
+  this->media->file->size = std::stoull(this->media->probeResult->format.size);
   this->media->video->fps =
       round((static_cast<float>(numerator) / denominator) * 100) / 100;
   this->media->video->width = prsv.width;
@@ -104,11 +105,9 @@ void MediaProcessStatistics::parse(std::string data) {
   this->media->video->totalFrames =
       static_cast<int>(std::ceil(duration * this->media->video->fps));
 
-  assert(RegexUtils::isMatch(this->container->appEncodingDecision.quality,
-                             "720p"));
+  assert(!this->container->appEncodingDecision.quality.name.empty());
 
-  MediaFormat format =
-      MediaDefinedFormat::formats[this->container->appEncodingDecision.quality];
+  MediaFormat format = container->appEncodingDecision.quality;
 
   this->media->video->convertedWidth = std::to_string(format.width);
   this->media->video->convertedHeight = std::to_string(format.getResolution(
