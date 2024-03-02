@@ -17,7 +17,12 @@
 
 /**
  * WALK AWAY NOTES:
-
+ *
+ * add option for modifying audio codec
+ * add option for modifying audio channels
+ *
+ * create argument factory
+ *
  */
 
 /**
@@ -102,7 +107,7 @@ int main(int argc, char* argv[]) {
   try {
     Ticker::container->userArguments.parse(Ticker::container, argc, argv);
     Ticker::container->userCapabilities.findHardwareDetails();
-    Ticker::container->appEncodingDecision.validateSettings();
+    Ticker::container->userSettings.validateSettings();
 
     Ticker::container->scanWorkingDir();
 
