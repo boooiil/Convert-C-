@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "../application/Debug.h"
+#include "../application/Ticker.h"
 
 Log::Log() : buffer(nullptr) {}
 Log::~Log() {
@@ -51,7 +51,7 @@ void Log::sendBuffer(int length, const char* message) {
 }
 
 void Log::debug(std::initializer_list<std::string> messages) {
-  if (Debug::toggle) Log::send(messages);
+  if (Ticker::container->userSettings.debug) Log::send(messages);
 }
 
 void Log::sendPlain(std::initializer_list<std::string> messages) {
