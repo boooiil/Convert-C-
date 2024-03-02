@@ -4,9 +4,7 @@
 #include <future>
 #include <thread>
 
-#include "../utils/RegexUtils.h"
 #include "../utils/TimeUtils.h"
-#include "./Debug.h"
 #include "./Help.h"
 #include "nlohmann/json.hpp"
 
@@ -20,9 +18,9 @@ void Ticker::init() {
 }
 
 void Ticker::determineNextAction() {
-  if (container->appEncodingDecision.printHelp) {
+  if (container->userSettings.printHelp) {
     Help::printHelp();
-  } else if (container->appEncodingDecision.printInformation) {
+  } else if (container->userSettings.printInformation) {
     Ticker::printInformation();
   } else {
     Ticker::start();
@@ -171,11 +169,10 @@ void Ticker::start() {
   while (true) {
     int currentAmount = static_cast<int>(container->converting.size());
 
-    container->log.debug(
-        {"[Ticker.cpp]", std::to_string(currentAmount),
-         std::to_string(container->appEncodingDecision.amount)});
+    container->log.debug({"[Ticker.cpp]", std::to_string(currentAmount),
+                          std::to_string(container->userSettings.amount)});
 
-    if ((currentAmount < container->appEncodingDecision.amount) &&
+    if ((currentAmount < container->userSettings.amount) &&
         !container->pending.empty()) {
       Media* media = container->pending.front();
 
@@ -199,17 +196,16 @@ void Ticker::start() {
     }
 
     // error if there are more converting than allowed
-    if (currentAmount > container->appEncodingDecision.amount) {
+    if (currentAmount > container->userSettings.amount) {
       container->log.send({LogColor::fgRed(
           "CURRENT TRANSCODES ARE GREATER THAN THE ALLOWED AMOUNT.")});
 
-      container->log.send({LogColor::fgRed(
-          "CURRENT ALLOWED AMOUNT: " +
-          std::to_string(container->appEncodingDecision.amount))});
+      container->log.send(
+          {LogColor::fgRed("CURRENT ALLOWED AMOUNT: " +
+                           std::to_string(container->userSettings.amount))});
 
       container->log.send({LogColor::fgRed(
-          "CURRENT QUEUE: " +
-          std::to_string(container->appEncodingDecision.amount))});
+          "CURRENT QUEUE: " + std::to_string(container->userSettings.amount))});
 
       // iterate over converting
       while (!container->converting.empty()) {
@@ -264,7 +260,7 @@ void Ticker::start() {
         {"[Ticker.cpp] t_queue size:", std::to_string(t_queue.size())});
     container->converting = t_queue;
 
-    if (Debug::toggle)
+    if (container->userSettings.debug)
       Ticker::display->printDebug();
     else
       Ticker::display->print();
@@ -276,7 +272,7 @@ void Ticker::start() {
 void Ticker::end() {
   container->log.debug({"[Ticker.cpp] deconstructing ticker"});
 
-  if (Debug::toggle) {
+  if (container->userSettings.debug) {
     container->log.debug(
         {LogColor::fgRed("Debugging enabled. Writing debug file->")});
     Ticker::writeDebug();
@@ -422,38 +418,32 @@ void Ticker::writeDebug() {
 
   container->pending = t_queue;
 
-  container->log.sendPlain({container->appEncodingDecision.quality.name});
+  container->log.sendPlain({container->userSettings.quality.get().name});
 
-  json["appEncodingDecision"]["wantedEncoder"] =
-      container->appEncodingDecision.wantedEncoder;
-  json["appEncodingDecision"]["runningEncoder"] =
-      container->appEncodingDecision.runningEncoder;
-  json["appEncodingDecision"]["runningDecoder"] =
-      container->appEncodingDecision.runningDecoder;
-  json["appEncodingDecision"]["quality"] =
-      container->appEncodingDecision.quality.name;
-  json["appEncodingDecision"]["tune"] = container->appEncodingDecision.tune;
-  json["appEncodingDecision"]["amount"] = container->appEncodingDecision.amount;
-  json["appEncodingDecision"]["crfOverride"] =
-      container->appEncodingDecision.crfOverride;
-  json["appEncodingDecision"]["crop"] = container->appEncodingDecision.crop;
-  json["appEncodingDecision"]["startBeginning"] =
-      container->appEncodingDecision.startBeginning;
-  json["appEncodingDecision"]["trim"] = container->appEncodingDecision.trim;
-  json["appEncodingDecision"]["useBitrate"] =
-      container->appEncodingDecision.useBitrate;
-  json["appEncodingDecision"]["useConstrain"] =
-      container->appEncodingDecision.useConstrain;
-  json["appEncodingDecision"]["validate"] =
-      container->appEncodingDecision.validate;
-  json["appEncodingDecision"]["useHardwareDecode"] =
-      container->appEncodingDecision.useHardwareDecode;
-  json["appEncodingDecision"]["useHardwareEncode"] =
-      container->appEncodingDecision.useHardwareEncode;
-  json["appEncodingDecision"]["overwrite"] =
-      container->appEncodingDecision.overwrite;
-  json["appEncodingDecision"]["audioStreams"] =
-      container->appEncodingDecision.audioStreams;
+  json["userSettings"]["wantedEncoder"] =
+      container->userSettings.wantedEncoder.get();
+  json["userSettings"]["runningEncoder"] =
+      container->programSettings.runningEncoder;
+  json["userSettings"]["runningDecoder"] =
+      container->programSettings.runningDecoder;
+  json["userSettings"]["quality"] = container->userSettings.quality.get().name;
+  json["userSettings"]["tune"] = container->userSettings.tune;
+  json["userSettings"]["amount"] = container->userSettings.amount;
+  json["userSettings"]["crfOverride"] = container->userSettings.crfOverride;
+  json["userSettings"]["crop"] = container->userSettings.crop;
+  json["userSettings"]["startBeginning"] =
+      container->userSettings.startBeginning;
+  json["userSettings"]["trim"] = container->userSettings.trim.get();
+  json["userSettings"]["useBitrate"] = container->userSettings.useBitrate;
+  json["userSettings"]["useConstrain"] = container->userSettings.useConstrain;
+  json["userSettings"]["validate"] = container->userSettings.validate;
+  json["userSettings"]["useHardwareDecode"] =
+      container->userSettings.useHardwareDecode;
+  json["userSettings"]["useHardwareEncode"] =
+      container->userSettings.useHardwareEncode;
+  json["userSettings"]["overwrite"] = container->userSettings.overwrite;
+  json["userSettings"]["audioStreams"] =
+      container->userSettings.audioStreams.get();
 
   json["settings"]["workingDir"] = container->settings.workingDir;
   json["settings"]["tuneAssociations"] = container->settings.tuneAssociations;
