@@ -36,8 +36,18 @@ class Encoders {
     HEVC,
     HEVC_AMF,
     HEVC_NVENC,
-    HEVC_QSV
+    HEVC_QSV,
+    INVALID
   };
+
+  /**
+   * @brief Get the codec from a string.
+   *
+   * @param[in] codec - Desired codec.
+   *
+   * @return Codec enum.
+   */
+  static Codec getKey(std::string codec);
 
   /**
    * @brief Get the string value of the enum.
@@ -47,6 +57,42 @@ class Encoders {
    * @return String value of enum.
    */
   static std::string getValue(Codec codec);
+
+  /**
+   * @brief Check if the codec is H264.
+   *
+   * @param[in] codec - Desired codec.
+   *
+   * @return True if the codec is H264.
+   */
+  static bool isH264(Codec codec);
+
+  /**
+   * @brief Check if the codec is HEVC.
+   *
+   * @param[in] codec - Desired codec.
+   *
+   * @return True if the codec is HEVC.
+   */
+  static bool isHEVC(Codec codec);
+
+  /**
+   * @brief Check if the codec is AV1.
+   *
+   * @param[in] codec - Desired codec.
+   *
+   * @return True if the codec is AV1.
+   */
+  static bool isAV1(Codec codec);
+
+  /**
+   * @brief Check if the codec is a hardware encoder.
+   *
+   * @param[in] codec - Desired codec.
+   *
+   * @return True if the codec is a hardware encoder.
+   */
+  static bool isHardwareEncoder(Codec codec);
 
  private:
   /**
