@@ -5,7 +5,6 @@
 #include "../utils/NumberUtils.h"
 #include "../utils/StringUtils.h"
 #include "../utils/TimeUtils.h"
-#include "Debug.h"
 
 Display::Display(Container* container) : container(container) {}
 
@@ -20,24 +19,26 @@ void Display::print() {
 
   std::string time = ob + LogColor::fgCyan("TIME") + cb + " " +
                      TimeUtils::dateFormat(TimeUtils::getEpoch());
-  std::string encoder =
-      ob + LogColor::fgCyan("TARGET ENC") + cb + " " +
-      LogColor::fgGray(this->container->appEncodingDecision.wantedEncoder);
+  std::string encoder = ob + LogColor::fgCyan("TARGET ENC") + cb + " " +
+                        LogColor::fgGray(Encoders::getValue(
+                            this->container->userSettings.wantedEncoder));
   std::string runningEncoder =
       ob + LogColor::fgCyan("ENC") + cb + " " +
-      LogColor::fgGray(this->container->appEncodingDecision.runningEncoder);
+      LogColor::fgGray(
+          Encoders::getValue(this->container->programSettings.runningEncoder));
   std::string runningDecoder =
       ob + LogColor::fgCyan("DEC") + cb + " " +
-      LogColor::fgGray(this->container->appEncodingDecision.runningDecoder);
+      LogColor::fgGray(
+          Decoders::getValue(this->container->programSettings.runningDecoder));
   std::string resolution =
       ob + LogColor::fgCyan("RES") + cb + " " +
-      LogColor::fgGray(this->container->appEncodingDecision.quality.name);
+      LogColor::fgGray(this->container->userSettings.quality.get().name);
   std::string tune =
       ob + LogColor::fgCyan("TUNE") + cb + " " +
-      LogColor::fgGray(this->container->appEncodingDecision.tune);
+      LogColor::fgGray(Tunes::getValue(this->container->userSettings.tune));
   std::string amount =
       ob + LogColor::fgCyan("AMOUNT") + cb + " " +
-      LogColor::fgGray(std::to_string(container->appEncodingDecision.amount));
+      LogColor::fgGray(std::to_string(container->userSettings.amount));
 
   std::string constrain = ob + LogColor::fgRed("CONSTRAIN") + cb;
   std::string debug = ob + LogColor::fgRed("DEBUG") + cb;
@@ -47,15 +48,15 @@ void Display::print() {
                        runningDecoder + " " + resolution + " " + tune + " " +
                        amount;
 
-  if (this->container->appEncodingDecision.useConstrain) {
+  if (this->container->userSettings.useConstrain) {
     header += " " + constrain;
   }
 
-  if (Debug::toggle) {
+  if (this->container->userSettings.debug) {
     header += " " + debug;
   }
 
-  if (this->container->appEncodingDecision.crop) {
+  if (this->container->userSettings.crop) {
     header += " " + crop;
   }
 
