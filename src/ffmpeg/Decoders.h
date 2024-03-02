@@ -25,7 +25,15 @@ class Decoders {
    * @brief Enum of decoders supported by the application.
    *
    */
-  enum Codec { AV1_CUVID, AV1_QSV, H264_CUVID, H264_QSV, HEVC_CUVID, HEVC_QSV };
+  enum Codec {
+    NONE,
+    AV1_CUVID,
+    AV1_QSV,
+    H264_CUVID,
+    H264_QSV,
+    HEVC_CUVID,
+    HEVC_QSV
+  };
 
   /**
    * @brief Get the string value of the enum.
