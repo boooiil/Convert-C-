@@ -149,13 +149,13 @@ void Media::doValidation(Container* container) {
 }
 
 void Media::buildFFmpegArguments(Container* container, bool isValidate) {
-  MediaFormat format = container->appEncodingDecision.quality;
+  MediaFormat format = container->userSettings.quality;
 
   this->ffmpegArguments.clear();
 
   this->ffmpegArguments.push_back("-v error -stats");
 
-  if (container->appEncodingDecision.useHardwareDecode) {
+  if (container->userSettings.useHardwareDecode) {
     if (container->userCapabilities.GPU_Provider == "amd") {
       this->ffmpegArguments.push_back(
           "-hwaccel " + HWAccelerators::getValue(HWAccelerators::AMD));
@@ -173,9 +173,8 @@ void Media::buildFFmpegArguments(Container* container, bool isValidate) {
 
   this->ffmpegArguments.push_back("-map 0:v:0");
 
-  if (container->appEncodingDecision.audioStreams.size()) {
-    for (const std::string stream :
-         container->appEncodingDecision.audioStreams) {
+  if (!container->userSettings.audioStreams.get().empty()) {
+    for (const int stream : container->userSettings.audioStreams.get()) {
       this->ffmpegArguments.push_back("-map 0:a:" + stream);
     }
   } else {
@@ -186,7 +185,7 @@ void Media::buildFFmpegArguments(Container* container, bool isValidate) {
   this->ffmpegArguments.push_back("-map 0:t?");
 
   this->ffmpegArguments.push_back(
-      "-c:v " + container->appEncodingDecision.runningEncoder);
+      "-c:v " + Encoders::getValue(container->programSettings.runningEncoder));
   this->ffmpegArguments.push_back("-c:t copy");
   this->ffmpegArguments.push_back("-c:a copy");
 
@@ -194,7 +193,7 @@ void Media::buildFFmpegArguments(Container* container, bool isValidate) {
 
   this->ffmpegArguments.push_back("-level 4.1");
 
-  if (container->appEncodingDecision.useBitrate) {
+  if (container->userSettings.useBitrate) {
     this->ffmpegArguments.push_back("-b:v " + std::to_string(format.bitrate) +
                                     "M");
     this->ffmpegArguments.push_back("-bufsize " +
@@ -203,7 +202,7 @@ void Media::buildFFmpegArguments(Container* container, bool isValidate) {
                                     std::to_string(format.max * 2) + "M");
     this->ffmpegArguments.push_back("-minrate " +
                                     std::to_string(format.min * 2) + "M");
-  } else if (container->appEncodingDecision.useConstrain) {
+  } else if (container->userSettings.useConstrain) {
     this->ffmpegArguments.push_back("-crf " + std::to_string(format.crf));
     this->ffmpegArguments.push_back("-bufsize " +
                                     std::to_string(format.bitrate * 2) + "M");
@@ -213,7 +212,7 @@ void Media::buildFFmpegArguments(Container* container, bool isValidate) {
     this->ffmpegArguments.push_back("-crf " + std::to_string(format.crf));
   }
 
-  if (container->appEncodingDecision.crop) {
+  if (container->userSettings.crop) {
     this->ffmpegArguments.push_back(
         "-vf scale=" + this->video->convertedResolution +
         ":flags=lanczos,crop=" + format.crop);
@@ -224,17 +223,16 @@ void Media::buildFFmpegArguments(Container* container, bool isValidate) {
     this->ffmpegArguments.push_back(
         "-vf scale=" + this->video->convertedResolution + ":flags=lanczos");
 
-  if (container->appEncodingDecision.startBeginning != "") {
+  if (container->userSettings.startBeginning != "") {
     this->ffmpegArguments.push_back(
-        "-ss " + container->appEncodingDecision.startBeginning);
+        "-ss " + container->userSettings.startBeginning.get());
   }
 
-  if (container->appEncodingDecision.trim != "") {
-    std::vector<std::string> trim =
-        ListUtils::splitv(container->appEncodingDecision.trim, ",");
-
-    this->ffmpegArguments.push_back("-ss " + trim[0]);
-    this->ffmpegArguments.push_back("-to " + trim[1]);
+  if (!container->userSettings.trim.get().empty()) {
+    this->ffmpegArguments.push_back("-ss " +
+                                    container->userSettings.trim.get()[0]);
+    this->ffmpegArguments.push_back("-to " +
+                                    container->userSettings.trim.get()[1]);
   }
 
   /** TODO: flesh out later */
@@ -248,14 +246,14 @@ void Media::buildFFmpegArguments(Container* container, bool isValidate) {
 
   this->ffmpegArguments.push_back("-c:s copy");
 
-  if (container->appEncodingDecision.tune != "") {
-    this->ffmpegArguments.push_back("-tune " +
-                                    container->appEncodingDecision.tune);
+  if (container->userSettings.tune != Tunes::DEFAULT) {
+    this->ffmpegArguments.push_back(
+        "-tune " + Tunes::getValue(container->userSettings.tune));
   }
 
   this->ffmpegArguments.push_back("\"" + this->file->conversionPath + "\"");
 
-  if (isValidate || container->appEncodingDecision.overwrite)
+  if (isValidate || container->userSettings.overwrite)
     this->ffmpegArguments.push_back("-y");
   else {
     this->ffmpegArguments.push_back("-n");

@@ -28,11 +28,10 @@ void MediaProcessConversion::parse(std::string data) {
       RegexUtils::isMatch(data, "device type cuda needed for codec",
                           std::regex::icase)) {
     // if the user wants to use hardware encoding (nvenc, amf, qsv)
-    if (this->container->appEncodingDecision.useHardwareEncode) {
+    if (this->container->userSettings.useHardwareEncode) {
       this->media->setActivity(Activity::FAILED_HARDWARE);
-    } else if (RegexUtils::isMatch(
-                   this->container->appEncodingDecision.wantedEncoder,
-                   R"(nvenc|amf|qsv)", std::regex::icase)) {
+    } else if (Encoders::isHardwareEncoder(
+                   container->programSettings.runningEncoder)) {
       this->media->setActivity(Activity::FAILED_HARDWARE);
     } else
       throw std::runtime_error(
