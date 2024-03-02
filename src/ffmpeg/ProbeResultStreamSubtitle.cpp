@@ -47,11 +47,16 @@ ProbeResultStreamSubtitle::ProbeResultStreamSubtitle(nlohmann::json JSON) {
   ProbeResultStreamSubtitle::disposition =
       ProbeResultStreamDisposition(JSON["disposition"]);
   ProbeResultStreamSubtitle::tags = ProbeResultStreamTags(JSON["tags"]);
-  Log::debug({"[ProbeResultStreamSubtitle.cpp] duration_ts: ",
-              std::to_string((int)JSON["duration_ts"])});
-  ProbeResultStreamSubtitle::duration_ts = JSON["duration_ts"];
-  Log::debug({"[ProbeResultStreamSubtitle.cpp] duration: ", JSON["duration"]});
-  ProbeResultStreamSubtitle::duration = JSON["duration"];
+  if (!JSON["duration_ts"].is_null()) {
+    Log::debug({"[ProbeResultStreamSubtitle.cpp] duration_ts: ",
+                std::to_string((int)JSON["duration_ts"])});
+    ProbeResultStreamSubtitle::duration_ts = JSON["duration_ts"];
+  }
+  if (!JSON["duration"].is_null()) {
+    Log::debug(
+        {"[ProbeResultStreamSubtitle.cpp] duration: ", JSON["duration"]});
+    ProbeResultStreamSubtitle::duration = JSON["duration"];
+  }
   Log::debug(
       {"[ProbeResultStreamSubtitle.cpp] Ended ProbeResultStreamSubtitle"});
 }
