@@ -12,11 +12,12 @@
 #include <queue>
 
 #include "../application/Settings.h"
-#include "../application/UserArguments.h"
 #include "../application/UserCapabilities.h"
 #include "../logging/Log.h"
 #include "../media/Media.h"
-#include "ApplicationEncodingDecision.h"
+#include "./arguments/UserArguments.h"
+#include "./settings/ProgramSettings.h"
+#include "./settings/UserSettings.h"
 
 /**
  * @brief Holds all media files necessary for running the application.
@@ -29,10 +30,12 @@ class Container {
 
   Log log;
 
-  ApplicationEncodingDecision appEncodingDecision;
   Settings settings;
-  UserArguments userArguments;
   UserCapabilities userCapabilities;
+
+  UserArguments userArguments;
+  UserSettings userSettings;
+  ProgramSettings programSettings;
 
   /// @brief Holds current media file(s) being converted.
   std::queue<Media*> converting;
