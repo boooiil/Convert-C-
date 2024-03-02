@@ -94,7 +94,7 @@ void MediaFile::rename() {
 
     this->resolveModifiedFileName(
         this->series, std::to_string(this->season), this->episode,
-        Ticker::container->appEncodingDecision.quality.name);
+        Ticker::container->userSettings.quality.get().name);
     this->resolveModifiedFileNameExt(this->modifiedFileName, this->ext);
 
     this->resolveRenamePath(this->modifiedFileName, this->ext, this->cwd);

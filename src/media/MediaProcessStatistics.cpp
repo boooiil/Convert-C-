@@ -105,9 +105,9 @@ void MediaProcessStatistics::parse(std::string data) {
   this->media->video->totalFrames =
       static_cast<int>(std::ceil(duration * this->media->video->fps));
 
-  assert(!this->container->appEncodingDecision.quality.name.empty());
+  assert(!this->container->userSettings.quality.get().name.empty());
 
-  MediaFormat format = container->appEncodingDecision.quality;
+  MediaFormat format = container->userSettings.quality;
 
   this->media->video->convertedWidth = std::to_string(format.width);
   this->media->video->convertedHeight = std::to_string(format.getResolution(
