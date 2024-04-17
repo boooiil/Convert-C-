@@ -19,12 +19,16 @@ ProbeResultStreamVideo::ProbeResultStreamVideo()
       refs(-1) {}
 ProbeResultStreamVideo::~ProbeResultStreamVideo() {}
 
-ProbeResultStreamVideo::ProbeResultStreamVideo(nlohmann::json JSON)
-    : is_avc(RegexUtils::isMatch(JSON["is_avc"], "true",
-                                 std::regex_constants::icase)) {
+ProbeResultStreamVideo::ProbeResultStreamVideo(nlohmann::json JSON) {
   Log::debug(
       {"[ProbeResultStreamVideo.cpp] Starting ProbeResultStreamVideo..."});
   ProbeResultStreamVideo::index = JSON["index"];
+
+  if (!JSON["is_avc"].is_null()) {
+    Log::debug({"[ProbeResultStreamVideo.cpp] is_avc: ", JSON["is_avc"]});
+    ProbeResultStreamVideo::is_avc = RegexUtils::isMatch(
+        JSON["is_avc"], "true", std::regex_constants::icase);
+  }
   Log::debug({"[ProbeResultStreamVideo.cpp] codec_name: ", JSON["codec_name"]});
   ProbeResultStreamVideo::codec_name = JSON["codec_name"];
   Log::debug({"[ProbeResultStreamVideo.cpp] codec_long_name: ",
@@ -92,46 +96,46 @@ ProbeResultStreamVideo::ProbeResultStreamVideo(nlohmann::json JSON)
         {"[ProbeResultStreamVideo.cpp] color_range: ", JSON["color_range"]});
     ProbeResultStreamVideo::color_range = JSON["color_range"];
   }
-
   if (!JSON["color_space"].is_null()) {
     Log::debug(
         {"[ProbeResultStreamVideo.cpp] color_space: ", JSON["color_space"]});
     ProbeResultStreamVideo::color_space = JSON["color_space"];
   }
-
   if (!JSON["color_transfer"].is_null()) {
     Log::debug({"[ProbeResultStreamVideo.cpp] color_transfer: ",
                 JSON["color_transfer"]});
     ProbeResultStreamVideo::color_transfer = JSON["color_transfer"];
   }
-
   if (!JSON["color_primaries"].is_null()) {
     Log::debug({"[ProbeResultStreamVideo.cpp] color_primaries: ",
                 JSON["color_primaries"]});
     ProbeResultStreamVideo::color_primaries = JSON["color_primaries"];
   }
-
   if (!JSON["chroma_location"].is_null()) {
     Log::debug({"[ProbeResultStreamVideo.cpp] chroma_location: ",
                 JSON["chroma_location"]});
     ProbeResultStreamVideo::chroma_location = JSON["chroma_location"];
   }
-
   if (!JSON["field_order"].is_null()) {
     Log::debug(
         {"[ProbeResultStreamVideo.cpp] field_order: ", JSON["field_order"]});
     ProbeResultStreamVideo::field_order = JSON["field_order"];
   }
-
-  Log::debug({"[ProbeResultStreamVideo.cpp] refs: ",
-              std::to_string((int)JSON["refs"])});
-  ProbeResultStreamVideo::refs = JSON["refs"];
-  Log::debug({"[ProbeResultStreamVideo.cpp] nal_length_size: ",
-              JSON["nal_length_size"]});
-  ProbeResultStreamVideo::nal_length_size = JSON["nal_length_size"];
-  Log::debug({"[ProbeResultStreamVideo.cpp] bits_per_raw_sample: ",
-              JSON["bits_per_raw_sample"]});
-  ProbeResultStreamVideo::bits_per_raw_sample = JSON["bits_per_raw_sample"];
+  if (!JSON["refs"].is_null()) {
+    Log::debug({"[ProbeResultStreamVideo.cpp] refs: ",
+                std::to_string((int)JSON["refs"])});
+    ProbeResultStreamVideo::refs = JSON["refs"];
+  }
+  if (!JSON["nal_length_size"].is_null()) {
+    Log::debug({"[ProbeResultStreamVideo.cpp] nal_length_size: ",
+                JSON["nal_length_size"]});
+    ProbeResultStreamVideo::nal_length_size = JSON["nal_length_size"];
+  }
+  if (!JSON["bits_per_raw_sample"].is_null()) {
+    Log::debug({"[ProbeResultStreamVideo.cpp] bits_per_raw_sample: ",
+                JSON["bits_per_raw_sample"]});
+    ProbeResultStreamVideo::bits_per_raw_sample = JSON["bits_per_raw_sample"];
+  }
 
   Log::debug({"[ProbeResultStreamVideo.cpp] Ended ProbeResultStreamVideo"});
 }
