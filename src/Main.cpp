@@ -106,8 +106,10 @@ int main(int argc, char* argv[]) {
 
   try {
     Ticker::container->userArguments.parse(Ticker::container, argc, argv);
-    Ticker::container->userCapabilities.findHardwareDetails();
+    Ticker::container->userSettings.findHardwareDetails();
     Ticker::container->userSettings.validateSettings();
+    Ticker::container->programSettings.applySettings(
+        Ticker::container->userSettings);
 
     Ticker::container->scanWorkingDir();
 
