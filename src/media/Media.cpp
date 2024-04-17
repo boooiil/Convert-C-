@@ -108,8 +108,7 @@ void Media::doStatistics(Container* container) {
       "-show_streams \"" +
       this->file->originalFullPath + "\"");
 
-  if (RegexUtils::isMatch(Activity::getValue(Media::activity), "failed",
-                          std::regex::icase)) {
+  if (this->hasFailed()) {
     return;
   }
 
@@ -156,15 +155,10 @@ void Media::buildFFmpegArguments(Container* container, bool isValidate) {
   this->ffmpegArguments.push_back("-v error -stats");
 
   if (container->userSettings.useHardwareDecode) {
-    if (container->userCapabilities.GPU_Provider == "amd") {
+    if (container->programSettings.runningHWAccel != HWAccelerators::NONE) {
       this->ffmpegArguments.push_back(
-          "-hwaccel " + HWAccelerators::getValue(HWAccelerators::AMD));
-    } else if (container->userCapabilities.GPU_Provider == "intel") {
-      this->ffmpegArguments.push_back(
-          "-hwaccel " + HWAccelerators::getValue(HWAccelerators::INTEL));
-    } else if (container->userCapabilities.GPU_Provider == "nvidia") {
-      this->ffmpegArguments.push_back(
-          "-hwaccel " + HWAccelerators::getValue(HWAccelerators::NVIDIA));
+          "-hwaccel " +
+          HWAccelerators::getValue(container->programSettings.runningHWAccel));
     }
   }
 
@@ -223,7 +217,7 @@ void Media::buildFFmpegArguments(Container* container, bool isValidate) {
     this->ffmpegArguments.push_back(
         "-vf scale=" + this->video->convertedResolution + ":flags=lanczos");
 
-  if (container->userSettings.startBeginning != "") {
+  if (!container->userSettings.startBeginning.get().empty()) {
     this->ffmpegArguments.push_back(
         "-ss " + container->userSettings.startBeginning.get());
   }
