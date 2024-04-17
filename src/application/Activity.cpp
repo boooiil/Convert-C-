@@ -13,6 +13,7 @@ std::unordered_map<Activity::ActivityType, std::string> Activity::activityMap =
      {ActivityType::FAILED_HARDWARE, "failed_hardware"},
      {ActivityType::FAILED_INVALID_AUDIO_STREAMS,
       "failed_invalid_audio_streams"},
+     {ActivityType::FAILED_JSON_PARSE, "failed_json_parse"},
      {ActivityType::FAILED_SYSTEM, "failed_system"},
      {ActivityType::FINISHED, "finished"},
      {ActivityType::STATISTICS, "statistics"},
