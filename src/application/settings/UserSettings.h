@@ -1,7 +1,12 @@
 #ifndef USER_SETTINGS_H
 #define USER_SETTINGS_H
 
+#include "../../ffmpeg/Decoders.h"
+#include "../../ffmpeg/Encoders.h"
+#include "../../ffmpeg/HWAccelerators.h"
 #include "../../ffmpeg/Tunes.h"
+#include "../GPUProviders.h"
+#include "../Platform.h"
 #include "../arguments/encoding/AudioStreamIndexes.h"
 #include "../arguments/encoding/ConstantRateFactor.h"
 #include "../arguments/encoding/ConstrainBitrate.h"
@@ -23,6 +28,17 @@ class UserSettings {
  public:
   UserSettings(void);
   ~UserSettings(void);
+
+  /// @brief The current operating system of the user's machine
+  Platform::OPERATING_SYSTEM platform;
+  /// @brief The current GPU of the user's machine
+  GPUProviders::Provider GPU_Provider;
+  /// @brief The supported encoders
+  std::vector<Encoders::Codec> supportedEncoders;
+  /// @brief The supported decoders
+  std::vector<Decoders::Codec> supportedDecoders;
+  /// @brief The supported hardware accelerators
+  std::vector<HWAccelerators::Accelerator> supportedHWAccel;
   /// @brief The number of audio streams wanted.
   AudioStreamIndexes audioStreams;
   /// @brief The user's desired encoder
@@ -70,6 +86,12 @@ class UserSettings {
    *
    */
   void validateSettings(void);
+
+  /**
+   * @brief Finds the hardware details of the user's machine
+   * @return void
+   */
+  void findHardwareDetails(void);
 };
 
 #endif  // USER_SETTINGS_H
