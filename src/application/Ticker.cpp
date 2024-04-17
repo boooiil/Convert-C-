@@ -54,6 +54,7 @@ void Ticker::printInformation() {
     container->pending.pop();
 
     media->doStatistics(container);
+    media->buildFFmpegArguments(container, false);
 
     std::string nl = "\n";
     std::string ob = LogColor::fgGray("[");
@@ -424,8 +425,8 @@ void Ticker::writeDebug() {
       container->userSettings.wantedEncoder.get();
   json["userSettings"]["runningEncoder"] =
       container->programSettings.runningEncoder;
-  json["userSettings"]["runningDecoder"] =
-      container->programSettings.runningDecoder;
+  json["userSettings"]["runningHWAccel"] =
+      container->programSettings.runningHWAccel;
   json["userSettings"]["quality"] = container->userSettings.quality.get().name;
   json["userSettings"]["tune"] = container->userSettings.tune;
   json["userSettings"]["amount"] = container->userSettings.amount;
@@ -445,27 +446,28 @@ void Ticker::writeDebug() {
   json["userSettings"]["audioStreams"] =
       container->userSettings.audioStreams.get();
 
-  json["settings"]["workingDir"] = container->settings.workingDir;
-  json["settings"]["tuneAssociations"] = container->settings.tuneAssociations;
+  json["settings"]["workingDir"] = container->programSettings.workingDir;
+  json["settings"]["tuneAssociations"] =
+      container->programSettings.tuneAssociations;
 
   json["userCapabilities"]["platform"] =
-      Platform::getValue(container->userCapabilities.platform);
+      Platform::getValue(container->userSettings.platform);
   json["userCapabilities"]["supportedEncoders"] = nlohmann::json::array();
 
   // supported encoders
-  for (Encoders::Codec codec : container->userCapabilities.supportedEncoders) {
+  for (Encoders::Codec codec : container->userSettings.supportedEncoders) {
     json["userCapabilities"]["supportedEncoders"].push_back(
         Encoders::getValue(codec));
   }
 
   // supported decoders
-  for (Encoders::Codec codec : container->userCapabilities.supportedEncoders) {
+  for (Encoders::Codec codec : container->userSettings.supportedEncoders) {
     json["userCapabilities"]["supportedEncoders"].push_back(
         Encoders::getValue(codec));
   }
 
   json["userCapabilities"]["GPUProvider"] =
-      container->userCapabilities.GPU_Provider;
+      container->userSettings.GPU_Provider;
 
   std::ofstream oFile("container_debug.json");
 
