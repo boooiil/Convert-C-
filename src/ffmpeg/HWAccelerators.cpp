@@ -1,7 +1,8 @@
 #include "HWAccelerators.h"
 
 std::unordered_map<HWAccelerators::Accelerator, std::string>
-    HWAccelerators::acceleratorMap = {{HWAccelerators::AMD, "opencl"},
+    HWAccelerators::acceleratorMap = {{HWAccelerators::NONE, "none"},
+                                      {HWAccelerators::AMD, "opencl"},
                                       {HWAccelerators::NVIDIA, "cuda"},
                                       {HWAccelerators::INTEL, "qsv"},
                                       {HWAccelerators::VULKAN, "vaapi"}};

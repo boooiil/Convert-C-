@@ -25,7 +25,7 @@ class HWAccelerators {
    * @brief Enum for hardware accelerators.
    *
    */
-  enum Accelerator { AMD, NVIDIA, INTEL, VULKAN };
+  enum Accelerator { NONE, AMD, NVIDIA, INTEL, VULKAN };
 
   /**
    * @brief Get the string value of the enum.
