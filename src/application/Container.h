@@ -11,8 +11,6 @@
 
 #include <queue>
 
-#include "../application/Settings.h"
-#include "../application/UserCapabilities.h"
 #include "../logging/Log.h"
 #include "../media/Media.h"
 #include "./arguments/UserArguments.h"
@@ -29,9 +27,6 @@ class Container {
   ~Container(void);
 
   Log log;
-
-  Settings settings;
-  UserCapabilities userCapabilities;
 
   UserArguments userArguments;
   UserSettings userSettings;
