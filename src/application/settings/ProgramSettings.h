@@ -6,10 +6,11 @@
 #include "../../ffmpeg/Decoders.h"
 #include "../../ffmpeg/Encoders.h"
 #include "../../ffmpeg/HWAccelerators.h"
+#include "./UserSettings.h"
 
 class ProgramSettings {
  public:
-  ProgramSettings(void);
+  ProgramSettings();
   ~ProgramSettings(void);
 
   /// @brief Current working directory.
@@ -23,12 +24,14 @@ class ProgramSettings {
   /// @brief in the tuneAssociations list.
   std::vector<std::regex> tuneRegex;
   /// @brief List of tunes.
-  std::vector<std::string> tuneAssociations;
+  std::vector<Tunes::Tune> tuneAssociations;
 
   /// @brief The current encoder being used
   Encoders::Codec runningEncoder;
   /// @brief The current decoder being used
-  Decoders::Codec runningDecoder;
+  HWAccelerators::Accelerator runningHWAccel;
+
+  void applySettings(UserSettings userSettings);
 };
 
 #endif  // PROGRAM_SETTINGS_H
