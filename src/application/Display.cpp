@@ -27,9 +27,9 @@ void Display::print() {
       LogColor::fgGray(
           Encoders::getValue(this->container->programSettings.runningEncoder));
   std::string runningDecoder =
-      ob + LogColor::fgCyan("DEC") + cb + " " +
-      LogColor::fgGray(
-          Decoders::getValue(this->container->programSettings.runningDecoder));
+      ob + LogColor::fgCyan("ACC") + cb + " " +
+      LogColor::fgGray(HWAccelerators::getValue(
+          this->container->programSettings.runningHWAccel));
   std::string resolution =
       ob + LogColor::fgCyan("RES") + cb + " " +
       LogColor::fgGray(this->container->userSettings.quality.get().name);
