@@ -17,6 +17,8 @@ class BaseArgument {
    */
   virtual void parse(std::string) = 0;
 
+  void set(const T& provided) { value = provided; }
+
   /**
    * @brief Get help message.
    *
