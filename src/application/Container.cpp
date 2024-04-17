@@ -49,11 +49,11 @@ void Container::scanWorkingDir() {
                     entry.path().filename().generic_string()});
 
         Media* media = new Media(entry.path().filename().generic_string(),
-                                 Container::settings.workingDir);
+                                 Container::programSettings.workingDir);
         media->file->rename();
 
         // if series folder doesn't exist, create it
-        if (!fs::exists(Container::settings.workingDir + "/" +
+        if (!fs::exists(Container::programSettings.workingDir + "/" +
                         media->file->series + " Season " +
                         std::to_string(media->file->season))) {
           Log::debug(
@@ -61,11 +61,11 @@ void Container::scanWorkingDir() {
                media->file->series});
           // create directory
           Log::debug({"[Container.cpp] Creating directory:",
-                      Container::settings.workingDir + "/" +
+                      Container::programSettings.workingDir + "/" +
                           media->file->series + " Season " +
                           std::to_string(media->file->season)});
 
-          fs::create_directory(Container::settings.workingDir + "/" +
+          fs::create_directory(Container::programSettings.workingDir + "/" +
                                media->file->series + " Season " +
                                std::to_string(media->file->season));
         }
