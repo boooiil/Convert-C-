@@ -79,6 +79,7 @@ void MediaFile::rename() {
   // if the media name matches the media pattern
   if (RegexUtils::isMatch(this->originalFileName, mediaPattern,
                           std::regex::icase)) {
+    Log::debug({"[Media.cpp] Matched media name: ", this->originalFileName});
     // get all matches of the media name
     std::vector<std::string> media_matches = RegexUtils::getAllMatches(
         this->originalFileName, mediaPattern, std::regex::icase);
@@ -107,6 +108,18 @@ void MediaFile::rename() {
     Log::debug({"[Media.cpp] Renamed file:", this->conversionName});
   } else {
     // TODO: finish
+    Log::debug(
+        {"[Media.cpp] Could not match media name: ", this->originalFileName});
+
+    this->resolvePath(this->originalFileName, this->cwd);
+    this->resolveExtension(this->originalFileName);
+    this->resolveQuality(this->originalFileName);
+
+    this->modifiedFileName =
+        StringUtils::replaceAll(this->originalFileName, this->ext, "");
+    this->modifiedFileNameExt = this->modifiedFileName + ".mp4";
+    this->conversionName = this->modifiedFileNameExt;
+    this->conversionPath = this->cwd + "/" + this->conversionName;
   }
 }
 // if the pattern doesnt match, the mod file name is the same as the original
