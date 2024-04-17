@@ -120,7 +120,7 @@ void MediaProcessStatistics::parse(std::string data) {
     this->media->video->crf = format.crf;
   } catch (const std::exception& e) {
     Log::debug({"[MediaProcessStatistics.cpp] ERROR: ", e.what()});
-    this->media->setActivity(Activity::FAILED);
+    this->media->setActivity(Activity::FAILED_JSON_PARSE);
     MediaProcessStatistics::status = MediaProcess::Status::_ERROR;
     return;
   }
