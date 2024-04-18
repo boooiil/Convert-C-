@@ -117,9 +117,9 @@ void MediaFile::rename() {
 
     this->modifiedFileName =
         StringUtils::replaceAll(this->originalFileName, this->ext, "");
-    this->modifiedFileNameExt = this->modifiedFileName + ".mp4";
+    this->modifiedFileNameExt = this->modifiedFileName + ".mkv";
     this->conversionName = this->modifiedFileNameExt;
-    this->conversionPath = this->cwd + "/" + this->conversionName;
+    this->conversionPath = this->cwd + "/converted/" + this->conversionName;
   }
 }
 // if the pattern doesnt match, the mod file name is the same as the original
