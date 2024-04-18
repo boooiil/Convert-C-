@@ -9,6 +9,11 @@
 #include <string>
 #include <thread>
 
+#ifdef _WIN32
+#define popen _popen
+#define pclose _pclose
+#endif
+
 #include "../../logging/Log.h"
 #include "../../media/MediaDefinedFormat.h"
 #include "../../utils/RegexUtils.h"
@@ -108,10 +113,9 @@ void UserSettings::findHardwareDetails() {
   throw std::runtime_error("Unsupported platform!");
 #endif
 
-  Log::debug(
-      {"[UserCapabilities.cpp] Platform:", Platform::getValue(platform)});
+  Log::debug({"[UserSettings.cpp] Platform:", Platform::getValue(platform)});
 
-  Log::debug({"[UserCapabilities.cpp] GPU Provider:",
+  Log::debug({"[UserSettings.cpp] GPU Provider:",
               GPUProviders::getValue(GPU_Provider)});
 
   if (GPU_Provider == GPUProviders::NVIDIA) {
@@ -151,12 +155,12 @@ void UserSettings::findHardwareDetails() {
   supportedEncoders.push_back(Encoders::HEVC);
 
   for (Encoders::Codec encoder : supportedEncoders) {
-    Log::debug({"[UserCapabilities.cpp] Supported Encoder:",
-                Encoders::getValue(encoder)});
+    Log::debug(
+        {"[UserSettings.cpp] Supported Encoder:", Encoders::getValue(encoder)});
   }
 
   for (Decoders::Codec decoder : supportedDecoders) {
-    Log::debug({"[UserCapabilities.cpp] Supported Decoder:",
-                Decoders::getValue(decoder)});
+    Log::debug(
+        {"[UserSettings.cpp] Supported Decoder:", Decoders::getValue(decoder)});
   }
 }
