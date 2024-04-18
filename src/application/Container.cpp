@@ -53,21 +53,40 @@ void Container::scanWorkingDir() {
         media->file->rename();
 
         // if series folder doesn't exist, create it
-        if (!fs::exists(Container::programSettings.workingDir + "/" +
-                        media->file->series + " Season " +
-                        std::to_string(media->file->season))) {
-          Log::debug(
-              {"[Container.cpp] Series folder does not exist for series:",
-               media->file->series});
-          // create directory
-          Log::debug({"[Container.cpp] Creating directory:",
-                      Container::programSettings.workingDir + "/" +
-                          media->file->series + " Season " +
-                          std::to_string(media->file->season)});
 
-          fs::create_directory(Container::programSettings.workingDir + "/" +
-                               media->file->series + " Season " +
-                               std::to_string(media->file->season));
+        if (media->file->series.empty()) {
+          Log::debug({"[Container.cpp] Series is empty for file:",
+                      media->file->conversionName});
+          if (!fs::exists(Container::programSettings.workingDir + "/" +
+                          "converted")) {
+            Log::debug(
+                {"[Container.cpp] Converted folder does not exist for series:",
+                 media->file->series});
+            // create directory
+            Log::debug(
+                {"[Container.cpp] Creating directory:",
+                 Container::programSettings.workingDir + "/" + "converted"});
+
+            fs::create_directory(Container::programSettings.workingDir + "/" +
+                                 "converted");
+          }
+        } else {
+          if (!fs::exists(Container::programSettings.workingDir + "/" +
+                          media->file->series + " Season " +
+                          std::to_string(media->file->season))) {
+            Log::debug(
+                {"[Container.cpp] Series folder does not exist for series:",
+                 media->file->series});
+            // create directory
+            Log::debug({"[Container.cpp] Creating directory:",
+                        Container::programSettings.workingDir + "/" +
+                            media->file->series + " Season " +
+                            std::to_string(media->file->season)});
+
+            fs::create_directory(Container::programSettings.workingDir + "/" +
+                                 media->file->series + " Season " +
+                                 std::to_string(media->file->season));
+          }
         }
 
         this->pending.push(media);
