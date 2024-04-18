@@ -1,5 +1,6 @@
 #include "./AudioStreamIndexes.h"
 
+#include "../../../logging/Log.h"
 #include "../../../utils/ListUtils.h"
 
 AudioStreamIndexes::AudioStreamIndexes(void) : VectorArgument<int>() {
@@ -19,6 +20,8 @@ void AudioStreamIndexes::parse(std::string argument) {
       value.push_back(std::stoi(index));
     }
   } catch (const std::exception& e) {
+    Log::debug(
+        {"Failed to parse audio stream indexes: ", argument, "\n", e.what()});
     errored = true;
     return;
   }
