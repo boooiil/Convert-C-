@@ -59,4 +59,8 @@ void ProgramSettings::applySettings(UserSettings userSettings) {
   if (!userSettings.supportedHWAccel.empty()) {
     this->runningHWAccel = userSettings.supportedHWAccel[0];
   }
+
+  if (Encoders::isAV1(userSettings.wantedEncoder)) {
+    userSettings.tune = Tunes::DEFAULT;
+  }
 };
