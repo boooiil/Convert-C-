@@ -53,7 +53,7 @@ void MediaProcessConversion::parse(std::string data) {
     std::string quality =
         RegexUtils::getFirstMatch(data, "q=(\\d+\\.\\d+|-\\d+\\.\\d+)");
     std::string bitrate =
-        RegexUtils::getFirstMatch(data, "bitrate=.+?(\\d+\\.\\d+)");
+        RegexUtils::getFirstMatch(data, "bitrate= ?(\\d+\\.\\d+)");
     std::string size = RegexUtils::getFirstMatch(data, "size=.+?(\\d+)");
     std::string completedFrames =
         RegexUtils::getFirstMatch(data, "frame=.+?(\\d+)");
