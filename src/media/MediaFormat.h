@@ -30,7 +30,7 @@ class MediaFormat {
    * @param[in] crop    - Crop of the format.
    * @param[in] scale   - Scale of the format.
    */
-  MediaFormat(std::string name, int crf, double bitrate, double min, double max,
+  MediaFormat(std::string name, int crf, float bitrate, float min, float max,
               int width, int height, std::string crop, std::string scale);
   ~MediaFormat();
 
@@ -38,12 +38,12 @@ class MediaFormat {
   std::string crop;   /// @brief Crop of the format.
   std::string scale;  /// @brief Scale of the format.
 
-  int crf;         /// @brief Constant rate factor.
-  double bitrate;  /// @brief Bitrate of the format.
-  double min;      /// @brief Minimum bitrate of the format.
-  double max;      /// @brief Maximum bitrate of the format.
-  int width;       /// @brief Width of the format.
-  int height;      /// @brief Height of the format.
+  int crf;        /// @brief Constant rate factor.
+  float bitrate;  /// @brief Bitrate of the format.
+  float min;      /// @brief Minimum bitrate of the format.
+  float max;      /// @brief Maximum bitrate of the format.
+  int width;      /// @brief Width of the format.
+  int height;     /// @brief Height of the format.
 
   /**
    * @brief Get the greatest common denominator of two numbers.

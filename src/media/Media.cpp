@@ -68,6 +68,8 @@ const bool Media::hasFailed() {
     case Activity::FAILED_FILE_PERMISSIONS:
     case Activity::FAILED_HARDWARE:
     case Activity::FAILED_INVALID_AUDIO_STREAMS:
+    case Activity::FAILED_JSON_PARSE:
+    case Activity::FAILED_SYSTEM:
       return true;
     default:
       return false;
