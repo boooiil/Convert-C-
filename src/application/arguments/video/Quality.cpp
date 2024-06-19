@@ -1,5 +1,6 @@
 #include "./Quality.h"
 
+#include "../../../logging/Log.h"
 #include "../../../media/MediaDefinedFormat.h"
 #include "../../../utils/RegexUtils.h"
 #include "../../../utils/StringUtils.h"
@@ -11,6 +12,7 @@ Quality::Quality(void) : BaseArgument<MediaFormat>() {
 Quality::~Quality(void) {}
 
 void Quality::parse(std::string provided) {
+  Log::debug({"[Quality] Parsing quality:", provided});
   if (MediaDefinedFormat::formats.find(provided) !=
       MediaDefinedFormat::formats.end()) {
     value = MediaDefinedFormat::formats[provided];
