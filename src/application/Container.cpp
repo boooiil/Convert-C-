@@ -14,16 +14,16 @@ Container::~Container() {
 
   while (!Container::converting.empty()) {
     Media* media = Container::converting.front();
-    this->log.debug(
-        {"[Container.cpp] Deleting media file:", media->file->conversionName});
+    this->log.debug({"[Container.cpp] Deleting media file (converting):",
+                     media->file->conversionName});
     Container::converting.pop();
     delete media;
   }
 
   while (!Container::pending.empty()) {
     Media* media = Container::pending.front();
-    this->log.debug(
-        {"[Container.cpp] Deleting media file:", media->file->conversionName});
+    this->log.debug({"[Container.cpp] Deleting media file (pending):",
+                     media->file->conversionName});
     Container::pending.pop();
     delete media;
   }
