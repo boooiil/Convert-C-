@@ -11,6 +11,7 @@
 #include <regex>
 #include <string>
 
+#include "../../logging/Log.h"
 #include "../application/Container.h"
 #include "../media/MediaDefinedFormat.h"
 #include "../utils/ListUtils.h"
@@ -22,13 +23,18 @@
 Media::Media()
     : started(0),
       ended(0),
+      activity(Activity::WAITING),
       file(new MediaFile()),
       video(new MediaVideoProperties()),
-      working(new MediaWorkingProperties()) {}
-
+      working(new MediaWorkingProperties()) {
+  Log::debug(
+      {"[Media.cpp] Constructing blank media (something is not working "
+       "properly)."});
+}
 Media::Media(std::string name, std::string path)
     : started(0),
       ended(0),
+      activity(Activity::WAITING),
       file(new MediaFile(name, path)),
       video(new MediaVideoProperties()),
       working(new MediaWorkingProperties()) {}
@@ -37,10 +43,10 @@ Media::~Media() {
   Log::debug(
       {"[Media.cpp] Deconstructing media: ", this->file->originalFileName});
 
-  delete file;
-  delete video;
-  delete working;
-  delete probeResult;
+  if (file != nullptr) delete file;
+  if (video != nullptr) delete video;
+  if (working != nullptr) delete working;
+  if (probeResult != nullptr) delete probeResult;
 }
 
 Activity::ActivityType Media::getActivity() { return Media::activity; }
