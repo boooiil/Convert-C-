@@ -187,6 +187,9 @@ void Ticker::start() {
           return exit(0);
         }
       } else {
+        Log::debug({"[Ticker.cpp] Queued media for encoding:",
+                    media->file->originalFileName,
+                    Activity::getValue(media->getActivity())});
         media->setActivity(Activity::WAITING_STATISTICS);
 
         media->started = TimeUtils::getEpoch();
@@ -228,6 +231,9 @@ void Ticker::start() {
                             Activity::getValue(media->getActivity())});
 
       if (!media->isProcessing()) {
+        container->log.debug({"[Ticker.cpp] Media is not processing:",
+                              media->file->originalFileName,
+                              Activity::getValue(media->getActivity())});
         if (media->isWaitingToStatistics())
           media->doStatistics(container);
         else if (media->isWaitingToConvert()) {
