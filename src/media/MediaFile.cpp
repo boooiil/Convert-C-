@@ -79,7 +79,8 @@ void MediaFile::rename() {
   // if the media name matches the media pattern
   if (RegexUtils::isMatch(this->originalFileName, mediaPattern,
                           std::regex::icase)) {
-    Log::debug({"[Media.cpp] Matched media name: ", this->originalFileName});
+    Log::debug(
+        {"[MediaFile.cpp] Matched media name: ", this->originalFileName});
     // get all matches of the media name
     std::vector<std::string> media_matches = RegexUtils::getAllMatches(
         this->originalFileName, mediaPattern, std::regex::icase);
@@ -104,12 +105,12 @@ void MediaFile::rename() {
     this->resolveConversionPath(this->conversionName, this->series,
                                 std::to_string(this->season), this->cwd);
 
-    Log::debug({"[Media.cpp] Original file:", this->originalFileName});
-    Log::debug({"[Media.cpp] Renamed file:", this->conversionName});
+    Log::debug({"[MediaFile.cpp] Original file:", this->originalFileName});
+    Log::debug({"[MediaFile.cpp] Renamed file:", this->conversionName});
   } else {
     // TODO: finish
-    Log::debug(
-        {"[Media.cpp] Could not match media name: ", this->originalFileName});
+    Log::debug({"[MediaFile.cpp] Could not match media name: ",
+                this->originalFileName});
 
     this->resolvePath(this->originalFileName, this->cwd);
     this->resolveExtension(this->originalFileName);
@@ -183,7 +184,7 @@ void MediaFile::resolveQuality(std::string original_filename) {
       original_filename, R"((1080p|720p|480p))", std::regex::icase);
 
   if (quality_match == "") {
-    Log::debug({"[Media.cpp] Could not find quality for file: ",
+    Log::debug({"[MediaFile.cpp] Could not find quality for file: ",
                 this->originalFullPath});
   } else {
     this->quality = std::stoi(StringUtils::replaceAll(quality_match, "p", ""));
