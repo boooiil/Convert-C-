@@ -51,7 +51,8 @@ void Log::sendBuffer(int length, const char* message) {
 }
 
 void Log::debug(std::initializer_list<std::string> messages) {
-  if (Ticker::container->userSettings.debug) Log::send(messages);
+  if (LoggingOptions::isDebug(Ticker::container->userSettings.loggingFormat))
+    Log::send(messages);
 }
 
 void Log::sendPlain(std::initializer_list<std::string> messages) {
