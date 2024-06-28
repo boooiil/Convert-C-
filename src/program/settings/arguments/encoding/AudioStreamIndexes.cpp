@@ -17,7 +17,17 @@ void AudioStreamIndexes::parse(std::string argument) {
 
   try {
     for (std::string index : ListUtils::splitv(argument, ",")) {
-      value.push_back(std::stoi(index));
+
+      int indexValue = std::stoi(index);
+
+      if (indexValue < 0) {
+        Log::send(
+            {"Audio stream index must be greater than or equal to 0: ", index});
+        errored = true;
+        return;
+      }
+
+      value.push_back(indexValue);
     }
   } catch (const std::exception& e) {
     Log::debug(

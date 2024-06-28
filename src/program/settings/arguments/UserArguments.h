@@ -20,7 +20,7 @@ class UserArguments {
   /**
    * @brief Parse user arguments.
    *
-   * @param[out] container  - Ptr to the Container object.
+   * @param[in] container  - Ptr to the Container object.
    * @param[in] argc        - Number of arguments.
    * @param[in] argv        - Array of arguments.
    */
@@ -30,10 +30,9 @@ class UserArguments {
   /**
    * @brief Print invalid argument message.
    *
-   * @param[out] container  - Ptr to the Container object.
    * @param[in] argument    - Argument.
    */
-  static void invalidArgument(class Container* container, const char* argument);
+  static void invalidArgument(const char* argument);
 };
 
 #endif  // !USER_ARGUMENTS_H

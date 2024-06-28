@@ -11,7 +11,6 @@ class FlagArgument : public BaseArgument<bool> {
   bool operator!(void) const { return !value; };
 
   std::string toString() const { return value ? "true" : "false"; };
-  const char* c_str() const { return toString().c_str(); };
 
   virtual FlagArgument& operator=(const bool& provided) = 0;
 };
