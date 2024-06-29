@@ -14,6 +14,7 @@
 #include "logging/Log.h"
 #include "media/Media.h"
 #include "media/MediaProcessStatistics.h"
+#include "program/Program.h"
 
 /**
  * WALK AWAY NOTES:
@@ -22,6 +23,11 @@
  * add option for modifying audio channels
  *
  * create argument factory
+ *
+ * av1 does not support film tune
+ *
+ * Determine how to handle a parent class and how we
+ * will be storing the data
  *
  */
 
@@ -45,8 +51,8 @@ BOOL WINAPI winHandle(DWORD signal) {
     std::string message =
         "Interrupt signal (" + std::to_string(signal) + ") received.\n";
 
-    WriteConsole(hConsole, message.c_str(), message.length(), &bytesWritten,
-                 NULL);
+    WriteConsole(hConsole, message.c_str(), static_cast<int>(message.length()),
+                 &bytesWritten, NULL);
   }
 
   exit(0);
@@ -105,11 +111,16 @@ int main(int argc, char* argv[]) {
    */
 
   try {
+    Program::run(argc, argv);
+
     Ticker::container->userArguments.parse(Ticker::container, argc, argv);
-    Ticker::container->userSettings.findHardwareDetails();
-    Ticker::container->userSettings.validateSettings();
-    Ticker::container->programSettings.applySettings(
-        Ticker::container->userSettings);
+
+    if (!Ticker::container->userSettings.isParent) {
+      Ticker::container->userSettings.findHardwareDetails();
+      Ticker::container->userSettings.validateSettings();
+      Ticker::container->programSettings.applySettings(
+          Ticker::container->userSettings);
+    }
 
     Ticker::container->scanWorkingDir();
 
