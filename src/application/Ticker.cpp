@@ -267,10 +267,13 @@ void Ticker::start() {
         {"[Ticker.cpp] t_queue size:", std::to_string(t_queue.size())});
     container->converting = t_queue;
 
-    if (container->userSettings.debug)
+    if (container->userSettings.loggingFormat == LoggingOptions::DEBUG) {
       Ticker::display->printDebug();
-    else
+    } else if (LoggingOptions::isJSON(container->userSettings.loggingFormat)) {
+      Ticker::display->printJSON();
+    } else {
       Ticker::display->print();
+    }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }
@@ -279,7 +282,7 @@ void Ticker::start() {
 void Ticker::end() {
   container->log.debug({"[Ticker.cpp] deconstructing ticker"});
 
-  if (container->userSettings.debug) {
+  if (LoggingOptions::isDebug(container->userSettings.loggingFormat)) {
     container->log.debug(
         {LogColor::fgRed("Debugging enabled. Writing debug file->")});
     Ticker::writeDebug();
