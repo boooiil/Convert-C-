@@ -15,7 +15,8 @@
 #include "../arguments/encoding/UseBitrate.h"
 #include "../arguments/encoding/UseHardwareDecode.h"
 #include "../arguments/encoding/UseHardwareEncode.h"
-#include "../arguments/misc/Debug.h"
+#include "../arguments/misc/IsParent.h"
+#include "../arguments/misc/LoggingFormat.h"
 #include "../arguments/misc/OverwriteExisting.h"
 #include "../arguments/misc/PrintHelp.h"
 #include "../arguments/misc/PrintInformation.h"
@@ -71,15 +72,16 @@ class UserSettings {
   UseHardwareEncode useHardwareEncode;
   /// @brief Overwrite existing file
   OverwriteExisting overwrite;
+  /// @brief Format for display output.
+  LoggingFormat loggingFormat;
+  /// @brief Run as child process.
+  IsParent isParent;
 
   /// @brief Print information about the video
   PrintInformation printInformation;
 
   /// @brief Print help information
   PrintHelp printHelp;
-
-  /// @brief Debug mode
-  Debug debug;
 
   /**
    * @brief Validate the user's settings.
