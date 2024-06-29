@@ -36,6 +36,12 @@ class Display {
    */
   void printDebug(void);
 
+  /**
+   * @brief Prints the current state of the program in JSON format.
+   *
+   */
+  void printJSON(void);
+
  private:
   /// @brief Container object.
   Container* container;
