@@ -52,7 +52,7 @@ void Display::print() {
     header += " " + constrain;
   }
 
-  if (this->container->userSettings.debug) {
+  if (this->container->userSettings.loggingFormat == LoggingOptions::DEBUG) {
     header += " " + debug;
   }
 
@@ -76,7 +76,7 @@ void Display::print() {
 
     float mediaFPS = media->working->fps > 0 ? media->working->fps : 1;
     int totalFrames = media->video->totalFrames;
-    int completedFrames = media->working->completedFrames;
+    long completedFrames = static_cast<long>(media->working->completedFrames);
     int diff = static_cast<int>(
         ceil((totalFrames - completedFrames) / mediaFPS) * 1000);
 
@@ -102,9 +102,8 @@ void Display::print() {
 
     std::string percent =
         ob + LogColor::fgCyan("PROG") + cb + " " +
-        std::to_string(static_cast<int>((static_cast<float>(completedFrames) /
-                                         static_cast<float>(totalFrames)) *
-                                        100)) +
+        std::to_string(
+            (int)(((float)completedFrames / (float)totalFrames) * 100)) +
         "%";
 
     std::string cq = ob + LogColor::fgCyan("QUAL") + cb + " " +
@@ -138,9 +137,9 @@ void Display::print() {
                            Activity::getValue(media->getActivity());
 
     if (media->hasFinished()) {
-      int calculatedSize = floor(
+      int calculatedSize = static_cast<int>(floor(
           ((media->file->size - media->file->newSize) / media->file->size) *
-          100);
+          100));
 
       std::string ended = ob + LogColor::fgCyan("END") + cb + " " +
                           TimeUtils::timeFormat(media->ended);
@@ -163,3 +162,103 @@ void Display::print() {
   this->container->pending = t_queue;
 }
 void Display::printDebug() {}
+void Display::printJSON() {
+// clear console?
+#ifdef _WIN32
+  system("cls");
+#else
+  system("clear");
+#endif
+
+  using namespace nlohmann;
+  json export_json;
+
+  // CONTAINER["settings"] = json::object();
+  export_json["converting"] = json::array();
+  export_json["pending"] = json::array();
+
+  std::queue<Media*> t_queue;
+
+  while (!container->converting.empty()) {
+    Media* internal_media = container->converting.front();
+
+    json media;
+    json mediaFile;
+    json mediaVideo;
+    json mediaWorking;
+
+    media["activity"] = Activity::getValue(internal_media->getActivity());
+    media["started"] = internal_media->started;
+    media["ended"] = internal_media->ended;
+
+    mediaFile["modifiedFileName"] = internal_media->file->modifiedFileName;
+    mediaFile["ext"] = internal_media->file->ext;
+    mediaFile["size"] = internal_media->file->size;
+    mediaFile["newSize"] = internal_media->file->newSize;
+    mediaFile["validationSize"] = internal_media->file->validationSize;
+
+    mediaVideo["fps"] = internal_media->video->fps;
+    mediaVideo["totalFrames"] = internal_media->video->totalFrames;
+
+    mediaWorking["fps"] = internal_media->working->fps;
+    mediaWorking["completedFrames"] = internal_media->working->completedFrames;
+    mediaWorking["quality"] = internal_media->working->quality;
+    mediaWorking["bitrate"] = internal_media->working->bitrate;
+
+    media["file"] = mediaFile;
+    media["video"] = mediaVideo;
+    media["working"] = mediaWorking;
+
+    export_json["converting"].push_back(media);
+
+    container->converting.pop();
+    t_queue.push(internal_media);
+  }
+
+  container->converting = t_queue;
+  t_queue = std::queue<Media*>();
+
+  while (!container->pending.empty()) {
+    Media* internal_media = container->pending.front();
+
+    json media;
+    json mediaFile;
+    json mediaVideo;
+    json mediaWorking;
+
+    media["activity"] = Activity::getValue(internal_media->getActivity());
+    media["started"] = internal_media->started;
+    media["ended"] = internal_media->ended;
+
+    mediaFile["modifiedFileName"] = internal_media->file->modifiedFileName;
+    mediaFile["ext"] = internal_media->file->ext;
+    mediaFile["size"] = internal_media->file->size;
+    mediaFile["newSize"] = internal_media->file->newSize;
+    mediaFile["validationSize"] = internal_media->file->validationSize;
+
+    mediaVideo["fps"] = internal_media->video->fps;
+    mediaVideo["totalFrames"] = internal_media->video->totalFrames;
+
+    mediaWorking["fps"] = internal_media->working->fps;
+    mediaWorking["completedFrames"] = internal_media->working->completedFrames;
+    mediaWorking["quality"] = internal_media->working->quality;
+    mediaWorking["bitrate"] = internal_media->working->bitrate;
+
+    media["file"] = mediaFile;
+    media["video"] = mediaVideo;
+    media["working"] = mediaWorking;
+
+    media["file"] = mediaFile;
+    media["video"] = mediaVideo;
+    media["working"] = mediaWorking;
+
+    export_json["pending"].push_back(media);
+
+    container->pending.pop();
+    t_queue.push(internal_media);
+  }
+
+  container->pending = t_queue;
+
+  puts(export_json.dump().c_str());
+}
