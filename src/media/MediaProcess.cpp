@@ -70,8 +70,8 @@ void MediaProcess::start(std::string command) {
   }
 }
 
-void MediaProcess::setStatus(MediaProcess::Status status) {
-  MediaProcess::status = status;
+void MediaProcess::setStatus(MediaProcess::Status provided_status) {
+  MediaProcess::status = provided_status;
 }
 
 void MediaProcess::parse(std::string data) {

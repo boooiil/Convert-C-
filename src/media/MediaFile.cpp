@@ -125,17 +125,18 @@ void MediaFile::rename() {
 }
 // if the pattern doesnt match, the mod file name is the same as the original
 
-void MediaFile::resolvePath(std::string original_filename, std::string cwd) {
-  this->originalFullPath = cwd + "/" + original_filename;
+void MediaFile::resolvePath(std::string original_filename,
+                            std::string current_working_directory) {
+  this->originalFullPath = current_working_directory + "/" + original_filename;
 }
 
 void MediaFile::resolveExtension(std::string original_filename) {
-  std::string ext = RegexUtils::getFirstMatch(
+  std::string found_extension = RegexUtils::getFirstMatch(
       original_filename, R"((\.mkv|\.avi|\.srt|\.idx|\.sub))",
       std::regex::icase);
 
-  if (ext != "") {
-    this->ext = ext;
+  if (found_extension != "") {
+    this->ext = found_extension;
   } else {
     throw std::runtime_error("Could not find extension for file: " +
                              original_filename);
@@ -191,15 +192,16 @@ void MediaFile::resolveQuality(std::string original_filename) {
   }
 }
 
-void MediaFile::resolveModifiedFileName(std::string series, std::string season,
-                                        std::string episode,
-                                        std::string quality) {
-  if (quality == "") {
-    this->modifiedFileName =
-        StringUtils::replaceAll(series, ".", "") + " - s" + season + episode;
+void MediaFile::resolveModifiedFileName(std::string provided_series,
+                                        std::string provided_season,
+                                        std::string provided_episode,
+                                        std::string provided_quality) {
+  if (provided_quality == "") {
+    this->modifiedFileName = StringUtils::replaceAll(provided_series, ".", "") +
+                             " - s" + provided_season + provided_episode;
   } else {
-    this->modifiedFileName =
-        series + " - s" + season + episode + " [" + quality + "]";
+    this->modifiedFileName = provided_series + " - s" + provided_season +
+                             provided_episode + " [" + provided_quality + "]";
   }
 }
 
@@ -209,11 +211,11 @@ void MediaFile::resolveModifiedFileName(std::string series, std::string season,
 // else make original ext
 
 void MediaFile::resolveModifiedFileNameExt(std::string modified_filename,
-                                           std::string ext) {
-  if (ext == ".mkv" || ext == ".avi") {
+                                           std::string provided_extension) {
+  if (provided_extension == ".mkv" || provided_extension == ".avi") {
     this->modifiedFileNameExt = modified_filename + ".mkv";
   } else {
-    this->modifiedFileNameExt = modified_filename + ext;
+    this->modifiedFileNameExt = modified_filename + provided_extension;
   }
 }
 
@@ -221,9 +223,11 @@ void MediaFile::resolveModifiedFileNameExt(std::string modified_filename,
 // (cwd)/(modified_filename)
 // ie: /path/to/renamed/file/some season.mkv
 
-void MediaFile::resolveRenamePath(std::string modified_filename,
-                                  std::string ext, std::string cwd) {
-  this->renamePath = cwd + "/" + modified_filename + ext;
+void MediaFile::resolveRenamePath(
+    std::string modified_filename, std::string provided_extension,
+    std::string provided_current_working_directory) {
+  this->renamePath = provided_current_working_directory + "/" +
+                     modified_filename + provided_extension;
 }
 
 void MediaFile::resolveConversionName(std::string modified_filename,
@@ -234,9 +238,11 @@ void MediaFile::resolveConversionName(std::string modified_filename,
 // path to the converted file
 // (cwd)/(series name) (series number)/(conversion_name)
 
-void MediaFile::resolveConversionPath(std::string conversion_filename,
-                                      std::string series, std::string season,
-                                      std::string cwd) {
-  this->conversionPath =
-      cwd + "/" + series + " Season " + season + "/" + conversion_filename;
+void MediaFile::resolveConversionPath(
+    std::string conversion_filename, std::string provided_series,
+    std::string provided_season,
+    std::string provided_current_working_directory) {
+  this->conversionPath = provided_current_working_directory + "/" +
+                         provided_series + " Season " + provided_season + "/" +
+                         conversion_filename;
 }

@@ -6,7 +6,7 @@ LogBuffer::LogBuffer() : max(0), current(-1) {}
 LogBuffer::LogBuffer(int max) : max(max), current(0) {}
 LogBuffer::~LogBuffer() {}
 
-void LogBuffer::addLine(std::string line) {
+void LogBuffer::addLine(std::string provided_line) {
   Log::debug({"[LogBuffer.cpp] called addline, max:", std::to_string(max),
               "min:", std::to_string(current)});
 
@@ -14,7 +14,7 @@ void LogBuffer::addLine(std::string line) {
     throw "Overflow.";
   }
 
-  LogBuffer::line += line + "\n";
+  LogBuffer::line += provided_line + "\n";
   LogBuffer::current++;
 }
 

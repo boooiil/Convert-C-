@@ -11,8 +11,8 @@
 #include <regex>
 #include <string>
 
-#include "../../logging/Log.h"
 #include "../application/Container.h"
+#include "../logging/Log.h"
 #include "../media/MediaDefinedFormat.h"
 #include "../utils/ListUtils.h"
 #include "../utils/RegexUtils.h"
@@ -25,6 +25,7 @@ Media::Media()
       ended(0),
       activity(Activity::WAITING),
       file(new MediaFile()),
+      probeResult(nullptr),
       video(new MediaVideoProperties()),
       working(new MediaWorkingProperties()) {
   Log::debug(
@@ -36,6 +37,7 @@ Media::Media(std::string name, std::string path)
       ended(0),
       activity(Activity::WAITING),
       file(new MediaFile(name, path)),
+      probeResult(nullptr),
       video(new MediaVideoProperties()),
       working(new MediaWorkingProperties()) {}
 
@@ -100,8 +102,8 @@ const bool Media::isWaitingToValidate() {
   return Media::activity == Activity::WAITING_VALIDATE;
 }
 
-void Media::setActivity(Activity::ActivityType activity) {
-  Media::activity = activity;
+void Media::setActivity(Activity::ActivityType provided_activity) {
+  Media::activity = provided_activity;
 }
 
 void Media::doStatistics(Container* container) {
@@ -177,7 +179,7 @@ void Media::buildFFmpegArguments(Container* container, bool isValidate) {
 
   if (!container->userSettings.audioStreams.get().empty()) {
     for (const int stream : container->userSettings.audioStreams.get()) {
-      this->ffmpegArguments.push_back("-map 0:a:" + stream);
+      this->ffmpegArguments.push_back("-map 0:a:" + std::to_string(stream));
     }
   } else {
     this->ffmpegArguments.push_back("-map 0:a?");
