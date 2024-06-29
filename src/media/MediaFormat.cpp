@@ -13,8 +13,8 @@ MediaFormat::MediaFormat()
       crop(""),
       scale("") {}
 
-MediaFormat::MediaFormat(std::string name, int crf, double bitrate, double min,
-                         double max, int width, int height, std::string crop,
+MediaFormat::MediaFormat(std::string name, int crf, float bitrate, float min,
+                         float max, int width, int height, std::string crop,
                          std::string scale)
     : name(name),
       crf(crf),
