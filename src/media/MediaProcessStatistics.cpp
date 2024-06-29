@@ -46,8 +46,11 @@ void MediaProcessStatistics::start(std::string command) {
     throw std::runtime_error("popen() failed!");
   }
 
+  // TODO: this might cause problems in the future
+
   // Read from pipe
-  while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+  while (fgets(buffer.data(), static_cast<int>(buffer.size()), pipe.get()) !=
+         nullptr) {
     // MediaProcessStatistics::container.log.debug(
     //     {"[MediaProcessStatistics.cpp] RAW OUTPUT: ", buffer.data()});
     result += buffer.data();
@@ -66,6 +69,9 @@ void MediaProcessStatistics::parse(std::string data) {
     this->media->probeResult = new ProbeResult(JSON);
 
     assert(this->media->probeResult->videoStreams.size() > 0);
+
+    Log::debug({"[MediaProcessStatistics.cpp] VIDEO STREAMS: ",
+                std::to_string(this->media->probeResult->videoStreams.size())});
 
     ProbeResultStreamVideo prsv = this->media->probeResult->videoStreams[0];
 
