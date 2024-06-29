@@ -51,6 +51,8 @@ class Container {
    *
    */
   void scanWorkingDir(void);
+
+  void scanChildDir(void);
 };
 
 #endif  // !CONTAINER
