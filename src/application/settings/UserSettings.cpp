@@ -21,7 +21,9 @@
 UserSettings::UserSettings(void)
     : validate(false),
       platform(Platform::OPERATING_SYSTEM::UNKNOWN),
-      GPU_Provider(GPUProviders::Provider::UNKNOWN){};
+      GPU_Provider(GPUProviders::Provider::UNKNOWN),
+      tune(Tunes::DEFAULT)
+{};
 
 UserSettings::~UserSettings(void) {}
 
