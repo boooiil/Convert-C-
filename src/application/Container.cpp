@@ -35,6 +35,11 @@ Container::~Container() {
 }
 
 void Container::scanWorkingDir() {
+  if (this->userSettings.isParent) {
+    this->scanChildDir();
+    return;
+  }
+
   namespace fs = std::filesystem;
 
   fs::path start_dir = fs::current_path();
@@ -93,4 +98,13 @@ void Container::scanWorkingDir() {
       }
     }
   }
+}
+
+void Container::scanChildDir() {
+  namespace fs = std::filesystem;
+
+  fs::path start_dir = fs::current_path();
+
+  Container::log.debug(
+      {"[Container.cpp] Scanning directory:", start_dir.generic_string()});
 }
