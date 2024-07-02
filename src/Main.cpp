@@ -8,12 +8,7 @@
 #include <csignal>
 #endif
 
-#include "application/Container.h"
-#include "application/Ticker.h"
-#include "ffmpeg/ProbeResult.h"
-#include "logging/Log.h"
-#include "media/Media.h"
-#include "media/MediaProcessStatistics.h"
+// #include "application/Ticker.h"
 #include "program/Program.h"
 
 /**
@@ -45,7 +40,8 @@ BOOL WINAPI winHandle(DWORD signal) {
   HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
   if (hConsole != INVALID_HANDLE_VALUE) {
-    Ticker::end();
+    // Ticker::end();
+    Program::end();
 
     DWORD bytesWritten;
     std::string message =
@@ -88,7 +84,7 @@ void unixHandle(int signum) {
  * @return int
  */
 int main(int argc, char* argv[]) {
-  Ticker::init();
+  // Ticker::init();
 
   /**
    * ************************************* *
@@ -113,23 +109,24 @@ int main(int argc, char* argv[]) {
   try {
     Program::run(argc, argv);
 
-    Ticker::container->userArguments.parse(Ticker::container, argc, argv);
+    // Ticker::container->userArguments.parse(Ticker::container, argc, argv);
 
-    if (!Ticker::container->userSettings.isParent) {
-      Ticker::container->userSettings.findHardwareDetails();
-      Ticker::container->userSettings.validateSettings();
-      Ticker::container->programSettings.applySettings(
-          Ticker::container->userSettings);
-    }
+    // if (!Ticker::container->userSettings.isParent) {
+    //   Ticker::container->userSettings.findHardwareDetails();
+    //   Ticker::container->userSettings.validateSettings();
+    //   Ticker::container->programSettings.applySettings(
+    //       Ticker::container->userSettings);
+    // }
 
-    Ticker::container->scanWorkingDir();
+    // Ticker::container->scanWorkingDir();
 
-    Ticker::determineNextAction();
+    // Ticker::determineNextAction();
 
   } catch (const std::exception& e) {
     std::cout << "Error: " << e.what() << std::endl;
 
-    Ticker::end();
+    // Ticker::end();
+    Program::end();
   }
 
   return 0;
