@@ -8,6 +8,14 @@
 #define GetCurrentDir getcwd
 #endif
 
+#include <regex>
+#include <string>
+
+#include "arguments/ArgumentParser.h"
+#include "enums/Encoders.h"
+#include "enums/HWAccelerators.h"
+#include "enums/Tunes.h"
+
 // TODO: fill this out, rm ApplicationEncodingDecision
 
 ProgramSettings::ProgramSettings() : runningEncoder(Encoders::Codec::HEVC) {
@@ -48,19 +56,19 @@ ProgramSettings::ProgramSettings() : runningEncoder(Encoders::Codec::HEVC) {
 
 ProgramSettings::~ProgramSettings(void){};
 
-void ProgramSettings::applySettings(UserSettings userSettings) {
+void ProgramSettings::applySettings(ArgumentParser argumentParser) {
   // guard against invalid encoder (should be handled in user settings)
-  if (userSettings.wantedEncoder == Encoders::INVALID) {
+  if (argumentParser.wantedEncoder == Encoders::INVALID) {
     this->runningEncoder = Encoders::Codec::HEVC;
   } else {
-    this->runningEncoder = userSettings.wantedEncoder;
+    this->runningEncoder = argumentParser.wantedEncoder;
   }
 
-  if (!userSettings.supportedHWAccel.empty()) {
-    this->runningHWAccel = userSettings.supportedHWAccel[0];
+  if (!argumentParser.supportedHWAccel.empty()) {
+    this->runningHWAccel = argumentParser.supportedHWAccel[0];
   }
 
-  if (Encoders::isAV1(userSettings.wantedEncoder)) {
-    userSettings.tune = Tunes::DEFAULT;
+  if (Encoders::isAV1(argumentParser.wantedEncoder)) {
+    argumentParser.tune = Tunes::DEFAULT;
   }
 };

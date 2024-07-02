@@ -2,15 +2,18 @@
 #define PROGRAM_SETTINGS_H
 
 #include <regex>
+#include <string>
+#include <vector>
 
-#include "../../ffmpeg/Decoders.h"
-#include "../../ffmpeg/Encoders.h"
-#include "../../ffmpeg/HWAccelerators.h"
-#include "./UserSettings.h"
+#include "../settings/arguments/ArgumentParser.h"
+#include "../settings/enums/Decoders.h"
+#include "../settings/enums/Encoders.h"
+#include "../settings/enums/HWAccelerators.h"
+#include "../settings/enums/Tunes.h"
 
 class ProgramSettings {
  public:
-  ProgramSettings();
+  ProgramSettings(void);
   ~ProgramSettings(void);
 
   /// @brief Current working directory.
@@ -31,7 +34,7 @@ class ProgramSettings {
   /// @brief The current decoder being used
   HWAccelerators::Accelerator runningHWAccel;
 
-  void applySettings(UserSettings userSettings);
+  void applySettings(ArgumentParser argumentParser);
 };
 
 #endif  // PROGRAM_SETTINGS_H
