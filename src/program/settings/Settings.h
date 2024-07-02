@@ -2,6 +2,7 @@
 #define SETTINGS_H
 
 #include "arguments/ArgumentParser.h"
+#include "ProgramSettings.h"
 
 class Settings {
  public:
@@ -9,6 +10,8 @@ class Settings {
   ~Settings();
 
   ArgumentParser* argumentParser;
+  ProgramSettings* programSettings;
+
 };
 
 #endif  // !SETTINGS_H
