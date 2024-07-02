@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "../../settings/LoggingOptions.h"
 #include "../BaseArgument.h"
+#include "../enums/LoggingOptions.h"
 
 class LoggingFormat : public BaseArgument<LoggingOptions::Options> {
  public:

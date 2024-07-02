@@ -1,7 +1,9 @@
 #ifndef QUALITY_H
 #define QUALITY_H
 
-#include "../../../media/MediaFormat.h"
+#include <string>
+
+#include "../../../child/media/MediaFormat.h"
 #include "../BaseArgument.h"
 
 class Quality : public BaseArgument<MediaFormat> {

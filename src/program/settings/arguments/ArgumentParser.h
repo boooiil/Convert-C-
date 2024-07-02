@@ -30,7 +30,7 @@
 
 class ArgumentParser {
  public:
-  ArgumentParser();
+  ArgumentParser(void);
   ~ArgumentParser(void);
 
   /// @brief The current operating system of the user's machine

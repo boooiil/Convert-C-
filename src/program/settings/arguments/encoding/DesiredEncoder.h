@@ -1,8 +1,8 @@
 #ifndef DESIRED_ENCODER_H
 #define DESIRED_ENCODER_H
 
-#include "../../../ffmpeg/Encoders.h"
 #include "../BaseArgument.h"
+#include "../enums/Encoders.h"
 
 class DesiredEncoder : public BaseArgument<Encoders::Codec> {
  public:

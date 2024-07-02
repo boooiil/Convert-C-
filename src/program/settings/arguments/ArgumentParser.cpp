@@ -1,11 +1,15 @@
 #include "ArgumentParser.h"
 
-#include <stdexcept>
+#include <string>
 
 #include "../../../logging/Log.h"
+#include "../../../logging/LogColor.h"
 #include "../../../utils/StringUtils.h"
+#include "../enums/Tunes.h"
 
 ArgumentParser::ArgumentParser() {}
+
+ArgumentParser::~ArgumentParser(void) {}
 
 void ArgumentParser::parse(int argc, char* argv[]) {
   if (argc < 2) {
