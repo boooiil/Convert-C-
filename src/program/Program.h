@@ -15,6 +15,7 @@ class Program {
   static Child* child;
 
   static void run(int argc, char* argv[]);
+  static void end(void);
 };
 
 #endif  // !PROGRAM_H
