@@ -1,6 +1,9 @@
 #include "StringUtils.h"
 
-#include <cmath>
+#include <math.h>
+
+#include <regex>
+#include <string>
 
 std::string StringUtils::truncateString(std::string str, int length = 25) {
   const int MAX_LENGTH = length;
@@ -39,6 +42,17 @@ std::string StringUtils::replaceAll(std::string str, std::regex from,
 }
 
 std::string StringUtils::toLowerCase(std::string str) {
-  std::transform(str.begin(), str.end(), str.begin(), ::tolower);
-  return str;
+  const int x = 32;
+
+  std::string result;
+
+  for (char c : str) {
+    if (c >= 65 && c <= 90) {
+      result += static_cast<char>(c + x);
+    } else {
+      result += c;
+    };
+  }
+
+  return result;
 }
