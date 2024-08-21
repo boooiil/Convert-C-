@@ -1,6 +1,10 @@
 #include "LoggingOptions.h"
 
-#include "../../utils/StringUtils.h"
+#include <string>
+#include <unordered_map>
+#include <utility>
+
+#include "../../../utils/StringUtils.h"
 
 std::unordered_map<LoggingOptions::Options, std::string>
     LoggingOptions::loggingOptionMap = {

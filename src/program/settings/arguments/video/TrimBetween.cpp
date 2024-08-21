@@ -1,7 +1,11 @@
 #include "./TrimBetween.h"
 
-#include "../../../utils/ListUtils.h"
-#include "../../../utils/RegexUtils.h"
+#include <string>
+#include <vector>
+
+#include "../../../../utils/ListUtils.h"
+#include "../../../../utils/RegexUtils.h"
+#include "../VectorArgument.h"
 
 TrimBetween::TrimBetween(void) : VectorArgument<std::string>() {
   helpMessage = "Trim the video between two timestamps.";

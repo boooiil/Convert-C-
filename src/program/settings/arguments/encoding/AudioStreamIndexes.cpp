@@ -1,7 +1,11 @@
 #include "./AudioStreamIndexes.h"
 
-#include "../../../logging/Log.h"
-#include "../../../utils/ListUtils.h"
+#include <exception>
+#include <string>
+
+#include "../../../../logging/Log.h"
+#include "../../../../utils/ListUtils.h"
+#include "../VectorArgument.h"
 
 AudioStreamIndexes::AudioStreamIndexes(void) : VectorArgument<int>() {
   helpMessage = "Indexes of audio streams to be encoded. Example: 0,1,2";
@@ -17,7 +21,6 @@ void AudioStreamIndexes::parse(std::string argument) {
 
   try {
     for (std::string index : ListUtils::splitv(argument, ",")) {
-
       int indexValue = std::stoi(index);
 
       if (indexValue < 0) {

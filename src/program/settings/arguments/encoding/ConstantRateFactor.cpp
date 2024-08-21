@@ -1,6 +1,10 @@
 #include "./ConstantRateFactor.h"
 
-#include "../../../logging/Log.h"
+#include <exception>
+#include <string>
+
+#include "../../../../logging/Log.h"
+#include "../IntegerArgument.h"
 
 ConstantRateFactor::ConstantRateFactor() : IntegerArgument() {
   value = -1;

@@ -1,6 +1,10 @@
 #include "./Tunes.h"
 
-#include "../utils/StringUtils.h"
+#include <string>
+#include <unordered_map>
+#include <utility>
+
+#include "../../../utils/StringUtils.h"
 
 std::unordered_map<Tunes::Tune, std::string> Tunes::tuneMap = {
     {Tunes::FILM, "film"},

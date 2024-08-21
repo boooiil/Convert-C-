@@ -1,6 +1,6 @@
 #include "Help.h"
 
-#include "../logging/Log.h"
+#include "../../logging/Log.h"
 
 void Help::printHelp() {
   Log::send(

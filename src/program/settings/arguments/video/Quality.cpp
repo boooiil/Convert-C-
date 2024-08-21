@@ -1,9 +1,9 @@
 #include "./Quality.h"
 
-#include "../../../logging/Log.h"
-#include "../../../utils/RegexUtils.h"
-#include "../../../utils/StringUtils.h"
-#include "../../child/media/MediaDefinedFormat.h"
+#include "../../../../logging/Log.h"
+#include "../../../../utils/RegexUtils.h"
+#include "../../../../utils/StringUtils.h"
+#include "../../../child/media/MediaDefinedFormat.h"
 
 Quality::Quality(void) : BaseArgument<MediaFormat>() {
   value = MediaDefinedFormat::formats["720p"];

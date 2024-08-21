@@ -1,6 +1,10 @@
 #include "./StartAt.h"
 
-#include "../../../utils/RegexUtils.h"
+#include <regex>
+#include <string>
+
+#include "../../../../utils/RegexUtils.h"
+#include "../StringArgument.h"
 
 StartAt::StartAt() : StringArgument() {
   value = "";
