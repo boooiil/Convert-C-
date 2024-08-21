@@ -1,13 +1,24 @@
 #include "ArgumentParser.h"
 
+#include <nlohmann/json.hpp>
 #include <string>
 
 #include "../../../logging/Log.h"
 #include "../../../logging/LogColor.h"
 #include "../../../utils/StringUtils.h"
+#include "../enums/Decoders.h"
+#include "../enums/Encoders.h"
+#include "../enums/GPUProviders.h"
+#include "../enums/HWAccelerators.h"
+#include "../enums/LoggingOptions.h"
+#include "../enums/Platform.h"
 #include "../enums/Tunes.h"
 
-ArgumentParser::ArgumentParser() {}
+ArgumentParser::ArgumentParser()
+    : GPU_Provider(GPUProviders::Provider::INTEL),
+      platform(Platform::OPERATING_SYSTEM::_LINUX),
+      tune(Tunes::Tune::FILM),
+      validate(true) {}
 
 ArgumentParser::~ArgumentParser(void) {}
 
@@ -160,13 +171,13 @@ void ArgumentParser::parse(int argc, char* argv[]) {
         return invalidArgument("No value provided for argument.");
       }
 
-      Tunes::Tune tune = Tunes::getKey(argv[++i]);
+      Tunes::Tune tune_check = Tunes::getKey(argv[++i]);
 
-      if (tune == Tunes::DEFAULT) {
+      if (tune_check == Tunes::DEFAULT) {
         return invalidArgument("Invalid tune provided.");
       }
 
-      this->tune = tune;
+      this->tune = tune_check;
     }
 
     else if (option == "-tr" || option == "--trim") {
@@ -189,4 +200,51 @@ void ArgumentParser::parse(int argc, char* argv[]) {
 
 void ArgumentParser::invalidArgument(std::string message) {
   Log::send({LogColor::fgRed(message)});
+}
+
+nlohmann::json ArgumentParser::asJSON() {
+  nlohmann::json argumentParser;
+
+  argumentParser["platform"] = Platform::getValue(this->platform);
+  argumentParser["gpu_provider"] = GPUProviders::getValue(this->GPU_Provider);
+
+  argumentParser["supported_encoders"] = nlohmann::json::array();
+  argumentParser["supported_decoders"] = nlohmann::json::array();
+  argumentParser["supported_hw_accel"] = nlohmann::json::array();
+
+  for (auto encoder : this->supportedEncoders) {
+    argumentParser["supported_encoders"].push_back(Encoders::getValue(encoder));
+  }
+
+  for (auto decoder : this->supportedDecoders) {
+    argumentParser["supported_decoders"].push_back(Decoders::getValue(decoder));
+  }
+
+  for (auto hw_accel : this->supportedHWAccel) {
+    argumentParser["supported_hw_accel"].push_back(
+        HWAccelerators::getValue(hw_accel));
+  }
+
+  argumentParser["audio_streams"] = this->audioStreams.get();
+  argumentParser["wanted_encoder"] = this->wantedEncoder.get();
+  argumentParser["quality"] = this->quality.get().scale;
+  argumentParser["tune"] = Tunes::getValue(this->tune);
+  argumentParser["start_at"] = this->startBeginning.get();
+  argumentParser["trim"] = this->trim.get();
+  argumentParser["amount"] = this->amount.get();
+  argumentParser["crf_override"] = this->crfOverride.get();
+  argumentParser["crop"] = this->crop;
+  argumentParser["use_bitrate"] = this->useBitrate;
+  argumentParser["use_constrain"] = this->useConstrain;
+  argumentParser["validate"] = this->validate;
+  argumentParser["use_hardware_decode"] = this->useHardwareDecode;
+  argumentParser["use_hardware_encode"] = this->useHardwareEncode;
+  argumentParser["overwrite"] = this->overwrite;
+  argumentParser["logging_format"] =
+      LoggingOptions::getValue(this->loggingFormat);
+  argumentParser["is_parent"] = this->isParent;
+  argumentParser["print_information"] = this->printInformation;
+  argumentParser["print_help"] = this->printHelp;
+
+  return argumentParser;
 }

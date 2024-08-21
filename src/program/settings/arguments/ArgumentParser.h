@@ -1,6 +1,7 @@
 #ifndef ARGUMENT_PARSER_H
 #define ARGUMENT_PARSER_H
 
+#include <nlohmann/json_fwd.hpp>
 #include <string>
 #include <vector>
 
@@ -88,6 +89,8 @@ class ArgumentParser {
 
   void parse(int argc, char* argv[]);
   void invalidArgument(std::string);
+
+  nlohmann::json asJSON(void);
 };
 
 #endif  // !ARGUMENT_PARSER_H
