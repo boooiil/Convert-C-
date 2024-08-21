@@ -1,14 +1,21 @@
-#include <iostream>
-
 #ifdef _WIN32
+#include <crtdbg.h>
 #include <windows.h>
-#else
-#include <unistd.h>
 
-#include <csignal>
+#include "./utils/signals/WindowsSignalHandler.h"
+
+using SignalHandler = WindowsSignalHandler;
+
+#else
+#include "./utils/signals/UnixSignalHandler.h"
+
+using SignalHandler = UnixSignalHandler;
+
 #endif
 
-// #include "application/Ticker.h"
+#include <exception>
+#include <iostream>
+
 #include "program/Program.h"
 
 /**
@@ -27,48 +34,6 @@
  */
 
 /**
- * ************************************* *
- *          CTRL / SIG HANDLERS          *
- * ************************************* *
- */
-
-// weird wacky and uncool way of doing this
-// TODO: maybe implement a better way of doing this when its complete
-
-#ifdef _WIN32
-BOOL WINAPI winHandle(DWORD signal) {
-  HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-
-  if (hConsole != INVALID_HANDLE_VALUE) {
-    // Ticker::end();
-    Program::end();
-
-    DWORD bytesWritten;
-    std::string message =
-        "Interrupt signal (" + std::to_string(signal) + ") received.\n";
-
-    WriteConsole(hConsole, message.c_str(), static_cast<int>(message.length()),
-                 &bytesWritten, NULL);
-  }
-
-  exit(0);
-}
-#else
-void unixHandle(int signum) {
-  std::cout << "Interrupt signal (" << signum << ") received.\n";
-  Ticker::end();
-
-  exit(signum);
-}
-#endif
-
-/**
- * ************************************* *
- *                  END                  *
- * ************************************* *
- */
-
-/**
  * FINISH NOW, OPTIMIZE LATER
  * FINSIH NOW, OPTOIMIZE LATRE
  * FIFNEIH NOW, OETINMEN LENTER
@@ -84,50 +49,25 @@ void unixHandle(int signum) {
  * @return int
  */
 int main(int argc, char* argv[]) {
-  // Ticker::init();
-
-  /**
-   * ************************************* *
-   *   CTRL / SIGTERM / SIGINT HANDLERS    *
-   * ************************************* *
-   */
-#ifdef _WIN32
-  // this DEFINITELY does not work
-  SetConsoleCtrlHandler(winHandle, TRUE);
-#else
-  signal(SIGKILL, unixHandle);
-  signal(SIGINT, unixHandle);
-  signal(SIGTERM, unixHandle);
-  signal(SIGQUIT, unixHandle);
+#ifdef _DEBUG
+#define new new (_NORMAL_BLOCK, __FILE__, __LINE__)
+  _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
-  /**
-   * ************************************* *
-   *                 END                   *
-   * ************************************* *
-   */
-
   try {
+    Program::prepare();
+
+    SignalHandler sigHandler = SignalHandler();
+    sigHandler.registerHandler();
+
     Program::run(argc, argv);
-
-    // Ticker::container->userArguments.parse(Ticker::container, argc, argv);
-
-    // if (!Ticker::container->userSettings.isParent) {
-    //   Ticker::container->userSettings.findHardwareDetails();
-    //   Ticker::container->userSettings.validateSettings();
-    //   Ticker::container->programSettings.applySettings(
-    //       Ticker::container->userSettings);
-    // }
-
-    // Ticker::container->scanWorkingDir();
-
-    // Ticker::determineNextAction();
 
   } catch (const std::exception& e) {
     std::cout << "Error: " << e.what() << std::endl;
-
-    // Ticker::end();
-    Program::end();
   }
+
+  std::cout << Program::asJSON().dump(4) << std::endl;
+
+  Program::end();
 
   return 0;
 }
