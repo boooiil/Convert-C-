@@ -1,6 +1,7 @@
 #ifndef PROGRAM_SETTINGS_H
 #define PROGRAM_SETTINGS_H
 
+#include <nlohmann/json.hpp>
 #include <regex>
 #include <string>
 #include <vector>
@@ -34,7 +35,10 @@ class ProgramSettings {
   /// @brief The current decoder being used
   HWAccelerators::Accelerator runningHWAccel;
 
-  void applySettings(ArgumentParser argumentParser);
+  void validateSettings(ArgumentParser argumentParser);
+  void gatherSystemDetails(void);
+
+  nlohmann::json asJSON(void);
 };
 
 #endif  // PROGRAM_SETTINGS_H
