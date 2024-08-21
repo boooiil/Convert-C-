@@ -1,8 +1,13 @@
 #include "Log.h"
 
+#include <initializer_list>
 #include <iostream>
+#include <string>
 
-#include "../application/Ticker.h"
+#include "../program/Program.h"
+#include "../program/settings/enums/LoggingOptions.h"
+#include "LogBuffer.h"
+#include "LogColor.h"
 
 Log::Log() : buffer(nullptr) {}
 Log::~Log() {
@@ -51,7 +56,7 @@ void Log::sendBuffer(int length, const char* message) {
 }
 
 void Log::debug(std::initializer_list<std::string> messages) {
-  if (LoggingOptions::isDebug(Ticker::container->userSettings.loggingFormat))
+  if (LoggingOptions::isDebug(Program::settings->argumentParser->loggingFormat))
     Log::send(messages);
 }
 
