@@ -8,17 +8,18 @@
 
 #include "Media.h"
 
+#include <nlohmann/json.hpp>
 #include <string>
 
 #include "../../../logging/Log.h"
 #include "../../../utils/ListUtils.h"
 #include "../../Program.h"
+#include "../../settings/ProgramSettings.h"
 #include "../../settings/arguments/ArgumentParser.h"
 #include "../../settings/enums/Activity.h"
 #include "../../settings/enums/Encoders.h"
 #include "../../settings/enums/HWAccelerators.h"
 #include "../../settings/enums/Tunes.h"
-#include "../../settings/ProgramSettings.h"
 #include "./MediaProcessConversion.h"
 #include "./MediaProcessStatistics.h"
 #include "./MediaProcessValidate.h"
@@ -113,13 +114,13 @@ void Media::setActivity(Activity::ActivityType provided_activity) {
   Media::activity = provided_activity;
 }
 
-void Media::doStatistics(Container* container) {
+void Media::doStatistics() {
   this->setActivity(Activity::STATISTICS);
 
   Log::debug(
       {"[Media.cpp] Starting statistics for: ", this->file->originalFileName});
 
-  MediaProcessStatistics statistics(container, this);
+  MediaProcessStatistics statistics(this);
   statistics.start(
       "ffprobe -v quiet -print_format json -show_format "
       "-show_streams \"" +
@@ -131,13 +132,13 @@ void Media::doStatistics(Container* container) {
 
   this->setActivity(Activity::WAITING_CONVERT);
 }
-void Media::doConversion(Container* container) {
+void Media::doConversion() {
   this->setActivity(Activity::CONVERT);
 
   Log::debug(
       {"[Media.cpp] Starting conversion for: ", this->file->originalFileName});
 
-  MediaProcessConversion conversion(container, this);
+  MediaProcessConversion conversion(this);
 
   conversion.start("ffmpeg " + ListUtils::join(Media::ffmpegArguments, " "));
 
@@ -147,13 +148,13 @@ void Media::doConversion(Container* container) {
 
   this->setActivity(Activity::WAITING_VALIDATE);
 }
-void Media::doValidation(Container* container) {
+void Media::doValidation() {
   this->setActivity(Activity::VALIDATE);
 
   Log::debug(
       {"[Media.cpp] Starting validation for: ", this->file->originalFileName});
 
-  MediaProcessValidate validate(container, this);
+  MediaProcessValidate validate(this);
   validate.start("ffmpeg -v quiet -stats -i \"" + this->file->conversionPath +
                  "\" -f null -");
 
@@ -272,4 +273,10 @@ void Media::buildFFmpegArguments(bool isValidate) {
 
   Log::debug(
       {"FFMPEG ARGUMENTS: ", ListUtils::join(this->ffmpegArguments, " ")});
+}
+
+const nlohmann::json Media::asJSON(void) {
+  nlohmann::json json;
+
+  return json;
 }

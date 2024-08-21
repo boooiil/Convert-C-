@@ -9,6 +9,7 @@
 #ifndef MEDIA
 #define MEDIA
 
+#include <nlohmann/json_fwd.hpp>
 #include <string>
 #include <vector>
 
@@ -49,7 +50,7 @@ class Media {
    * @param[in] path - Path to the file (generally CWD).
    */
   Media(std::string name, std::string path);
-  ~Media();
+  ~Media(void);
 
   /**
    * @brief Set the activity type.
@@ -63,21 +64,21 @@ class Media {
    *
    * @param[out] container - Ptr to the Container object.
    */
-  void doStatistics(class Container* container);
+  void doStatistics(void);
 
   /**
    * @brief Do the conversion process.
    *
    * @param[out] container - Ptr to the Container object.
    */
-  void doConversion(class Container* container);
+  void doConversion(void);
 
   /**
    * @brief Do the validation process.
    *
    * @param[out] container - Ptr to the Container object.
    */
-  void doValidation(class Container* container);
+  void doValidation(void);
 
   /**
    * @brief Build arguments required to process FFmpeg media with given
@@ -144,6 +145,8 @@ class Media {
    * @return true if the media activity is WAITING_VALIDATE.
    */
   const bool isWaitingToValidate(void);
+
+  const nlohmann::json asJSON(void);
 
  private:
   /// @brief activity type
