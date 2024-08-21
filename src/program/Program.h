@@ -1,21 +1,27 @@
 #ifndef PROGRAM_H
 #define PROGRAM_H
 
+#include <nlohmann/json.hpp>
+
+#include "../logging/Log.h"
+#include "./ticker/NTicker.h"
 #include "child/Child.h"
+#include "generics/GenericRunner.h"
+#include "generics/JSONSerializableRunner.h"
 #include "parent/Parent.h"
 #include "settings/Settings.h"
 
-class Program {
+class Program : public JSONSerializableRunner {
  public:
-  Program();
-  ~Program();
-
   static Settings* settings;
-  static Parent* parent;
-  static Child* child;
+  static JSONSerializableRunner* runner;
+  static Log* log;
+  static NTicker* ticker;
 
+  static void prepare(void);
   static void run(int argc, char* argv[]);
   static void end(void);
+  static nlohmann::json asJSON(void);
 };
 
 #endif  // !PROGRAM_H
