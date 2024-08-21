@@ -1,52 +1,73 @@
 #include "Program.h"
+
+#include <nlohmann/json.hpp>
+
 #include "../logging/Log.h"
+#include "child/Child.h"
+#include "generics/JSONSerializableRunner.h"
+#include "parent/Parent.h"
+#include "settings/Settings.h"
 
-Program::Program() {}
+JSONSerializableRunner* Program::runner = nullptr;
+Log* Program::log = nullptr;
+Settings* Program::settings = nullptr;
 
-Program::~Program() {
-  if (this->parent != nullptr) {
-    Log::debug({"[Program.cpp] Deleting parent."});
-    delete this->parent;
-  }
-
-  if (this->child != nullptr) {
-    Log::debug({"[Program.cpp] Deleting child."});
-    delete this->child;
-  }
-
-  if (this->settings != nullptr) {
-    Log::debug({"[Program.cpp] Deleting settings."});
-    delete this->settings;
-  }
-}
+void Program::prepare(void) {}
 
 void Program::run(int argc, char* argv[]) {
-  Program::settings = new Settings(argc, argv);
+  Program::log = new Log();
+
+  Program::settings = new Settings();
+  Program::settings->init(argc, argv);
 
   if (Program::settings->argumentParser->isParent) {
     Log::debug({"[Program.cpp] Running as parent."});
-    Program::parent = new Parent();
-    Program::parent->prepare();
-    Program::parent->run();
+    Program::runner = new Parent();
   } else {
     Log::debug({"[Program.cpp] Running as child."});
-    Program::child = new Child();
-    Program::child->prepare();
-    Program::child->run();
+    Program::runner = new Child();
   }
+
+  Program::runner->prepare();
+  Program::runner->run();
 }
 
 void Program::end(void) {
-
-  if (Program::parent != nullptr) {
-    Log::debug({"[Program.cpp] Ending parent."});
-    Program::parent->end();
+  if (Program::runner != nullptr) {
+    Log::debug({"[Program.cpp] Ending runner."});
+    Program::runner->end();
   }
 
-  if (Program::child != nullptr) {
-    Log::debug({"[Program.cpp] Ending child."});
-    Program::child->end();
+  if (Program::runner != nullptr) {
+    Log::debug({"[Program.cpp] Deleting runner."});
+    delete Program::runner;
   }
 
+  if (Program::log != nullptr) {
+    Log::debug({"[Program.cpp] Deleting log."});
+    delete Program::log;
+  }
 
+  if (Program::settings != nullptr) {
+    Log::debug({"[Program.cpp] Deleting settings."});
+    delete Program::settings;
+  }
+
+  // TODO: end needs to exit program
+  // add ticker
+}
+
+nlohmann::json Program::asJSON() {
+  using namespace nlohmann;
+
+  json program;
+  json settings_json = Program::settings->asJSON();
+
+  program["Settings"] = settings_json;
+
+  if (Program::runner != nullptr) {
+    program["Runner"] = Program::runner->asJSON();
+  }
+
+  return program;
 }
