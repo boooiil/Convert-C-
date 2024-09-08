@@ -56,3 +56,19 @@ std::string StringUtils::toLowerCase(std::string str) {
 
   return result;
 }
+
+std::string StringUtils::toUpperCase(std::string str) {
+  const int x = 32;
+
+  std::string result;
+
+  for (char c : str) {
+    if (c >= 97 && c <= 122) {
+      result += static_cast<char>(c - x);
+    } else {
+      result += c;
+    };
+  }
+
+  return result;
+}

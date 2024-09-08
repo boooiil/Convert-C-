@@ -13,11 +13,11 @@
 #include <string>
 #include <vector>
 
-/**
- * @brief Handle various functions that modify std strings.
- */
+ /**
+  * @brief Handle various functions that modify std strings.
+  */
 class StringUtils {
- public:
+public:
   /**
    * @brief Truncate a string.
    *
@@ -37,7 +37,7 @@ class StringUtils {
    * @return The modified string.
    */
   static std::string replaceAll(std::string str, std::string from,
-                                std::string to);
+    std::string to);
 
   /**
    * @brief Replace all occurances of a regex pattern with a provided sequence
@@ -49,7 +49,7 @@ class StringUtils {
    * @return The modified string.
    */
   static std::string replaceAll(std::string str, std::regex from,
-                                std::string to);
+    std::string to);
 
   /**
    * @brief Turn all characters to lower case.
@@ -58,6 +58,14 @@ class StringUtils {
    * @return The modified string.
    */
   static std::string toLowerCase(std::string str);
+
+  /**
+   * @brief Turn all characters to upper case.
+   *
+   * @param[in] str - The string to modify.
+   * @return The modified string.
+   */
+  static std::string toUpperCase(std::string str);
 };
 
 #endif  // !STRING_UTILS
