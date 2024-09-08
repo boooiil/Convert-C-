@@ -11,6 +11,7 @@
 /CppProperties.json
 /dist
 /obj
+/packages
 
 .vscode/c_cpp_properties.json
 .vscode/settings.json
