@@ -4,24 +4,28 @@
 #include <nlohmann/json.hpp>
 
 #include "../logging/Log.h"
-#include "./ticker/NTicker.h"
-#include "child/Child.h"
-#include "generics/GenericRunner.h"
 #include "generics/JSONSerializableRunner.h"
-#include "parent/Parent.h"
 #include "settings/Settings.h"
 
 class Program : public JSONSerializableRunner {
  public:
   static Settings* settings;
-  static JSONSerializableRunner* runner;
   static Log* log;
-  static NTicker* ticker;
+  static JSONSerializableRunner* ticker;
+  static bool stopFlag;
 
-  static void prepare(void);
-  static void run(int argc, char* argv[]);
+  static void prepare(int argc, char* argv[]);
+  static void run(void);
   static void end(void);
+
+  static void setEndable(bool);
+  static bool isEndable(void);
+
+  static void fromJSON(nlohmann::json);
   static nlohmann::json asJSON(void);
+
+ private:
+  bool endable;
 };
 
 #endif  // !PROGRAM_H
