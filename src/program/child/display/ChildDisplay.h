@@ -7,6 +7,7 @@ class ChildDisplay : public GenericDisplay {
  public:
   void print(void);
   void printDebug(void);
+  void printInformation(void);
   void printJSON(void);
 };
 
