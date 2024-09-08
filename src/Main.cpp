@@ -1,5 +1,7 @@
 #ifdef _WIN32
+#define _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>
+#include <stdlib.h>
 #include <windows.h>
 
 #include "./utils/signals/WindowsSignalHandler.h"
@@ -51,15 +53,17 @@ using SignalHandler = UnixSignalHandler;
 int main(int argc, char* argv[]) {
 #ifdef _DEBUG
 #define new new (_NORMAL_BLOCK, __FILE__, __LINE__)
+
   _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
 #endif
   try {
-    Program::prepare();
-
     SignalHandler sigHandler = SignalHandler();
     sigHandler.registerHandler();
 
-    Program::run(argc, argv);
+    Program::prepare(argc, argv);
+
+    Program::run();
 
   } catch (const std::exception& e) {
     std::cout << "Error: " << e.what() << std::endl;
