@@ -6,14 +6,16 @@
 #include <vector>
 
 class DirectoryUtils {
- public:
+public:
   static std::vector<std::filesystem::directory_entry> getFilesInCWD(void);
   static std::vector<std::filesystem::directory_entry> getFilesInCWDWithExt(
-      std::string);
+    std::string);
   static std::vector<std::filesystem::directory_entry> getFilesInCWDWithExt(
-      std::vector<const char*>);
+    std::vector<const char*>);
   static std::vector<std::filesystem::directory_entry> findFileInSubdir(
-      std::string);
+    std::string);
+  static bool createDir(std::string path);
+  static bool createDir(std::string path, bool recrsive);
 };
 
 #endif  // !DIRECTORY_UTILS_H
