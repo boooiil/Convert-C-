@@ -10,6 +10,9 @@
 Settings::Settings() : argumentParser(nullptr), programSettings(nullptr) {}
 
 Settings::~Settings() {
+  Log::debug(
+      {"[Settings.cpp] Expected to delete { programSettings, argumentParser "
+       "}."});
   if (this->programSettings != nullptr) {
     Log::debug({"[Settings.cpp] Deleting program settings"});
     delete this->programSettings;
@@ -32,6 +35,8 @@ void Settings::init(int argc, char* argv[]) {
   this->programSettings = new ProgramSettings();
   this->programSettings->gatherSystemDetails();
   this->programSettings->validateSettings(*this->argumentParser);
+  Log::debug({"[Settings.cpp] Settings initialized.",
+              "tune: ", Tunes::getValue(this->argumentParser->tune)});
 }
 
 nlohmann::json Settings::asJSON() {
