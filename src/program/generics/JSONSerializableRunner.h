@@ -7,6 +7,7 @@
 class JSONSerializableRunner : public GenericRunner {
  public:
   virtual ~JSONSerializableRunner(void) = default;
+  virtual void fromJSON(nlohmann::json) = 0;
   virtual nlohmann::json asJSON(void) = 0;
 };
 
