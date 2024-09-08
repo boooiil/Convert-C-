@@ -6,6 +6,7 @@
 #include "../../../logging/Log.h"
 #include "../../../logging/LogColor.h"
 #include "../../../utils/StringUtils.h"
+#include "../../Program.h"
 #include "../enums/Decoders.h"
 #include "../enums/Encoders.h"
 #include "../enums/GPUProviders.h"
@@ -57,12 +58,46 @@ void ArgumentParser::parse(int argc, char* argv[]) {
       }
     }
 
+    else if (option == "-ac" || option == "--audiochannels") {
+      if (i + 1 >= argc) {
+        return invalidArgument("No value provided for argument.");
+      }
+
+      this->audioChannels.parse(argv[++i]);
+
+      if (this->audioChannels.errored) {
+        return invalidArgument("Invalid audio channels.");
+      }
+    }
+
+    else if (option == "-af" || option == "--audioformats") {
+      if (i + 1 >= argc) {
+        return invalidArgument("No value provided for argument.");
+      }
+
+      this->audioFormats.parse(argv[++i]);
+
+      if (this->audioFormats.errored) {
+        return invalidArgument("Invalid audio formats.");
+      }
+    }
+
     else if (option == "-b" || option == "--bitrate") {
       this->useBitrate = true;
     }
 
     else if (option == "-c" || option == "--crop") {
       this->crop = true;
+    }
+
+    else if (option == "-dr" || option == "--display-refresh") {
+      if (i + 1 >= argc) {
+        return invalidArgument("No value provided for argument.");
+      }
+      this->displayRefresh.parse(argv[++i]);
+      if (this->displayRefresh.errored) {
+        return invalidArgument("Invalid display refresh value provided.");
+      }
     }
 
     else if (option == "-parent") {
@@ -200,6 +235,7 @@ void ArgumentParser::parse(int argc, char* argv[]) {
 
 void ArgumentParser::invalidArgument(std::string message) {
   Log::send({LogColor::fgRed(message)});
+  Program::stopFlag = true;
 }
 
 nlohmann::json ArgumentParser::asJSON() {
@@ -226,6 +262,7 @@ nlohmann::json ArgumentParser::asJSON() {
   }
 
   argumentParser["audio_streams"] = this->audioStreams.get();
+  argumentParser["display_refresh"] = this->displayRefresh.get();
   argumentParser["wanted_encoder"] = this->wantedEncoder.get();
   argumentParser["quality"] = this->quality.get().scale;
   argumentParser["tune"] = Tunes::getValue(this->tune);

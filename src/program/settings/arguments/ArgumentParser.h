@@ -28,6 +28,9 @@
 #include "../enums/HWAccelerators.h"
 #include "../enums/Platform.h"
 #include "../enums/Tunes.h"
+#include "encoding/AudioChannels.h"
+#include "encoding/AudioFormats.h"
+#include "misc/DisplayRefresh.h"
 
 class ArgumentParser {
  public:
@@ -46,6 +49,10 @@ class ArgumentParser {
   std::vector<HWAccelerators::Accelerator> supportedHWAccel;
   /// @brief The number of audio streams wanted.
   AudioStreamIndexes audioStreams;
+  /// @brief The audio formats wanted.
+  AudioFormats audioFormats;
+  /// @brief The audio channels wanted.
+  AudioChannels audioChannels;
   /// @brief The user's desired encoder
   DesiredEncoder wantedEncoder;
   /// @brief The current encoder being used
@@ -80,6 +87,9 @@ class ArgumentParser {
   LoggingFormat loggingFormat;
   /// @brief Run as child process.
   IsParent isParent;
+
+  /// @brief How often to refresh the display
+  DisplayRefresh displayRefresh;
 
   /// @brief Print information about the video
   PrintInformation printInformation;
