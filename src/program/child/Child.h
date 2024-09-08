@@ -9,9 +9,6 @@
 
 class Child : public JSONSerializableRunner {
  public:
-  Child(void);
-  ~Child(void);
-
   /// @brief Holds current media files being converted.
   std::queue<Media*> converting;
   /// @brief Holds media files that are waiting to be converted.
@@ -24,9 +21,15 @@ class Child : public JSONSerializableRunner {
   /// @brief Ends the child's conversion process.
   void end(void);
 
+  void setEndable(bool);
+  bool isEndable(void);
+
+  void fromJSON(nlohmann::json);
+
   nlohmann::json asJSON(void);
 
  private:
+  bool endable;
 };
 
 #endif  // !CHILD_H
