@@ -35,19 +35,17 @@ class MediaFile {
   /// @brief CWD
   std::string cwd;
   /// @brief Original filename with extension
-  std::string originalFileName;
+  std::string originalFileNameExt;
   /// @brief Original file path with filename and extension
   std::string originalFullPath;
-  /// @brief Filename after renaming without ext
-  std::string modifiedFileName;
-  /// @brief Filename after renaming including extension
-  std::string modifiedFileNameExt;
-  /// @brief Result of modifiedFileNameExt
+  /// @brief Result of modifiedFileName
   std::string conversionName;
-  /// @brief Path resolving to cwd/{series} Season {##}/{conversionName}
-  std::string conversionPath;
-  /// @brief Path resolving to cwd/{modifiedFileNameExt}
-  std::string renamePath;
+  /// @brief Result of modifiedFileNameExt
+  std::string conversionNameExt;
+  /// @brief  Path resolving to cwd/{series} Season {##}/{conversionNameExt}
+  std::string conversionFilePath;
+  /// @brief Path resolving to cwd/{series} Season {##}/
+  std::string conversionFolderPath;
   /// @brief Episode number in the series
   std::string episode;
   /// @brief Series name
@@ -71,12 +69,20 @@ class MediaFile {
 
  private:
   /**
-   * @brief Compile the path with filename.
+   * @brief Compile the full path of the original file.
    *
-   * @param[in] cwd               - Current working directory.
-   * @param[in] original_filename - The original file name.
    */
-  void resolvePath(std::string original_filename, std::string cwd);
+  void resolveOriginalFullPath(std::string path, std::string original_filename);
+  /**
+   * @brief Compile the conversion paths.
+   *
+   * @param[in] series      - Series name.
+   * @param[in] season      - Season number.
+   * @param[in] episode     - Episode number.
+   * @param[in] quality     - Chosen quality.
+   */
+  void resolveConversionPaths(std::string provided_series, int provided_season,
+                              std::string provided_episode, std::string path);
 
   /**
    * @brief Compile the extension.
@@ -112,60 +118,6 @@ class MediaFile {
    * @param[in] original_filename - The original file name.
    */
   void resolveQuality(std::string original_filename);
-
-  /**
-   * @brief Compile the modified file name.
-   *
-   * @param[in] series      - Series name.
-   * @param[in] season      - Season number.
-   * @param[in] episode     - Episode number.
-   * @param[in] quality     - Chosen quality.
-   */
-  void resolveModifiedFileName(std::string series, std::string season,
-                               std::string episode, std::string quality);
-
-  /**
-   * @brief Compile the modified file name with extension.
-   *
-   * @param[in] modified_filename   - The modified file name.
-   * @param[in] ext                 - The extension of the file.
-   */
-  void resolveModifiedFileNameExt(std::string modified_filename,
-                                  std::string ext);
-
-  /**
-   * @brief Compile the rename path.
-   *
-   * @param[in] modified_filename   - The modified file name.
-   * @param[in] extension           - The extension of the file.
-   * @param[in] cwd                 - Current working directory.
-   */
-  void resolveRenamePath(std::string modified_filename, std::string extension,
-                         std::string cwd);
-
-  /**
-   * @brief Compile the conversion name.
-   *
-   * @param[in] modified_filename   - The modified file name.
-   * @param[in] extension           - The extension of the file.
-   */
-  void resolveConversionName(std::string modifiedFileName,
-                             std::string extension);
-
-  /**
-   * @brief Compile the conversion path.
-   *
-   * @Path format: cwd/{series} season {season number}/converted_filename
-   *
-   * @param[in] conversion_filename - Filename obtained from
-   * resolveConversionName.
-   * @param[in] series              - Series name.
-   * @param[in] season              - Season number.
-   * @param[in] cwd                 - Current working directory.
-   */
-  void resolveConversionPath(std::string conversion_filename,
-                             std::string series, std::string season,
-                             std::string cwd);
 };
 
 #endif  // !MEDIA_FILE

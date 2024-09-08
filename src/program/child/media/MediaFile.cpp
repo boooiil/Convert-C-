@@ -11,14 +11,13 @@
 #include "../../Program.h"
 
 MediaFile::MediaFile()
-    : modifiedFileName(""),
-      modifiedFileNameExt(""),
-      conversionName(""),
-      conversionPath(""),
-      renamePath(""),
+    : conversionName(""),
+      conversionNameExt(""),
+      conversionFilePath(""),
+      conversionFolderPath(""),
       episode(""),
       series(""),
-      originalFileName(""),
+      originalFileNameExt(""),
       originalFullPath(""),
       cwd(""),
       ext(""),
@@ -30,14 +29,13 @@ MediaFile::MediaFile()
       season(0) {}
 
 MediaFile::MediaFile(std::string name, std::string path)
-    : modifiedFileName(""),
-      modifiedFileNameExt(""),
-      conversionName(""),
-      conversionPath(""),
-      renamePath(""),
+    : conversionName(""),
+      conversionNameExt(""),
+      conversionFilePath(""),
+      conversionFolderPath(""),
       episode(""),
       series(""),
-      originalFileName(name),
+      originalFileNameExt(name),
       originalFullPath(""),
       cwd(path),
       ext(""),
@@ -57,13 +55,13 @@ MediaFile::~MediaFile() {
  *
  *   Make these all separate private functions
  *
- *   [x] - Path (full path with file name)
- *   [x] - Extension
- *   [x] - Modified file name
- *   [x] - Modified file name ext
+ *   [x] - Original file name
+ *   [x] - Original file name path
  *   [x] - Conversion name
- *   [x] - Conversion path
- *   [x] - Rename path
+ *   [x] - Conversion name ext
+ *   [x] - Conversion file path
+ *   [x] - Conversion folder path
+ *   [x] - Extension
  *   [] - Episode (episodes are matching e00- instead of e00)
  *   [x] - Series
  *   [x] - Quality
@@ -79,57 +77,87 @@ void MediaFile::rename() {
       R"((.+?)(?:[-\. ]+)(season.?\d{1,}|s\d{1,}).?((?:E|X)[0-9]{2}(?:-(?:E|X)[0-9]{2}|(?:E|X)[0-9]{2})*(?:-(?:E|X)[0-9]{2})?))";
 
   // if the media name matches the media pattern
-  if (RegexUtils::isMatch(this->originalFileName, mediaPattern,
+  if (RegexUtils::isMatch(this->originalFileNameExt, mediaPattern,
                           std::regex::icase)) {
     Log::debug(
-        {"[MediaFile.cpp] Matched media name: ", this->originalFileName});
+        {"[MediaFile.cpp] Matched media name: ", this->originalFileNameExt});
     // get all matches of the media name
     std::vector<std::string> media_matches = RegexUtils::getAllMatches(
-        this->originalFileName, mediaPattern, std::regex::icase);
+        this->originalFileNameExt, mediaPattern, std::regex::icase);
 
-    this->resolvePath(this->originalFileName, this->cwd);
-    this->resolveExtension(this->originalFileName);
+    this->resolveExtension(this->originalFileNameExt);
 
     this->resolveSeries(media_matches[0]);
     this->resolveSeason(media_matches[1]);
     this->resolveEpisode(media_matches[2]);
+    this->resolveQuality(this->originalFileNameExt);
 
-    this->resolveQuality(this->originalFileName);
+    this->resolveOriginalFullPath(this->cwd, this->originalFileNameExt);
+    this->resolveConversionPaths(this->series, this->season, this->episode,
+                                 this->cwd);
 
-    this->resolveModifiedFileName(
-        this->series, std::to_string(this->season), this->episode,
-        Program::settings->argumentParser->quality.get().name);
-    this->resolveModifiedFileNameExt(this->modifiedFileName, this->ext);
-
-    this->resolveRenamePath(this->modifiedFileName, this->ext, this->cwd);
-
-    this->resolveConversionName(this->modifiedFileName, this->ext);
-    this->resolveConversionPath(this->conversionName, this->series,
-                                std::to_string(this->season), this->cwd);
-
-    Log::debug({"[MediaFile.cpp] Original file:", this->originalFileName});
+    Log::debug({"[MediaFile.cpp] Original file:", this->originalFileNameExt});
+    Log::debug({"[MediaFile.cpp] Original path:", this->originalFullPath});
     Log::debug({"[MediaFile.cpp] Renamed file:", this->conversionName});
+    Log::debug(
+        {"[MediaFile.cpp] Renamed file path:", this->conversionFilePath});
+    Log::debug(
+        {"[MediaFile.cpp] Renamed folder path:", this->conversionFolderPath});
   } else {
     // TODO: finish
     Log::debug({"[MediaFile.cpp] Could not match media name: ",
-                this->originalFileName});
+                this->originalFileNameExt});
 
-    this->resolvePath(this->originalFileName, this->cwd);
-    this->resolveExtension(this->originalFileName);
-    this->resolveQuality(this->originalFileName);
+    // satisfies the condition of originalFilePath
+    this->resolveOriginalFullPath(this->cwd, this->originalFileNameExt);
+    // satisfies the condition of ext
+    this->resolveExtension(this->originalFileNameExt);
+    // satisfies the condition of quality
+    this->resolveQuality(this->originalFileNameExt);
 
-    this->modifiedFileName =
-        StringUtils::replaceAll(this->originalFileName, this->ext, "");
-    this->modifiedFileNameExt = this->modifiedFileName + ".mkv";
-    this->conversionName = this->modifiedFileNameExt;
-    this->conversionPath = this->cwd + "/converted/" + this->conversionName;
+    this->conversionName =
+        StringUtils::replaceAll(this->originalFileNameExt, this->ext, "");
+    this->conversionNameExt = this->originalFileNameExt;
+    this->conversionFolderPath = this->cwd + "/converted/";
+    this->conversionFilePath =
+        this->conversionFolderPath + this->conversionNameExt;
   }
 }
 // if the pattern doesnt match, the mod file name is the same as the original
 
-void MediaFile::resolvePath(std::string original_filename,
-                            std::string current_working_directory) {
-  this->originalFullPath = current_working_directory + "/" + original_filename;
+void MediaFile::resolveOriginalFullPath(std::string path,
+                                        std::string original_filename) {
+  if (this->cwd == "\\") {
+    this->originalFullPath = "./" + original_filename;
+  } else {
+    this->originalFullPath = path + "/" + original_filename;
+  }
+}
+
+void MediaFile::resolveConversionPaths(std::string provided_series,
+                                       int provided_season,
+                                       std::string provided_episode,
+                                       std::string path) {
+  std::string season_number = "";
+  std::string program_quality =
+      Program::settings->argumentParser->quality.get().name;
+
+  if (provided_season < 10) {
+    season_number = "0" + std::to_string(provided_season);
+  } else {
+    season_number = std::to_string(provided_season);
+  }
+
+  std::string compiled_filename = provided_series + " - s" + season_number +
+                                  provided_episode + " [" + program_quality +
+                                  "]";
+
+  this->conversionName = compiled_filename;
+  this->conversionNameExt = compiled_filename + ".mkv";
+  this->conversionFolderPath = path + "/" + provided_series + " Season " +
+                               std::to_string(provided_season) + "/";
+  this->conversionFilePath =
+      this->conversionFolderPath + compiled_filename + ".mkv";
 }
 
 void MediaFile::resolveExtension(std::string original_filename) {
@@ -192,59 +220,4 @@ void MediaFile::resolveQuality(std::string original_filename) {
   } else {
     this->quality = std::stoi(StringUtils::replaceAll(quality_match, "p", ""));
   }
-}
-
-void MediaFile::resolveModifiedFileName(std::string provided_series,
-                                        std::string provided_season,
-                                        std::string provided_episode,
-                                        std::string provided_quality) {
-  if (provided_quality == "") {
-    this->modifiedFileName = StringUtils::replaceAll(provided_series, ".", "") +
-                             " - s" + provided_season + provided_episode;
-  } else {
-    this->modifiedFileName = provided_series + " - s" + provided_season +
-                             provided_episode + " [" + provided_quality + "]";
-  }
-}
-
-// set renamed media name with extension
-// it will also need to account for mkv and avi files
-// if mkv || avi, make ext mkv
-// else make original ext
-
-void MediaFile::resolveModifiedFileNameExt(std::string modified_filename,
-                                           std::string provided_extension) {
-  if (provided_extension == ".mkv" || provided_extension == ".avi") {
-    this->modifiedFileNameExt = modified_filename + ".mkv";
-  } else {
-    this->modifiedFileNameExt = modified_filename + provided_extension;
-  }
-}
-
-// path to the renamed file
-// (cwd)/(modified_filename)
-// ie: /path/to/renamed/file/some season.mkv
-
-void MediaFile::resolveRenamePath(
-    std::string modified_filename, std::string provided_extension,
-    std::string provided_current_working_directory) {
-  this->renamePath = provided_current_working_directory + "/" +
-                     modified_filename + provided_extension;
-}
-
-void MediaFile::resolveConversionName(std::string modified_filename,
-                                      std::string extension) {
-  this->conversionName = modified_filename + extension;
-}
-
-// path to the converted file
-// (cwd)/(series name) (series number)/(conversion_name)
-
-void MediaFile::resolveConversionPath(
-    std::string conversion_filename, std::string provided_series,
-    std::string provided_season,
-    std::string provided_current_working_directory) {
-  this->conversionPath = provided_current_working_directory + "/" +
-                         provided_series + " Season " + provided_season + "/" +
-                         conversion_filename;
 }
