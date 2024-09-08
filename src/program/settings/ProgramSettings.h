@@ -35,7 +35,7 @@ class ProgramSettings {
   /// @brief The current decoder being used
   HWAccelerators::Accelerator runningHWAccel;
 
-  void validateSettings(ArgumentParser argumentParser);
+  void validateSettings(ArgumentParser& argumentParser);
   void gatherSystemDetails(void);
 
   nlohmann::json asJSON(void);

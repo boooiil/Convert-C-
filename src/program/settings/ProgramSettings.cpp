@@ -57,9 +57,9 @@ ProgramSettings::ProgramSettings()
                                        Tunes::GRAIN};
 };
 
-ProgramSettings::~ProgramSettings(void){};
+ProgramSettings::~ProgramSettings(void) {};
 
-void ProgramSettings::validateSettings(ArgumentParser argumentParser) {
+void ProgramSettings::validateSettings(ArgumentParser& argumentParser) {
   // guard against invalid encoder (should be handled in user settings)
   if (argumentParser.wantedEncoder == Encoders::INVALID) {
     this->runningEncoder = Encoders::Codec::HEVC;
@@ -75,12 +75,19 @@ void ProgramSettings::validateSettings(ArgumentParser argumentParser) {
     argumentParser.tune = Tunes::DEFAULT;
   }
 
+  Log::debug({"[ProgramSettings.cpp] Running Encoder:",
+              Encoders::getValue(this->runningEncoder)});
+
   // hevc does not support film tune
   // i'm sure av1 does not as well
   if (argumentParser.tune == Tunes::FILM &&
       Encoders::isHEVC(argumentParser.wantedEncoder)) {
+    Log::debug({"[ProgramSettings.cpp] HEVC does not support film tune."});
     argumentParser.tune = Tunes::DEFAULT;
   }
+
+  Log::debug({"[ProgramSettings.cpp] Running Tune:",
+              Tunes::getValue(argumentParser.tune)});
 };
 
 void ProgramSettings::gatherSystemDetails(void) {
