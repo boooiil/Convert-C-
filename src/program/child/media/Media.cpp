@@ -10,9 +10,11 @@
 
 #include <nlohmann/json.hpp>
 #include <string>
+#include <vector>
 
 #include "../../../logging/Log.h"
 #include "../../../utils/ListUtils.h"
+#include "../../../utils/StringUtils.h"
 #include "../../Program.h"
 #include "../../settings/ProgramSettings.h"
 #include "../../settings/arguments/ArgumentParser.h"
@@ -51,7 +53,7 @@ Media::Media(std::string name, std::string path)
 
 Media::~Media() {
   Log::debug(
-      {"[Media.cpp] Deconstructing media: ", this->file->originalFileName});
+      {"[Media.cpp] Deconstructing media: ", this->file->originalFileNameExt});
 
   if (file != nullptr) delete file;
   if (video != nullptr) delete video;
@@ -117,8 +119,8 @@ void Media::setActivity(Activity::ActivityType provided_activity) {
 void Media::doStatistics() {
   this->setActivity(Activity::STATISTICS);
 
-  Log::debug(
-      {"[Media.cpp] Starting statistics for: ", this->file->originalFileName});
+  Log::debug({"[Media.cpp] Starting statistics for: ",
+              this->file->originalFileNameExt});
 
   MediaProcessStatistics statistics(this);
   statistics.start(
@@ -135,8 +137,8 @@ void Media::doStatistics() {
 void Media::doConversion() {
   this->setActivity(Activity::CONVERT);
 
-  Log::debug(
-      {"[Media.cpp] Starting conversion for: ", this->file->originalFileName});
+  Log::debug({"[Media.cpp] Starting conversion for: ",
+              this->file->originalFileNameExt});
 
   MediaProcessConversion conversion(this);
 
@@ -151,12 +153,12 @@ void Media::doConversion() {
 void Media::doValidation() {
   this->setActivity(Activity::VALIDATE);
 
-  Log::debug(
-      {"[Media.cpp] Starting validation for: ", this->file->originalFileName});
+  Log::debug({"[Media.cpp] Starting validation for: ",
+              this->file->originalFileNameExt});
 
   MediaProcessValidate validate(this);
-  validate.start("ffmpeg -v quiet -stats -i \"" + this->file->conversionPath +
-                 "\" -f null -");
+  validate.start("ffmpeg -v quiet -stats -i \"" +
+                 this->file->conversionFilePath + "\" -f null -");
 
   if (this->hasFailed()) {
     return;
@@ -198,10 +200,128 @@ void Media::buildFFmpegArguments(bool isValidate) {
   this->ffmpegArguments.push_back("-map 0:s?");
   this->ffmpegArguments.push_back("-map 0:t?");
 
+  this->ffmpegArguments.push_back("-c:t copy");
+
+  /***************************************************
+   *                                                 *
+   *                  AUDIO SETTINGS                 *
+   *                                                 *
+   ***************************************************/
+
+  // cases:
+  // 1. audio streams match audio formats
+  // 2. audio streams are greater than audio formats
+  // 3. audio streams are less than audio formats
+  // 4. audio streams are empty
+
+  // TODO:
+  // if audio streams used, iterate only over those audio streams
+  // else iterate over all audio streams
+
+  for (int i = 0; i < this->probeResult->audioStreams.size(); i++) {
+    if (!argumentParser.audioStreams.get().empty()) {
+      if (!ListUtils::contains(argumentParser.audioStreams.get(), i)) continue;
+    }
+
+    bool afCopy = false;
+    int usingChannels = this->probeResult->audioStreams[i].channels;
+
+    std::string usingFormat = this->probeResult->audioStreams[i].codec_name;
+
+    std::string codecMap = "-c:a:" + std::to_string(i);
+    std::string metadataMap = "-metadata:s:a:" + std::to_string(i);
+    std::string channelMap = "-ac:a:" + std::to_string(i);
+
+    std::vector<std::string> audioFormats = argumentParser.audioFormats.get();
+    std::vector<int> audioChannels = argumentParser.audioChannels.get();
+
+    // if audio formats exceed streams
+    // use the format
+    if (audioFormats.size() > i) {
+      usingFormat = audioFormats[i];
+      this->ffmpegArguments.push_back(codecMap + " " + usingFormat);
+
+    }
+    // if the formats are not empty
+    // but are under the stream count
+    // use the last format
+    else if (!audioFormats.empty()) {
+      usingFormat = audioFormats[audioFormats.size() - 1];
+      this->ffmpegArguments.push_back(codecMap + " " + usingFormat);
+    }
+    // else flag that the audio format is to be copied
+    else {
+      afCopy = true;
+    }
+
+    // if there are provided audio channels
+    if (!audioChannels.empty()) {
+      // if the audio formats are empty
+      // use the existing audio codec
+      if (afCopy) {
+        std::string codec = this->probeResult->audioStreams[i].codec_name;
+        this->ffmpegArguments.push_back(codecMap + " " + codec);
+      }
+
+      // if the audio channels exceed the audio streams
+      // use the channel at the stream index
+      if (audioChannels.size() > i) {
+        usingChannels = audioChannels[i];
+
+        this->ffmpegArguments.push_back(channelMap + " " +
+                                        std::to_string(usingChannels));
+      }
+      // else use the last audio channel
+      else {
+        usingChannels = audioChannels[audioChannels.size() - 1];
+
+        this->ffmpegArguments.push_back(channelMap + " " +
+                                        std::to_string(usingChannels));
+      }
+    } else {
+      // if the audio channels are empty
+      // and the audio formats are empty
+      // copy the existing audio stream
+      if (afCopy) {
+        this->ffmpegArguments.push_back(codecMap + " copy");
+      }
+      // if the audio channels are empty
+      // and the audio formats are not empty
+      // use the default auido channels
+      else {
+        std::string channels =
+            std::to_string(this->probeResult->audioStreams[i].channels);
+        this->ffmpegArguments.push_back(channelMap + " " + channels);
+      }
+    }
+
+    std::string channelType;
+
+    switch (usingChannels) {
+      case 1:
+        channelType = "Mono";
+        break;
+      case 2:
+        channelType = "Stereo";
+        break;
+      case 6:
+        channelType = "5.1";
+        break;
+      case 8:
+        channelType = "7.1";
+        break;
+      default:
+        channelType = std::to_string(usingChannels);
+    }
+
+    usingFormat = StringUtils::toUpperCase(usingFormat);
+
+    this->ffmpegArguments.push_back(metadataMap + " title=\"" + usingFormat +
+                                    " " + channelType + "\"");
+  }
+
   this->ffmpegArguments.push_back(
       "-c:v " + Encoders::getValue(programSettings.runningEncoder));
-  this->ffmpegArguments.push_back("-c:t copy");
-  this->ffmpegArguments.push_back("-c:a copy");
 
   this->ffmpegArguments.push_back("-preset slow");
 
@@ -263,7 +383,7 @@ void Media::buildFFmpegArguments(bool isValidate) {
                                     Tunes::getValue(argumentParser.tune));
   }
 
-  this->ffmpegArguments.push_back("\"" + this->file->conversionPath + "\"");
+  this->ffmpegArguments.push_back("\"" + this->file->conversionFilePath + "\"");
 
   if (isValidate || argumentParser.overwrite)
     this->ffmpegArguments.push_back("-y");
