@@ -6,7 +6,6 @@
 
 #include "../generics/JSONSerializableRunner.h"
 #include "child/ChildProcess.h"
-#include "ticker/ParentTicker.h"
 
 class Parent : public JSONSerializableRunner {
  public:
@@ -24,6 +23,11 @@ class Parent : public JSONSerializableRunner {
   ///  @brief End parent process.
   void end(void);
 
+  void setEndable(bool endable);
+  bool isEndable(void);
+
+  void fromJSON(nlohmann::json);
+
   /**
    * @brief Returns the JSON representation of this object.
    *
@@ -32,6 +36,7 @@ class Parent : public JSONSerializableRunner {
   nlohmann::json asJSON(void);
 
  private:
+  bool endable;
 };
 
 #endif  // !PARENT_H

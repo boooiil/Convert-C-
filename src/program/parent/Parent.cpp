@@ -9,7 +9,6 @@
 #include "../../logging/Log.h"
 #include "../../utils/DirectoryUtils.h"
 #include "./child/ChildProcess.h"
-#include "./ticker/ParentTicker.h"
 
 Parent::~Parent(void) {
   Log::debug({"[Parent.cpp] Deconstructing parent."});
@@ -53,7 +52,20 @@ void Parent::prepare(void) {
 
 void Parent::run(void) {}
 
-void Parent::end(void) {}
+void Parent::end(void) {
+  Log::debug({"[Parent.cpp] Ending runner."});
+  Log::debug({"[Program.cpp] Expected to delete { }."});
+}
+
+void Parent::setEndable(bool flag) {
+  Log::debug(
+      {"Parent has been set as endable:", this->endable ? "True" : "False"});
+  this->endable = flag;
+}
+
+bool Parent::isEndable(void) { return this->endable; }
+
+void Parent::fromJSON(nlohmann::json) {}
 
 nlohmann::json Parent::asJSON(void) {
   nlohmann::json parent;
