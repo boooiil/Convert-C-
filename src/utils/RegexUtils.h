@@ -13,11 +13,11 @@
 #include <string>
 #include <vector>
 
-/**
- * @brief Handle various functions that utilize std regex.
- */
+ /**
+  * @brief Handle various functions that utilize std regex.
+  */
 class RegexUtils {
- public:
+public:
   /**
    * @brief Checks if a string matches a regex pattern
    *
@@ -37,7 +37,13 @@ class RegexUtils {
    * @return true - if the string matches the pattern
    */
   static bool isMatch(std::string str, std::string pattern,
-                      std::regex_constants::syntax_option_type flag);
+    std::regex_constants::syntax_option_type flag);
+
+  static bool isMatch(char c, std::string pattern);
+  static bool isMatch(char* c, std::string pattern);
+
+  static bool isMatch(char c, std::string pattern, std::regex_constants::syntax_option_type flag);
+  static bool isMatch(char* c, std::string pattern, std::regex_constants::syntax_option_type flag);
 
   /**
    * @brief Get the first match of a string that matches a regex pattern
@@ -59,8 +65,8 @@ class RegexUtils {
    * @return std::string - first match of the string
    */
   static std::string getFirstMatch(
-      std::string str, std::string pattern,
-      std::regex_constants::syntax_option_type flag);
+    std::string str, std::string pattern,
+    std::regex_constants::syntax_option_type flag);
 
   /**
    * @brief Get all matches of a string that matches a regex pattern
@@ -71,7 +77,7 @@ class RegexUtils {
    * @return All matches of the string
    */
   static std::vector<std::string> getAllMatches(std::string str,
-                                                std::string pattern);
+    std::string pattern);
 
   /**
    * @brief Get all matches of a string that matches a regex pattern
@@ -83,8 +89,10 @@ class RegexUtils {
    * @return All matches of the string
    */
   static std::vector<std::string> getAllMatches(
-      std::string str, std::string pattern,
-      std::regex_constants::syntax_option_type flag);
+    std::string str, std::string pattern,
+    std::regex_constants::syntax_option_type flag);
+
+  static std::regex createRegex(std::string pattern, std::regex_constants::syntax_option_type flag);
 };
 
 #endif  // !REGEX_UTILS
