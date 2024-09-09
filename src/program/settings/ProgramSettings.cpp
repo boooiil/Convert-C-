@@ -26,6 +26,7 @@
 #include <thread>
 
 #include "../../logging/Log.h"
+#include "../../utils/ListUtils.h"
 #include "../../utils/RegexUtils.h"
 #include "../Program.h"
 #include "arguments/ArgumentParser.h"
@@ -38,7 +39,9 @@
 // TODO: fill this out, rm ApplicationEncodingDecision
 
 ProgramSettings::ProgramSettings()
-    : runningEncoder(Encoders::Codec::HEVC),
+    : GPU_Provider(GPUProviders::Provider::UNKNOWN),
+      platform(Platform::OPERATING_SYSTEM::UNKNOWN),
+      runningEncoder(Encoders::Codec::HEVC),
       runningHWAccel(HWAccelerators::Accelerator::NONE) {
   char buff[FILENAME_MAX];
 
@@ -57,7 +60,7 @@ ProgramSettings::ProgramSettings()
                                        Tunes::GRAIN};
 };
 
-ProgramSettings::~ProgramSettings(void) {};
+ProgramSettings::~ProgramSettings(void){};
 
 void ProgramSettings::validateSettings(ArgumentParser& argumentParser) {
   // guard against invalid encoder (should be handled in user settings)
@@ -67,8 +70,8 @@ void ProgramSettings::validateSettings(ArgumentParser& argumentParser) {
     this->runningEncoder = argumentParser.wantedEncoder;
   }
 
-  if (!argumentParser.supportedHWAccel.empty()) {
-    this->runningHWAccel = argumentParser.supportedHWAccel[0];
+  if (!this->supportedHWAccel.empty()) {
+    this->runningHWAccel = this->supportedHWAccel[0];
   }
 
   if (Encoders::isAV1(argumentParser.wantedEncoder)) {
@@ -91,10 +94,8 @@ void ProgramSettings::validateSettings(ArgumentParser& argumentParser) {
 };
 
 void ProgramSettings::gatherSystemDetails(void) {
-  ArgumentParser argumentParser = *Program::settings->argumentParser;
-
 #ifdef _WIN32
-  argumentParser.platform = Platform::WINDOWS;
+  this->platform = Platform::WINDOWS;
 
   std::array<char, 128> buffer;
   std::string result;
@@ -112,21 +113,23 @@ void ProgramSettings::gatherSystemDetails(void) {
     result += buffer.data();
   }
 
+  Log::debug({"[ProgramSettings.cpp (win)] GPU Provider Raw:", result});
+
   // nvidia
   if (RegexUtils::isMatch(result, "nvidia", std::regex_constants::icase)) {
-    argumentParser.GPU_Provider = GPUProviders::NVIDIA;
+    this->GPU_Provider.push_back(GPUProviders::NVIDIA);
   }
   // intel
-  else if (RegexUtils::isMatch(result, "intel", std::regex_constants::icase)) {
-    argumentParser.GPU_Provider = GPUProviders::INTEL;
+  if (RegexUtils::isMatch(result, "intel", std::regex_constants::icase)) {
+    this->GPU_Provider.push_back(GPUProviders::INTEL);
   }
   // amd
-  else if (RegexUtils::isMatch(result, "amd", std::regex_constants::icase)) {
-    argumentParser.GPU_Provider = GPUProviders::AMD;
+  if (RegexUtils::isMatch(result, "amd", std::regex_constants::icase)) {
+    this->GPU_Provider.push_back(GPUProviders::AMD);
   }
   // unknown
-  else {
-    argumentParser.GPU_Provider = GPUProviders::UNKNOWN;
+  if (this->GPU_Provider.empty()) {
+    this->GPU_Provider.push_back(GPUProviders::UNKNOWN);
   }
 #elif __linux__
   platform = Platform::_LINUX;
@@ -146,34 +149,39 @@ void ProgramSettings::gatherSystemDetails(void) {
     result += buffer.data();
   }
 
+  Log::debug({"[ProgramSettings.cpp (unix)] GPU Provider Raw:", result});
+
   // nvidia
   if (RegexUtils::isMatch(result, "nvidia", std::regex_constants::icase)) {
-    argumentParser.GPU_Provider = GPUProviders::NVIDIA;
+    this->GPU_Provider.push_back(GPUProviders::NVIDIA);
   }
   // intel
-  else if (RegexUtils::isMatch(result, "intel", std::regex_constants::icase)) {
-    argumentParser.GPU_Provider = GPUProviders::INTEL;
+  if (RegexUtils::isMatch(result, "intel", std::regex_constants::icase)) {
+    this->GPU_Provider.push_back(GPUProviders::INTEL);
   }
   // amd
-  else if (RegexUtils::isMatch(result, "amd", std::regex_constants::icase)) {
-    argumentParser.GPU_Provider = GPUProviders::AMD;
+  if (RegexUtils::isMatch(result, "amd", std::regex_constants::icase)) {
+    this->GPU_Provider.push_back(GPUProviders::AMD);
   }
   // unknown
-  else {
-    argumentParser.GPU_Provider = GPUProviders::UNKNOWN;
+  if (argumentParser.GPU_Provider.empty()) {
+    this->GPU_Provider.push_back(GPUProviders::UNKNOWN);
   }
 
 #else
   throw std::runtime_error("Unsupported platform!");
 #endif
 
-  Log::debug({"[UserSettings.cpp] Platform:",
-              Platform::getValue(argumentParser.platform)});
+  GPUProviders::Provider preferredProvider =
+      GPUProviders::getPreferred(this->GPU_Provider);
 
-  Log::debug({"[UserSettings.cpp] GPU Provider:",
-              GPUProviders::getValue(argumentParser.GPU_Provider)});
+  Log::debug(
+      {"[ProgramSettings.cpp] Platform:", Platform::getValue(this->platform)});
 
-  if (argumentParser.GPU_Provider == GPUProviders::NVIDIA) {
+  Log::debug({"[ProgramSettings.cpp] Preferred GPU Provider:",
+              GPUProviders::getValue(preferredProvider)});
+
+  if (ListUtils::contains(this->GPU_Provider, GPUProviders::NVIDIA)) {
     // set encoders
     supportedEncoders.push_back(Encoders::AV1_NVENC);
     supportedEncoders.push_back(Encoders::H264_NVENC);
@@ -184,7 +192,8 @@ void ProgramSettings::gatherSystemDetails(void) {
     // supportedDecoders.push_back(Decoders::HEVC_CUVID);
     // set hw accel
     supportedHWAccel.push_back(HWAccelerators::NVIDIA);
-  } else if (argumentParser.GPU_Provider == GPUProviders::INTEL) {
+  }
+  if (ListUtils::contains(this->GPU_Provider, GPUProviders::INTEL)) {
     // set encoders
     supportedEncoders.push_back(Encoders::AV1_QSV);
     supportedEncoders.push_back(Encoders::H264_QSV);
@@ -195,7 +204,8 @@ void ProgramSettings::gatherSystemDetails(void) {
     // supportedDecoders.push_back(Decoders::HEVC_QSV);
     // set hw accel
     supportedHWAccel.push_back(HWAccelerators::INTEL);
-  } else if (argumentParser.GPU_Provider == GPUProviders::AMD) {
+  }
+  if (ListUtils::contains(this->GPU_Provider, GPUProviders::AMD)) {
     // set encoders
     supportedEncoders.push_back(Encoders::AV1_AMF);
     supportedEncoders.push_back(Encoders::H264_AMF);
@@ -210,13 +220,18 @@ void ProgramSettings::gatherSystemDetails(void) {
   supportedEncoders.push_back(Encoders::HEVC);
 
   for (Encoders::Codec encoder : supportedEncoders) {
-    Log::debug(
-        {"[UserSettings.cpp] Supported Encoder:", Encoders::getValue(encoder)});
+    Log::debug({"[ProgramSettings.cpp] Supported Encoder:",
+                Encoders::getValue(encoder)});
+  }
+
+  for (HWAccelerators::Accelerator hwAccel : supportedHWAccel) {
+    Log::debug({"[ProgramSettings.cpp] Supported HW Accel:",
+                HWAccelerators::getValue(hwAccel)});
   }
 
   // for (Decoders::Codec decoder : supportedDecoders) {
   //   Log::debug(
-  //       {"[UserSettings.cpp] Supported Decoder:",
+  //       {"[ProgramSettings.cpp] Supported Decoder:",
   //       Decoders::getValue(decoder)});
   // }
 }
@@ -224,10 +239,32 @@ void ProgramSettings::gatherSystemDetails(void) {
 nlohmann::json ProgramSettings::asJSON() {
   nlohmann::json programSettings;
 
+  programSettings["supported_encoders"] = nlohmann::json::array();
+  programSettings["supported_decoders"] = nlohmann::json::array();
+  programSettings["supported_hw_accel"] = nlohmann::json::array();
+
   programSettings["workingDir"] = ProgramSettings::workingDir;
   programSettings["runningEncoder"] = Encoders::getValue(this->runningEncoder);
   programSettings["runningHWAccel"] =
       HWAccelerators::getValue(this->runningHWAccel);
+
+  programSettings["platform"] = Platform::getValue(this->platform);
+  programSettings["gpu_provider"] =
+      GPUProviders::getValue(GPUProviders::getPreferred(this->GPU_Provider));
+
+  for (auto encoder : this->supportedEncoders) {
+    programSettings["supported_encoders"].push_back(
+        Encoders::getValue(encoder));
+  }
+
+  /*for (auto decoder : this->supportedDecoders) {
+    programSettings["supported_decoders"].push_back(Decoders::getValue(decoder));
+  }*/
+
+  for (auto hw_accel : this->supportedHWAccel) {
+    programSettings["supported_hw_accel"].push_back(
+        HWAccelerators::getValue(hw_accel));
+  }
 
   return programSettings;
 }

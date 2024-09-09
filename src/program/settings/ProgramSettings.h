@@ -11,12 +11,15 @@
 #include "../settings/enums/Encoders.h"
 #include "../settings/enums/HWAccelerators.h"
 #include "../settings/enums/Tunes.h"
+#include "enums/GPUProviders.h"
+#include "enums/Platform.h"
 
 class ProgramSettings {
  public:
   ProgramSettings(void);
   ~ProgramSettings(void);
 
+  /// @brief The current operating system of the user's machine
   Platform::OPERATING_SYSTEM platform;
   /// @brief Current working directory.
   std::string workingDir;
@@ -30,6 +33,10 @@ class ProgramSettings {
   std::vector<std::regex> tuneRegex;
   /// @brief List of tunes.
   std::vector<Tunes::Tune> tuneAssociations;
+
+  // TODO: change this to a map vvvv
+  /// @brief The current GPU of the user's machine
+  std::vector<GPUProviders::Provider> GPU_Provider;
 
   /// @brief The current encoder being used
   Encoders::Codec runningEncoder;
