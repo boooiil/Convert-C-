@@ -3,6 +3,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 class GPUProviders {
  public:
@@ -19,6 +20,8 @@ class GPUProviders {
    * @return Codec enum.
    */
   static Provider getKey(std::string codec);
+
+  static Provider getPreferred(std::vector<Provider> providers);
 
   /**
    * @brief Get the string value of the enum.
