@@ -16,12 +16,12 @@
 #include "ticker/NTicker.h"
 
 JSONSerializableRunner* Program::ticker = nullptr;
-Log* Program::log = nullptr;
+// Log* Program::log = nullptr;
 Settings* Program::settings = nullptr;
 bool Program::stopFlag = false;
 
 void Program::prepare(int argc, char* argv[]) {
-  Program::log = new Log();
+  // Program::log = new Log();
   Program::ticker = new NTicker();
 
   Program::settings = new Settings();
@@ -55,16 +55,17 @@ void Program::end(void) {
     oFile.close();
   }
 
-  if (Program::log != nullptr) {
-    Log::debug({"[Program.cpp] Deleting log."});
-    delete Program::log;
-  }
-
   if (Program::ticker != nullptr) {
     Log::debug({"[Program.cpp] Deleting ticker."});
     Program::ticker->end();
     delete Program::ticker;
   }
+
+  /*if (Program::log != nullptr) {
+    Program::log->end();
+    Log::debug({"[Program.cpp] Deleting log."});
+    delete Program::log;
+  }*/
 
   if (Program::settings != nullptr) {
     Log::debug({"[Program.cpp] Deleting settings."});

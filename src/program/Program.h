@@ -10,7 +10,7 @@
 class Program : public JSONSerializableRunner {
  public:
   static Settings* settings;
-  static Log* log;
+  // static Log* log;
   static JSONSerializableRunner* ticker;
   static bool stopFlag;
 
