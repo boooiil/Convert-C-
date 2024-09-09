@@ -14,15 +14,19 @@ class Program : public JSONSerializableRunner {
   static JSONSerializableRunner* ticker;
   static bool stopFlag;
 
-  static void prepare(int argc, char* argv[]);
-  static void run(void);
-  static void end(void);
+  Program(void);
+  ~Program(void);
 
-  static void setEndable(bool);
-  static bool isEndable(void);
+  void prepare(void);
+  void prepare(int argc, char* argv[]);
+  void run(void);
+  void end(void);
 
-  static void fromJSON(nlohmann::json);
-  static nlohmann::json asJSON(void);
+  void setEndable(bool);
+  bool isEndable(void);
+
+  void fromJSON(nlohmann::json);
+  nlohmann::json asJSON(void);
 
  private:
   bool endable;
