@@ -1,23 +1,28 @@
 #include "LogBuffer.h"
 
+#include <string>
+
 #include "Log.h"
 
-LogBuffer::LogBuffer() : max(0), current(-1) {}
 LogBuffer::LogBuffer(int max) : max(max), current(0) {}
-LogBuffer::~LogBuffer() {}
 
 void LogBuffer::addLine(std::string provided_line) {
   Log::debug({"[LogBuffer.cpp] called addline, max:", std::to_string(max),
               "min:", std::to_string(current)});
 
-  if (LogBuffer::current >= LogBuffer::max) {
+  if (this->current >= this->max) {
+    delete this;
     throw "Overflow.";
   }
 
-  LogBuffer::line += provided_line + "\n";
+  try {
+    this->line += (provided_line + "\n");
+  } catch (const std::exception& e) {
+    throw e.what();
+  }
   LogBuffer::current++;
 }
 
-bool LogBuffer::isFull() { return LogBuffer::current >= LogBuffer::max; }
+bool LogBuffer::isFull() { return this->current >= this->max; }
 
-std::string LogBuffer::output() { return LogBuffer::line; }
+std::string LogBuffer::output() { return this->line; }

@@ -16,16 +16,12 @@
  */
 class LogBuffer {
  public:
-  /** This constructor should not be used. */
-  LogBuffer(void);
-
   /**
    * @brief Construct a new Log Buffer object
    *
    * @param[in] max - The maximum number of lines to store.
    */
   LogBuffer(int max);
-  ~LogBuffer(void);
 
   /**
    * @brief Add a line to the buffer.
