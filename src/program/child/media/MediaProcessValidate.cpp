@@ -3,6 +3,7 @@
 #include <regex>
 #include <string>
 
+#include "../../../logging/Log.h"
 #include "../../../utils/RegexUtils.h"
 #include "../../settings/enums/Activity.h"
 #include "Media.h"
@@ -25,11 +26,16 @@ void MediaProcessValidate::parse(std::string data) {
     std::string completedFrames =
         RegexUtils::getFirstMatch(data, "frame=.+?(\\d+)");
     std::string fps = RegexUtils::getFirstMatch(data, "fps=(\\d+\\.\\d+|\\d+)");
-    ;
 
     if (quality != "-1.0") this->media->working->quality = std::stof(quality);
+
     this->media->working->bitrate = -1;
     this->media->working->completedFrames = std::stoll(completedFrames);
     this->media->working->fps = std::stof(fps);
+
+    Log::debug({"[MediaProcessValidate.cpp] QUALITY:", quality});
+    Log::debug(
+        {"[MediaProcessValidate.cpp] COMPLETED FRAMES:", completedFrames});
+    Log::debug({"[MediaProcessValidate.cpp] FPS:", fps});
   }
 }
