@@ -44,9 +44,8 @@ void Child::run(void) {
   this->setEndable(false);
   int currentAmount = static_cast<int>(this->converting.size());
 
-  Program::log->debug(
-      {"[Ticker.cpp]", std::to_string(currentAmount),
-       std::to_string(Program::settings->argumentParser->amount)});
+  Log::debug({"[Ticker.cpp]", std::to_string(currentAmount),
+              std::to_string(Program::settings->argumentParser->amount)});
 
   if ((currentAmount < Program::settings->argumentParser->amount) &&
       !this->pending.empty()) {
@@ -56,9 +55,9 @@ void Child::run(void) {
     // and the current amount of converting media is 0
     // then exit the program
     if (!media->isWaiting()) {
-      Program::log->debug({"[Ticker.cpp] Media is not waiting:",
-                           media->file->originalFileNameExt,
-                           Activity::getValue(media->getActivity())});
+      Log::debug({"[Ticker.cpp] Media is not waiting:",
+                  media->file->originalFileNameExt,
+                  Activity::getValue(media->getActivity())});
       if (currentAmount == 0) {
         this->setEndable(true);
         Program::stopFlag = true;
@@ -80,24 +79,26 @@ void Child::run(void) {
 
   // error if there are more converting than allowed
   if (currentAmount > Program::settings->argumentParser->amount) {
-    Program::log->send({LogColor::fgRed(
+    Log::send({LogColor::fgRed(
         "CURRENT TRANSCODES ARE GREATER THAN THE ALLOWED AMOUNT.")});
 
-    Program::log->send({LogColor::fgRed(
+    Log::send({LogColor::fgRed(
         "CURRENT ALLOWED AMOUNT: " +
         std::to_string(Program::settings->argumentParser->amount))});
 
-    Program::log->send({LogColor::fgRed(
+    Log::send({LogColor::fgRed(
         "CURRENT QUEUE: " +
         std::to_string(Program::settings->argumentParser->amount))});
 
     // iterate over converting
     while (!this->converting.empty()) {
       Media* value = this->converting.front();
-      Program::log->send(
+      Log::send(
           {LogColor::fgRed("CURRENT FILE: " + value->file->conversionName)});
       this->converting.pop();
     }
+
+    this->setEndable(true);
   }
 
   // temp queue for conversion iteration
@@ -107,13 +108,13 @@ void Child::run(void) {
   while (!this->converting.empty()) {
     Media* media = this->converting.front();
 
-    Program::log->debug({"[Ticker.cpp]", media->file->originalFileNameExt,
-                         Activity::getValue(media->getActivity())});
+    Log::debug({"[Ticker.cpp]", media->file->originalFileNameExt,
+                Activity::getValue(media->getActivity())});
 
     if (!media->isProcessing()) {
-      Program::log->debug({"[Ticker.cpp] Media is not processing:",
-                           media->file->originalFileNameExt,
-                           Activity::getValue(media->getActivity())});
+      Log::debug({"[Ticker.cpp] Media is not processing:",
+                  media->file->originalFileNameExt,
+                  Activity::getValue(media->getActivity())});
       if (media->isWaitingToStatistics())
         media->doStatistics();
       else if (media->isWaitingToConvert()) {
@@ -130,19 +131,17 @@ void Child::run(void) {
       // todo: again, chrono stuff
       media->ended = TimeUtils::getEpoch();
 
-      Program::log->debug(
-          {"[Ticker.cpp] Media ended:", media->file->conversionName});
+      Log::debug({"[Ticker.cpp] Media ended:", media->file->conversionName});
       this->pending.push(media);
-      Program::log->debug({"[Ticker.cpp] pending size after finish:",
-                           std::to_string(this->pending.size())});
+      Log::debug({"[Ticker.cpp] pending size after finish:",
+                  std::to_string(this->pending.size())});
     } else {
       t_queue.push(media);
     }
     this->converting.pop();
   }
 
-  Program::log->debug(
-      {"[Ticker.cpp] t_queue size:", std::to_string(t_queue.size())});
+  Log::debug({"[Ticker.cpp] t_queue size:", std::to_string(t_queue.size())});
   this->converting = t_queue;
 
   if (Program::settings->argumentParser->loggingFormat ==
@@ -177,7 +176,7 @@ void Child::end(void) {
     Media* media = this->pending.front();
     this->pending.pop();
 
-    Program::log->debug(
+    Log::debug(
         {"[Child.cpp] Deleting media in:", media->file->originalFileNameExt});
 
     delete media;
@@ -188,7 +187,7 @@ void Child::end(void) {
     Media* media = this->converting.front();
     this->converting.pop();
 
-    Program::log->debug(
+    Log::debug(
         {"[Child.cpp] Deleting media in:", media->file->originalFileNameExt});
 
     delete media;
