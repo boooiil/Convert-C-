@@ -9,14 +9,15 @@
 #if !defined(LOG)
 #define LOG
 
+#include <initializer_list>
+#include <string>
+
 #include "LogBuffer.h"
 #include "LogColor.h"
 
 class Log {
  public:
-  Log(void);
-  ~Log(void);
-
+  static void init(void);
   /**
    * @brief Sends a message to the console.
    *
@@ -39,7 +40,7 @@ class Log {
    * @param[in] messages  - The messages
    *
    * */
-  void sendBuffer(int, std::string);
+  // void sendBuffer(int, std::string);
 
   /**
    * @brief Sends a message to the buffer.
@@ -48,7 +49,7 @@ class Log {
    * @param[in] messages  - The messages
    *
    * */
-  void sendBuffer(int, const char*);
+  // void sendBuffer(int, const char*);
 
   /**
    * @brief Sends a message to the console in plain format.
@@ -57,6 +58,8 @@ class Log {
    *
    */
   void sendPlain(std::initializer_list<std::string> messages);
+
+  static void end(void);
 
   /**
    * @brief Flushes the buffer.
@@ -72,7 +75,7 @@ class Log {
   bool hasBuffer(void);
 
  private:
-  LogBuffer* buffer;  /// @brief The buffer
+  static LogBuffer* buffer;  /// @brief The buffer
 };
 
 #endif  // LOG
