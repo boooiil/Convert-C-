@@ -238,7 +238,6 @@ nlohmann::json Child::asJSON() {
     mediaFileDebug["ext"] = media->file->ext;
     mediaFileDebug["size"] = media->file->size;
     mediaFileDebug["newSize"] = media->file->newSize;
-    mediaFileDebug["validationSize"] = media->file->validationSize;
     mediaFileDebug["path"] = media->file->originalFullPath;
     mediaFileDebug["quality"] = media->file->quality;
     mediaFileDebug["series"] = media->file->series;
@@ -296,7 +295,6 @@ nlohmann::json Child::asJSON() {
     mediaFileDebug["ext"] = media->file->ext;
     mediaFileDebug["size"] = media->file->size;
     mediaFileDebug["newSize"] = media->file->newSize;
-    mediaFileDebug["validationSize"] = media->file->validationSize;
     mediaFileDebug["originalFileNameExt"] = media->file->originalFileNameExt;
     mediaFileDebug["originalFullPath"] = media->file->originalFullPath;
     mediaFileDebug["quality"] = media->file->quality;
