@@ -158,9 +158,11 @@ void ChildDisplay::print(void) {
                            Activity::getValue(media->getActivity());
 
     if (media->hasFinished()) {
-      int calculatedSize = static_cast<int>(floor(
-          ((media->file->size - media->file->newSize) / media->file->size) *
-          100));
+      double currSize = static_cast<double>(media->file->size);
+      double newSize = static_cast<double>(media->file->newSize);
+
+      int calculatedSize =
+          static_cast<int>(std::round(((currSize - newSize) / currSize) * 100));
 
       std::string ended = ob + LogColor::fgCyan("END") + cb + " " +
                           TimeUtils::timeFormat(media->ended);
