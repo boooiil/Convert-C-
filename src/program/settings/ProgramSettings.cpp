@@ -164,7 +164,7 @@ void ProgramSettings::gatherSystemDetails(void) {
     this->GPU_Provider.push_back(GPUProviders::AMD);
   }
   // unknown
-  if (argumentParser.GPU_Provider.empty()) {
+  if (this->GPU_Provider.empty()) {
     this->GPU_Provider.push_back(GPUProviders::UNKNOWN);
   }
 
