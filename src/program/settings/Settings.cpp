@@ -6,6 +6,7 @@
 #include "../../logging/Log.h"
 #include "ProgramSettings.h"
 #include "arguments/ArgumentParser.h"
+#include "enums/Tunes.h"
 
 Settings::Settings() : argumentParser(nullptr), programSettings(nullptr) {}
 
