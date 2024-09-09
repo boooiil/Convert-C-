@@ -28,7 +28,7 @@ BOOL WINAPI WindowsSignalHandler::winHandle(DWORD signal) {
     case CTRL_LOGOFF_EVENT:
     case CTRL_SHUTDOWN_EVENT:
       Log::send({"[WindowsSignalHandler.cpp] Interrupt signal received."});
-      Program::end();
+      Program::stopFlag = true;
       return true;
     default:
       return false;
