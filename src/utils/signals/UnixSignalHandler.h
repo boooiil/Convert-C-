@@ -1,4 +1,4 @@
-#ifdef __unix__ || __linux__
+#if defined(__unix__) || defined(__linux__)
 #ifndef UNIX_SIGNAL_HANDLER_H
 #define UNIX_SIGNAL_HANDLER_H
 
@@ -8,7 +8,7 @@ class UnixSignalHandler {
   ~UnixSignalHandler();
 
   void registerHandler();
-  void handleSignal(int signal);
+  static void handleSignal(int signal);
 };
 
 #endif  // UNIX_SIGNAL_HANDLER_H

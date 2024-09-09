@@ -1,6 +1,8 @@
-#ifdef __unix__ || __linux__
+#if defined(__unix__) || defined(__linux__)
 
 #include "UnixSignalHandler.h"
+
+#include <signal.h>
 
 #include <iostream>
 
@@ -11,16 +13,16 @@ UnixSignalHandler::UnixSignalHandler() {}
 UnixSignalHandler::~UnixSignalHandler() {}
 
 void UnixSignalHandler::registerHandler() {
-  Log::send({"[WindowsSignalHandler.cpp] Registering signal handler."});
+  Log::send({"[UNIXSignalHandler.cpp] Registering signal handler."});
   signal(SIGKILL, handleSignal);
   signal(SIGTERM, handleSignal);
   signal(SIGINT, handleSignal);
   signal(SIGQUIT, handleSignal);
-  Log::send({"[WindowsSignalHandler.cpp] Signal handler registered."});
+  Log::send({"[UNIXSignalHandler.cpp] Signal handler registered."});
 }
 
 void UnixSignalHandler::handleSignal(int signal) {
   std::cout << "Interrupt signal (" << signal << ") recieved." << std::endl;
-  Program::end();
+  Program::stopFlag = true;
 }
 #endif
