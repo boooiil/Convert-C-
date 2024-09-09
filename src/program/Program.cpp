@@ -20,8 +20,13 @@ JSONSerializableRunner* Program::ticker = nullptr;
 Settings* Program::settings = nullptr;
 bool Program::stopFlag = false;
 
-Program::Program(void) {}
-Program::~Program(void) { this->end(); }
+Program::Program(void) : endable(true) {}
+Program::~Program(void) {
+  // should always call end
+  // this->end();
+}
+
+void Program::prepare() {}
 
 void Program::prepare(int argc, char* argv[]) {
   // Program::log = new Log();
