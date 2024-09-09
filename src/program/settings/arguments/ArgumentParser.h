@@ -37,24 +37,12 @@ class ArgumentParser {
   ArgumentParser(void);
   ~ArgumentParser(void);
 
-  /// @brief The current operating system of the user's machine
-  Platform::OPERATING_SYSTEM platform;
-  /// @brief The current GPU of the user's machine
-  GPUProviders::Provider GPU_Provider;
-  /// @brief The supported encoders
-  std::vector<Encoders::Codec> supportedEncoders;
-  /// @brief The supported decoders
-  std::vector<Decoders::Codec> supportedDecoders;
-  /// @brief The supported hardware accelerators
-  std::vector<HWAccelerators::Accelerator> supportedHWAccel;
   /// @brief The number of audio streams wanted.
   AudioStreamIndexes audioStreams;
   /// @brief The audio formats wanted.
   AudioFormats audioFormats;
   /// @brief The audio channels wanted.
   AudioChannels audioChannels;
-  /// @brief The user's desired encoder
-  DesiredEncoder wantedEncoder;
   /// @brief The current encoder being used
   Quality quality;
   /// @brief Codec tune setting
@@ -63,6 +51,8 @@ class ArgumentParser {
   StartAt startBeginning;
   /// @brief Trim the video to this time
   TrimBetween trim;
+  /// @brief The user's desired encoder
+  DesiredEncoder wantedEncoder;
 
   /// @brief Amount of concurrent conversions
   ParallelAmount amount;

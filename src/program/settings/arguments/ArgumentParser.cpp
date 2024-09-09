@@ -15,11 +15,7 @@
 #include "../enums/Platform.h"
 #include "../enums/Tunes.h"
 
-ArgumentParser::ArgumentParser()
-    : GPU_Provider(GPUProviders::Provider::INTEL),
-      platform(Platform::OPERATING_SYSTEM::_LINUX),
-      tune(Tunes::Tune::FILM),
-      validate(true) {}
+ArgumentParser::ArgumentParser() : tune(Tunes::Tune::FILM), validate(true) {}
 
 ArgumentParser::~ArgumentParser(void) {}
 
@@ -241,29 +237,10 @@ void ArgumentParser::invalidArgument(std::string message) {
 nlohmann::json ArgumentParser::asJSON() {
   nlohmann::json argumentParser;
 
-  argumentParser["platform"] = Platform::getValue(this->platform);
-  argumentParser["gpu_provider"] = GPUProviders::getValue(this->GPU_Provider);
-
-  argumentParser["supported_encoders"] = nlohmann::json::array();
-  argumentParser["supported_decoders"] = nlohmann::json::array();
-  argumentParser["supported_hw_accel"] = nlohmann::json::array();
-
-  for (auto encoder : this->supportedEncoders) {
-    argumentParser["supported_encoders"].push_back(Encoders::getValue(encoder));
-  }
-
-  for (auto decoder : this->supportedDecoders) {
-    argumentParser["supported_decoders"].push_back(Decoders::getValue(decoder));
-  }
-
-  for (auto hw_accel : this->supportedHWAccel) {
-    argumentParser["supported_hw_accel"].push_back(
-        HWAccelerators::getValue(hw_accel));
-  }
-
   argumentParser["audio_streams"] = this->audioStreams.get();
   argumentParser["display_refresh"] = this->displayRefresh.get();
-  argumentParser["wanted_encoder"] = this->wantedEncoder.get();
+  argumentParser["wanted_encoder"] =
+      Encoders::getValue(this->wantedEncoder.get());
   argumentParser["quality"] = this->quality.get().scale;
   argumentParser["tune"] = Tunes::getValue(this->tune);
   argumentParser["start_at"] = this->startBeginning.get();
