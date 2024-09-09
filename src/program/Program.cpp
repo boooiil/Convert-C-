@@ -20,6 +20,9 @@ JSONSerializableRunner* Program::ticker = nullptr;
 Settings* Program::settings = nullptr;
 bool Program::stopFlag = false;
 
+Program::Program(void) {}
+Program::~Program(void) { this->end(); }
+
 void Program::prepare(int argc, char* argv[]) {
   // Program::log = new Log();
   Program::ticker = new NTicker();
@@ -83,6 +86,8 @@ void Program::setEndable(bool flag) {
 }
 
 bool Program::isEndable() { return Program::stopFlag; }
+
+void Program::fromJSON(nlohmann::json program) {}
 
 nlohmann::json Program::asJSON() {
   using namespace nlohmann;
