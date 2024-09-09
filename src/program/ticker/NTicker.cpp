@@ -10,6 +10,7 @@
 #include "../parent/Parent.h"
 #include "../parent/display/ParentDisplay.h"
 #include "../settings/Help.h"
+#include "../settings/enums/LoggingOptions.h"
 #include "nlohmann/json.hpp"
 
 NTicker::NTicker(void) : endable(true) {
@@ -56,7 +57,16 @@ void NTicker::prepare(void) {
 void NTicker::run(void) {
   while (!Program::stopFlag) {
     this->runner->run();
-    this->display->print();
+
+    if (LoggingOptions::isDebug(
+            Program::settings->argumentParser->loggingFormat.get())) {
+      this->display->printDebug();
+    } else if (LoggingOptions::isJSON(
+                   Program::settings->argumentParser->loggingFormat.get())) {
+      this->display->printJSON();
+    } else {
+      this->display->print();
+    }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(
         Program::settings->argumentParser->displayRefresh));
@@ -80,13 +90,13 @@ void NTicker::end(void) {
   }
 
   if (this->runner != nullptr) {
-    while (!this->runner->isEndable()) {
-      Log::debug({"[NTicker.cpp] Waiting for runner to end."});
+    // while (!this->runner->isEndable()) {
+    //   Log::debug({"[NTicker.cpp] Waiting for runner to end."});
 
-      std::this_thread::sleep_for(std::chrono::milliseconds(500));
-      // while (!Program::ticker->runner->isEndable()
-      // wait for runner to end
-    }
+    //  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    // while (!Program::ticker->runner->isEndable()
+    // wait for runner to end
+    //}
     this->runner->end();
 
     Log::debug({"[NTicker.cpp] Deleting runner."});
