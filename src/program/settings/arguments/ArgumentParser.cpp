@@ -25,7 +25,7 @@ ArgumentParser::~ArgumentParser(void) {}
 
 void ArgumentParser::parse(int argc, char* argv[]) {
   if (argc < 2) {
-    return invalidArgument("No arguments provided");
+    // return invalidArgument("No arguments provided");
   }
 
   // Skip the first argument, which is the program name
@@ -43,18 +43,6 @@ void ArgumentParser::parse(int argc, char* argv[]) {
 
       if (this->amount.errored) {
         return invalidArgument("Invalid amount provided.");
-      }
-    }
-
-    else if (option == "-as" || option == "--audiostreams") {
-      if (i + 1 >= argc) {
-        return invalidArgument("No value provided for argument.");
-      }
-
-      this->audioStreams.parse(argv[++i]);
-
-      if (this->audioStreams.errored) {
-        return invalidArgument("Invalid audio stream indexes.");
       }
     }
 
@@ -82,26 +70,24 @@ void ArgumentParser::parse(int argc, char* argv[]) {
       }
     }
 
+    else if (option == "-as" || option == "--audiostreams") {
+      if (i + 1 >= argc) {
+        return invalidArgument("No value provided for argument.");
+      }
+
+      this->audioStreams.parse(argv[++i]);
+
+      if (this->audioStreams.errored) {
+        return invalidArgument("Invalid audio stream indexes.");
+      }
+    }
+
     else if (option == "-b" || option == "--bitrate") {
       this->useBitrate = true;
     }
 
     else if (option == "-c" || option == "--crop") {
       this->crop = true;
-    }
-
-    else if (option == "-dr" || option == "--display-refresh") {
-      if (i + 1 >= argc) {
-        return invalidArgument("No value provided for argument.");
-      }
-      this->displayRefresh.parse(argv[++i]);
-      if (this->displayRefresh.errored) {
-        return invalidArgument("Invalid display refresh value provided.");
-      }
-    }
-
-    else if (option == "-parent") {
-      this->isParent = true;
     }
 
     else if (option == "-co" || option == "--constrain") {
@@ -117,6 +103,16 @@ void ArgumentParser::parse(int argc, char* argv[]) {
 
       if (this->crfOverride.errored) {
         return invalidArgument("Invalid crf value provided.");
+      }
+    }
+
+    else if (option == "-dr" || option == "--display-refresh") {
+      if (i + 1 >= argc) {
+        return invalidArgument("No value provided for argument.");
+      }
+      this->displayRefresh.parse(argv[++i]);
+      if (this->displayRefresh.errored) {
+        return invalidArgument("Invalid display refresh value provided.");
       }
     }
 
@@ -137,12 +133,12 @@ void ArgumentParser::parse(int argc, char* argv[]) {
       this->printHelp = true;
     }
 
-    else if (option == "-hwe" || option == "hardwareencode") {
-      this->useHardwareEncode = true;
-    }
-
     else if (option == "-hwd" || option == "hardwaredecode") {
       this->useHardwareDecode = true;
+    }
+
+    else if (option == "-hwe" || option == "hardwareencode") {
+      this->useHardwareEncode = true;
     }
 
     else if (option == "-i" || option == "--info") {
@@ -174,6 +170,10 @@ void ArgumentParser::parse(int argc, char* argv[]) {
 
     else if (option == "-o" || option == "--overwrite") {
       this->overwrite = true;
+    }
+
+    else if (option == "-parent") {
+      this->isParent = true;
     }
 
     else if (option == "-q" || option == "quality") {
