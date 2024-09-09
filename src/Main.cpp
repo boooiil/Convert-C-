@@ -58,19 +58,20 @@ int main(int argc, char* argv[]) {
   //_CrtSetBreakAlloc(0);
 
 #endif
+  Program program = Program();
   try {
     SignalHandler sigHandler = SignalHandler();
     sigHandler.registerHandler();
 
-    Program::prepare(argc, argv);
+    program.prepare(argc, argv);
 
-    Program::run();
+    program.run();
 
   } catch (const std::exception& e) {
     std::cout << "Error: " << e.what() << std::endl;
   }
 
-  Program::end();
+  program.end();
 
   return 0;
 }
