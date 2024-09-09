@@ -55,6 +55,20 @@ void Log::send(std::initializer_list<std::string> messages) {
 // }
 
 void Log::debug(std::initializer_list<std::string> messages) {
+  if (Program::settings == nullptr) {
+    std::cout << "-!-!-!-!- Program settings is null -!-!-!-!-" << std::endl;
+    Log::send(messages);
+    std::cout << "-!-!-!-!- Program settings is null -!-!-!-!-" << std::endl;
+    return;
+  }
+
+  if (Program::settings->argumentParser == nullptr) {
+    std::cout << "-!-!-!-!- Argument parser is null -!-!-!-!-" << std::endl;
+    Log::send(messages);
+    std::cout << "-!-!-!-!- Argument parser is null -!-!-!-!-" << std::endl;
+    return;
+  }
+
   if (LoggingOptions::isDebug(Program::settings->argumentParser->loggingFormat))
     Log::send(messages);
 }
