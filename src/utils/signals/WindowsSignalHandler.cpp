@@ -11,12 +11,12 @@ WindowsSignalHandler::WindowsSignalHandler() {}
 WindowsSignalHandler::~WindowsSignalHandler() {}
 
 void WindowsSignalHandler::registerHandler() {
-  Log::send({"[WindowsSignalHandler.cpp] Registering signal handler."});
+  /*Log::send({"[WindowsSignalHandler.cpp] Registering signal handler."});
   if (!SetConsoleCtrlHandler(WindowsSignalHandler::winHandle, TRUE)) {
     Log::send(
         {"[WindowsSignalHandler.cpp] Failed to register signal handler."});
   }
-  Log::send({"[WindowsSignalHandler.cpp] Signal handler registered."});
+  Log::send({"[WindowsSignalHandler.cpp] Signal handler registered."});*/
 }
 
 BOOL WINAPI WindowsSignalHandler::winHandle(DWORD signal) {
