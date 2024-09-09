@@ -8,6 +8,7 @@
 
 #include "Media.h"
 
+#include <filesystem>
 #include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
@@ -147,6 +148,9 @@ void Media::doConversion() {
   if (this->hasFailed()) {
     return;
   }
+
+  this->file->newSize =
+      std::filesystem::file_size(this->file->conversionFilePath);
 
   this->setActivity(Activity::WAITING_VALIDATE);
 }
