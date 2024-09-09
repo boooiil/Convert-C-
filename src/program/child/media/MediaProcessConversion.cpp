@@ -7,10 +7,10 @@
 #include "../../../logging/Log.h"
 #include "../../../utils/RegexUtils.h"
 #include "../../Program.h"
+#include "../../settings/ProgramSettings.h"
 #include "../../settings/arguments/ArgumentParser.h"
 #include "../../settings/enums/Activity.h"
 #include "../../settings/enums/Encoders.h"
-#include "../../settings/ProgramSettings.h"
 #include "Media.h"
 #include "MediaProcess.h"
 
@@ -64,7 +64,6 @@ void MediaProcessConversion::parse(std::string data) {
         RegexUtils::getFirstMatch(data, "q=(\\d+\\.\\d+|-\\d+\\.\\d+)");
     std::string bitrate =
         RegexUtils::getFirstMatch(data, "bitrate= ?(\\d+\\.\\d+)");
-    std::string size = RegexUtils::getFirstMatch(data, "size=.+?(\\d+)");
     std::string completedFrames =
         RegexUtils::getFirstMatch(data, "frame=.+?(\\d+)");
     std::string fps =
@@ -73,7 +72,6 @@ void MediaProcessConversion::parse(std::string data) {
 
     if (quality == "") quality = "-1.0";
     if (bitrate == "") bitrate = "-1.0";
-    if (size == "") size = "-1";
     if (completedFrames == "") completedFrames = "-1";
     if (fps == "") fps = "-1.0";
 
@@ -85,13 +83,11 @@ void MediaProcessConversion::parse(std::string data) {
 
     if (quality != "-1.0") this->media->working->quality = std::stof(quality);
     this->media->working->bitrate = std::stof(bitrate);
-    this->media->file->newSize = std::stoll(size) * 1000;
     this->media->working->completedFrames = std::stoll(completedFrames);
     this->media->working->fps = std::stof(fps);
 
     Log::debug({"[MediaProcessConversion.cpp] QUALITY:", quality});
     Log::debug({"[MediaProcessConversion.cpp] BITRATE:", bitrate});
-    Log::debug({"[MediaProcessConversion.cpp] SIZE:", size});
     Log::debug(
         {"[MediaProcessConversion.cpp] COMPLETED FRAMES:", completedFrames});
     Log::debug({"[MediaProcessConversion.cpp] FPS:", fps});
