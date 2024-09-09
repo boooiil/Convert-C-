@@ -24,7 +24,6 @@ MediaFile::MediaFile()
       number(0),
       size(0),
       newSize(0),
-      validationSize(0),
       quality(0),
       season(0) {}
 
@@ -42,7 +41,6 @@ MediaFile::MediaFile(std::string name, std::string path)
       number(0),
       size(0),
       newSize(0),
-      validationSize(0),
       quality(0),
       season(0) {}
 
