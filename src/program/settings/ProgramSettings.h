@@ -17,6 +17,7 @@ class ProgramSettings {
   ProgramSettings(void);
   ~ProgramSettings(void);
 
+  Platform::OPERATING_SYSTEM platform;
   /// @brief Current working directory.
   std::string workingDir;
   /// @brief List of supported encoders by the program.
