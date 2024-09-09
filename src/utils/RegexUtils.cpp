@@ -1,5 +1,9 @@
 #include "RegexUtils.h"
 
+#include <regex>
+#include <string>
+#include <vector>
+
 bool RegexUtils::isMatch(std::string str, std::string pattern) {
   std::regex regex(pattern);
   std::smatch match;
@@ -8,7 +12,7 @@ bool RegexUtils::isMatch(std::string str, std::string pattern) {
 }
 
 bool RegexUtils::isMatch(std::string str, std::string pattern,
-  std::regex_constants::syntax_option_type flag) {
+                         std::regex_constants::syntax_option_type flag) {
   std::regex regex(pattern, flag);
   std::smatch match;
 
@@ -24,7 +28,7 @@ bool RegexUtils::isMatch(char c, std::string pattern) {
 }
 
 bool RegexUtils::isMatch(char c, std::string pattern,
-  std::regex_constants::syntax_option_type flag) {
+                         std::regex_constants::syntax_option_type flag) {
   std::string c_str(1, c);
   std::regex regex(pattern, flag);
   std::smatch match;
@@ -41,7 +45,7 @@ bool RegexUtils::isMatch(char* c, std::string pattern) {
 }
 
 bool RegexUtils::isMatch(char* c, std::string pattern,
-  std::regex_constants::syntax_option_type flag) {
+                         std::regex_constants::syntax_option_type flag) {
   std::string c_str(c);
   std::regex regex(pattern, flag);
   std::smatch match;
@@ -55,26 +59,24 @@ std::string RegexUtils::getFirstMatch(std::string str, std::string pattern) {
 
   if (std::regex_search(str, match, regex)) {
     return match[1];
-  }
-  else
+  } else
     return "";
 }
 
 std::string RegexUtils::getFirstMatch(
-  std::string str, std::string pattern,
-  std::regex_constants::syntax_option_type flag) {
+    std::string str, std::string pattern,
+    std::regex_constants::syntax_option_type flag) {
   std::regex regex(pattern, flag);
   std::smatch match;
 
   if (std::regex_search(str, match, regex)) {
     return match[1];
-  }
-  else
+  } else
     return "";
 }
 
 std::vector<std::string> RegexUtils::getAllMatches(std::string str,
-  std::string pattern) {
+                                                   std::string pattern) {
   std::regex regex(pattern);
   std::smatch match;
   std::vector<std::string> matches;
@@ -88,8 +90,8 @@ std::vector<std::string> RegexUtils::getAllMatches(std::string str,
 }
 
 std::vector<std::string> RegexUtils::getAllMatches(
-  std::string str, std::string pattern,
-  std::regex_constants::syntax_option_type flag) {
+    std::string str, std::string pattern,
+    std::regex_constants::syntax_option_type flag) {
   std::regex regex(pattern, flag);
   std::smatch match;
   std::vector<std::string> matches;
@@ -105,6 +107,7 @@ std::vector<std::string> RegexUtils::getAllMatches(
   return matches;
 }
 
-std::regex RegexUtils::createRegex(std::string pattern, std::regex_constants::syntax_option_type flag) {
+std::regex RegexUtils::createRegex(
+    std::string pattern, std::regex_constants::syntax_option_type flag) {
   return std::regex(pattern, flag);
 }
