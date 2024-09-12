@@ -94,17 +94,22 @@ void ChildDisplay::print(void) {
     child.converting.pop();
 
     float mediaFPS = media->working->fps > 0 ? media->working->fps : 1;
-    int totalFrames = media->video->totalFrames;
-    long completedFrames = static_cast<long>(media->working->completedFrames);
-    int diff = static_cast<int>(
+    double totalFrames = static_cast<double>(media->video->totalFrames);
+    double completedFrames = static_cast<double>(media->working->completedFrames);
+
+    int eta_result = static_cast<int>(
         ceil((totalFrames - completedFrames) / mediaFPS) * 1000);
+
+    int percent_result =
+      static_cast<int>(std::round((completedFrames / totalFrames) * 100));
+    
 
     // create a time util to get this
     std::string started = ob + LogColor::fgCyan("START") + cb + " " +
                           TimeUtils::timeFormat(media->started);
     // create a time util to get this
     std::string eta = ob + LogColor::fgCyan("ETA") + cb + " " +
-                      TimeUtils::durationFormat(diff);
+                      TimeUtils::durationFormat(eta_result);
 
     float crf = media->working->quality;
     int v_crf = media->video->crf;
@@ -120,9 +125,8 @@ void ChildDisplay::print(void) {
                            Activity::getValue(media->getActivity());
 
     std::string percent =
-        ob + LogColor::fgCyan("PROG") + cb + " " +
-        std::to_string(
-            (int)(((float)completedFrames / (float)totalFrames) * 100)) +
+      ob + LogColor::fgCyan("PROG") + cb + " " +
+      std::to_string(percent_result) +
         "%";
 
     std::string cq = ob + LogColor::fgCyan("QUAL") + cb + " " +
