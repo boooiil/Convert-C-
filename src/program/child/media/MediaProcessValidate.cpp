@@ -17,7 +17,7 @@ MediaProcessValidate::~MediaProcessValidate() { MediaProcess::~MediaProcess(); }
 void MediaProcessValidate::parse(std::string data) {
   // Get the converted frame amount and fps
   if (RegexUtils::isMatch(data, "corrupt", std::regex::icase)) {
-    this->media->setActivity(Activity::FAILED_CORRUPT);
+    this->object->setActivity(Activity::FAILED_CORRUPT);
   }
 
   else {
@@ -27,11 +27,11 @@ void MediaProcessValidate::parse(std::string data) {
         RegexUtils::getFirstMatch(data, "frame=.+?(\\d+)");
     std::string fps = RegexUtils::getFirstMatch(data, "fps=(\\d+\\.\\d+|\\d+)");
 
-    if (quality != "-1.0") this->media->working->quality = std::stof(quality);
+    if (quality != "-1.0") this->object->working->quality = std::stof(quality);
 
-    this->media->working->bitrate = -1;
-    this->media->working->completedFrames = std::stoll(completedFrames);
-    this->media->working->fps = std::stof(fps);
+    this->object->working->bitrate = -1;
+    this->object->working->completedFrames = std::stoll(completedFrames);
+    this->object->working->fps = std::stof(fps);
 
     Log::debug({"[MediaProcessValidate.cpp] QUALITY:", quality});
     Log::debug(
