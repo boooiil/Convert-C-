@@ -72,3 +72,7 @@ std::string StringUtils::toUpperCase(std::string str) {
 
   return result;
 }
+
+bool StringUtils::contains(std::string str, std::string pattern) {
+  return str.find(pattern) != std::string::npos;
+}
