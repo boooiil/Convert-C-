@@ -6,9 +6,12 @@
 
 #include "../../../logging/Log.h"
 #include "../../../utils/RegexUtils.h"
+#include "../../../utils/StringUtils.h"
 #include "../../Program.h"
 #include "../../settings/ProgramSettings.h"
 #include "../../settings/arguments/ArgumentParser.h"
+#include "../../settings/arguments/ArgumentRegistry.h"
+#include "../../settings/arguments/FlagArgument.h"
 #include "../../settings/enums/Activity.h"
 #include "../../settings/enums/Encoders.h"
 #include "Media.h"
@@ -39,10 +42,10 @@ void MediaProcessConversion::parse(std::string data) {
       RegexUtils::isMatch(data, "device type cuda needed for codec",
                           std::regex::icase)) {
     // if the user wants to use hardware encoding (nvenc, amf, qsv)
-    if (argumentParser.useHardwareEncode) {
-      this->media->setActivity(Activity::FAILED_HARDWARE);
+    if (ArgumentRegistry::get_t<FlagArgument>("-hwe")->get()) {
+      this->object->setActivity(Activity::FAILED_HARDWARE);
     } else if (Encoders::isHardwareEncoder(programSettings.runningEncoder)) {
-      this->media->setActivity(Activity::FAILED_HARDWARE);
+      this->object->setActivity(Activity::FAILED_HARDWARE);
     } else
       throw std::runtime_error(
           "Out of memory even though hardware encoding is disabled. This "
@@ -51,13 +54,25 @@ void MediaProcessConversion::parse(std::string data) {
 
   // If the file is already encoded, set the process status to validating
   else if (RegexUtils::isMatch(data, "already exists", std::regex::icase)) {
-    this->media->setActivity(Activity::WAITING_VALIDATE);
+    this->object->setActivity(Activity::WAITING_VALIDATE);
   } else if (RegexUtils::isMatch(data, "no such file", std::regex::icase)) {
-    this->media->setActivity(Activity::FAILED_FILE_MISSING);
+    this->object->setActivity(Activity::FAILED_FILE_MISSING);
   } else if (RegexUtils::isMatch(data, "matches no streams",
                                  std::regex::icase)) {
-    this->media->setActivity(Activity::FAILED_INVALID_AUDIO_STREAMS);
-  } else if (RegexUtils::isMatch(data, "frame=.+?(\\d+)")) {
+    this->object->setActivity(Activity::FAILED_INVALID_AUDIO_STREAMS);
+  } else if (RegexUtils::isMatch(data, "Invalid duration for option ss")) {
+    this->object->setActivity(Activity::FAILED_INVALID_DURATION_SS);
+  } else if (RegexUtils::isMatch(data, "Invalid duration for option to")) {
+    this->object->setActivity(Activity::FAILED_INVALID_DURATION_TO);
+  } else if (RegexUtils::isMatch(data, "Unknown encoder")) {
+    this->object->setActivity(Activity::FAILED_INVALID_ENCODER);
+  } else if (StringUtils::contains(data, "Rematrix is needed between") ||
+             StringUtils::contains(data, "Failed to configure output pad") ||
+             StringUtils::contains(data, "Error reinitializing filters")) {
+    this->object->setActivity(Activity::FAILED_INVALID_AUDIO_CHANNELS);
+  }
+
+  else if (RegexUtils::isMatch(data, "frame=.+?(\\d+)")) {
     Log::debug({"[MediaProcessConversion.cpp] PARSING LINE"});
 
     std::string quality =
@@ -81,10 +96,10 @@ void MediaProcessConversion::parse(std::string data) {
     // assert(completedFrames != "");
     // assert(fps != "");
 
-    if (quality != "-1.0") this->media->working->quality = std::stof(quality);
-    this->media->working->bitrate = std::stof(bitrate);
-    this->media->working->completedFrames = std::stoll(completedFrames);
-    this->media->working->fps = std::stof(fps);
+    if (quality != "-1.0") this->object->working->quality = std::stof(quality);
+    this->object->working->bitrate = std::stof(bitrate);
+    this->object->working->completedFrames = std::stoll(completedFrames);
+    this->object->working->fps = std::stof(fps);
 
     Log::debug({"[MediaProcessConversion.cpp] QUALITY:", quality});
     Log::debug({"[MediaProcessConversion.cpp] BITRATE:", bitrate});
