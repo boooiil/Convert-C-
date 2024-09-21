@@ -146,11 +146,13 @@ class Media {
    */
   const bool isWaitingToValidate(void);
 
+  void fromJSON(nlohmann::json);
+
   const nlohmann::json asJSON(void);
 
  private:
   /// @brief activity type
-  Activity::ActivityType activity = Activity::WAITING;
+  Activity::ActivityType activity;
 };
 
 #endif  // !MEDIA
