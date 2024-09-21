@@ -10,8 +10,14 @@
 #include "../parent/Parent.h"
 #include "../parent/display/ParentDisplay.h"
 #include "../settings/Help.h"
+#include "../settings/arguments/ArgumentRegistry.h"
+#include "../settings/arguments/FlagArgument.h"
+#include "../settings/arguments/IntegerArgument.h"
 #include "../settings/enums/LoggingOptions.h"
 #include "nlohmann/json.hpp"
+
+template <typename T>
+typename ArgumentRegistry::getTFn<T> get_t = ArgumentRegistry::get_t<T>;
 
 NTicker::NTicker(void) : endable(true) {
   this->display = nullptr;
@@ -19,10 +25,10 @@ NTicker::NTicker(void) : endable(true) {
 }
 
 void NTicker::determineNextAction(void) {
-  if (Program::settings->argumentParser->printHelp) {
+  if (get_t<FlagArgument>("-h")->get()) {
     Help::printHelp();
     Program::stopFlag = true;
-  } else if (Program::settings->argumentParser->printInformation) {
+  } else if (get_t<FlagArgument>("-i")->get()) {
     // print information
     this->runner->prepare();
     this->display->printInformation();
@@ -41,7 +47,7 @@ void NTicker::determineNextAction(void) {
 
 void NTicker::prepare(void) {
   // use parent display
-  if (Program::settings->argumentParser->isParent) {
+  if (get_t<FlagArgument>("-parent")->get()) {
     Log::debug({"[NTicker.cpp] Running as parent."});
     this->display = new ParentDisplay();
     this->runner = new Parent();
@@ -68,8 +74,8 @@ void NTicker::run(void) {
       this->display->print();
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(
-        Program::settings->argumentParser->displayRefresh));
+    std::this_thread::sleep_for(
+        std::chrono::milliseconds((int)*get_t<IntegerArgument>("-dr").get()));
   }
   // if (Program::settings->argumentParser->isParent) {
   //   // parent display
