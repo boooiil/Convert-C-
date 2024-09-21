@@ -18,7 +18,7 @@
  * @brief Media process extension for obtaining statistics for the current media
  * file.
  */
-class MediaProcessStatistics : public MediaProcess {
+class MediaProcessStatistics : public MediaProcess<Media> {
  public:
   /**
    * @brief Construct a new Media Process Statistics object.

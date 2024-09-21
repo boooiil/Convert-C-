@@ -17,7 +17,7 @@
 /**
  * @brief Media process extension for converting media files.
  */
-class MediaProcessConversion : public MediaProcess {
+class MediaProcessConversion : public MediaProcess<Media> {
  public:
   /**
    * @brief Construct a new Media Process Conversion object

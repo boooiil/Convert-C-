@@ -17,7 +17,7 @@
 /**
  * @brief Media process extension for validating media files.
  */
-class MediaProcessValidate : public MediaProcess {
+class MediaProcessValidate : public MediaProcess<Media> {
  public:
   /**
    * @brief Construct a new Media Process Validate object.
