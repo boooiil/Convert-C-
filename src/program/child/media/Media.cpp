@@ -19,6 +19,11 @@
 #include "../../Program.h"
 #include "../../settings/ProgramSettings.h"
 #include "../../settings/arguments/ArgumentParser.h"
+#include "../../settings/arguments/ArgumentRegistry.h"
+#include "../../settings/arguments/FlagArgument.h"
+#include "../../settings/arguments/StringArgument.h"
+#include "../../settings/arguments/TimeStringVectorArgument.h"
+#include "../../settings/arguments/VectorArgument.h"
 #include "../../settings/enums/Activity.h"
 #include "../../settings/enums/Encoders.h"
 #include "../../settings/enums/HWAccelerators.h"
@@ -31,6 +36,9 @@
 #include "MediaVideoProperties.h"
 #include "MediaWorkingProperties.h"
 
+template <typename T>
+typename ArgumentRegistry::getTFn<T> get_t = ArgumentRegistry::get_t<T>;
+
 Media::Media()
     : started(0),
       ended(0),
@@ -38,11 +46,8 @@ Media::Media()
       file(new MediaFile()),
       probeResult(nullptr),
       video(new MediaVideoProperties()),
-      working(new MediaWorkingProperties()) {
-  Log::debug(
-      {"[Media.cpp] Constructing blank media (something is not working "
-       "properly)."});
-}
+      working(new MediaWorkingProperties()) {}
+
 Media::Media(std::string name, std::string path)
     : started(0),
       ended(0),
@@ -87,6 +92,9 @@ const bool Media::hasFailed() {
     case Activity::FAILED_FILE_PERMISSIONS:
     case Activity::FAILED_HARDWARE:
     case Activity::FAILED_INVALID_AUDIO_STREAMS:
+    case Activity::FAILED_INVALID_DURATION_SS:
+    case Activity::FAILED_INVALID_DURATION_TO:
+    case Activity::FAILED_INVALID_ENCODER:
     case Activity::FAILED_JSON_PARSE:
     case Activity::FAILED_SYSTEM:
       return true;
@@ -180,7 +188,7 @@ void Media::buildFFmpegArguments(bool isValidate) {
 
   this->ffmpegArguments.push_back("-v error -stats");
 
-  if (argumentParser.useHardwareDecode) {
+  if (get_t<FlagArgument>("-hwd")->get()) {
     if (programSettings.runningHWAccel != HWAccelerators::NONE) {
       this->ffmpegArguments.push_back(
           "-hwaccel " +
@@ -193,8 +201,11 @@ void Media::buildFFmpegArguments(bool isValidate) {
 
   this->ffmpegArguments.push_back("-map 0:v:0");
 
-  if (!argumentParser.audioStreams.get().empty()) {
-    for (const int stream : argumentParser.audioStreams.get()) {
+  VectorArgument<int>* audioStreams = get_t<VectorArgument<int>>("-as").get();
+
+  if (!audioStreams->get().empty()) {
+    // TODO: make vector argument iterable
+    for (const int stream : audioStreams->get()) {
       this->ffmpegArguments.push_back("-map 0:a:" + std::to_string(stream));
     }
   } else {
@@ -223,8 +234,11 @@ void Media::buildFFmpegArguments(bool isValidate) {
   // else iterate over all audio streams
 
   for (int i = 0; i < this->probeResult->audioStreams.size(); i++) {
-    if (!argumentParser.audioStreams.get().empty()) {
-      if (!ListUtils::contains(argumentParser.audioStreams.get(), i)) continue;
+    // if audio streams exist
+    if (!audioStreams->get().empty()) {
+      // and if the audio stream is not in the list
+      // skip the audio stream
+      if (!ListUtils::contains(audioStreams->get(), i)) continue;
     }
 
     bool afCopy = false;
@@ -236,8 +250,11 @@ void Media::buildFFmpegArguments(bool isValidate) {
     std::string metadataMap = "-metadata:s:a:" + std::to_string(i);
     std::string channelMap = "-ac:a:" + std::to_string(i);
 
-    std::vector<std::string> audioFormats = argumentParser.audioFormats.get();
-    std::vector<int> audioChannels = argumentParser.audioChannels.get();
+    VectorArgument<std::string>* acodec =
+        get_t<VectorArgument<std::string>>("-aco").get();
+    VectorArgument<int>* ac = get_t<VectorArgument<int>>("-ac").get();
+    std::vector<std::string> audioFormats = acodec->get();
+    std::vector<int> audioChannels = ac->get();
 
     // if audio formats exceed streams
     // use the format
@@ -331,7 +348,7 @@ void Media::buildFFmpegArguments(bool isValidate) {
 
   this->ffmpegArguments.push_back("-level 4.1");
 
-  if (argumentParser.useBitrate) {
+  if (get_t<FlagArgument>("-b")->get()) {
     this->ffmpegArguments.push_back("-b:v " + std::to_string(format.bitrate) +
                                     "M");
     this->ffmpegArguments.push_back("-bufsize " +
@@ -340,7 +357,7 @@ void Media::buildFFmpegArguments(bool isValidate) {
                                     std::to_string(format.max * 2) + "M");
     this->ffmpegArguments.push_back("-minrate " +
                                     std::to_string(format.min * 2) + "M");
-  } else if (argumentParser.useConstrain) {
+  } else if (get_t<FlagArgument>("-co")->get()) {
     this->ffmpegArguments.push_back("-crf " + std::to_string(format.crf));
     this->ffmpegArguments.push_back("-bufsize " +
                                     std::to_string(format.bitrate * 2) + "M");
@@ -350,7 +367,7 @@ void Media::buildFFmpegArguments(bool isValidate) {
     this->ffmpegArguments.push_back("-crf " + std::to_string(format.crf));
   }
 
-  if (argumentParser.crop) {
+  if (get_t<FlagArgument>("-c")->get()) {
     this->ffmpegArguments.push_back(
         "-vf scale=" + this->video->convertedResolution +
         ":flags=lanczos,crop=" + format.crop);
@@ -361,14 +378,17 @@ void Media::buildFFmpegArguments(bool isValidate) {
     this->ffmpegArguments.push_back(
         "-vf scale=" + this->video->convertedResolution + ":flags=lanczos");
 
-  if (!argumentParser.startBeginning.get().empty()) {
-    this->ffmpegArguments.push_back("-ss " +
-                                    argumentParser.startBeginning.get());
+  StringArgument* startBeginning = get_t<StringArgument>("-ss").get();
+
+  if (!startBeginning->get().empty()) {
+    this->ffmpegArguments.push_back("-ss " + startBeginning->get());
   }
 
-  if (!argumentParser.trim.get().empty()) {
-    this->ffmpegArguments.push_back("-ss " + argumentParser.trim.get()[0]);
-    this->ffmpegArguments.push_back("-to " + argumentParser.trim.get()[1]);
+  TimeStringVectorArgument* trim = get_t<TimeStringVectorArgument>("-tr").get();
+
+  if (!trim->get().empty()) {
+    this->ffmpegArguments.push_back("-ss " + trim->get()[0]);
+    this->ffmpegArguments.push_back("-to " + trim->get()[1]);
   }
 
   /** TODO: flesh out later */
@@ -389,7 +409,7 @@ void Media::buildFFmpegArguments(bool isValidate) {
 
   this->ffmpegArguments.push_back("\"" + this->file->conversionFilePath + "\"");
 
-  if (isValidate || argumentParser.overwrite)
+  if (isValidate || get_t<FlagArgument>("-o")->get())
     this->ffmpegArguments.push_back("-y");
   else {
     this->ffmpegArguments.push_back("-n");
@@ -397,6 +417,53 @@ void Media::buildFFmpegArguments(bool isValidate) {
 
   Log::debug(
       {"FFMPEG ARGUMENTS: ", ListUtils::join(this->ffmpegArguments, " ")});
+}
+
+void Media::fromJSON(nlohmann::json json) {
+  if (json.empty()) {
+    Log::debug({"[Media.cpp] JSON is empty."});
+    return;
+  }
+
+  nlohmann::json json_file = json["file"];
+  nlohmann::json json_video = json["video"];
+  nlohmann::json json_working = json["working"];
+
+  this->activity = Activity::getKey(json["activity"]);
+  this->ended = json["ended"];
+  this->started = json["started"];
+  this->ffmpegArguments = json["ffmpegArguments"];
+
+  this->file->originalFileNameExt = json_file["originalFileNameExt"];
+  this->file->originalFullPath = json_file["originalFullPath"];
+  this->file->conversionFilePath = json_file["conversionFilePath"];
+  this->file->conversionFolderPath = json_file["conversionFolderPath"];
+  this->file->conversionName = json_file["conversionName"];
+  this->file->conversionNameExt = json_file["conversionNameExt"];
+  this->file->ext = json_file["ext"];
+  this->file->size = json_file["size"];
+  this->file->newSize = json_file["newSize"];
+  this->file->cwd = json_file["cwd"];
+  this->file->quality = json_file["quality"];
+  this->file->series = json_file["series"];
+  this->file->season = json_file["season"];
+
+  this->video->fps = json_video["fps"];
+  this->video->totalFrames = json_video["totalFrames"];
+  this->video->subtitleProvider = json_video["subtitleProvider"];
+  this->video->width = json_video["width"];
+  this->video->height = json_video["height"];
+  this->video->ratio = json_video["ratio"];
+  this->video->convertedResolution = json_video["convertedResolution"];
+  this->video->convertedHeight = json_video["convertedHeight"];
+  this->video->convertedWidth = json_video["convertedWidth"];
+  this->video->crop = json_video["crop"];
+  this->video->crf = json_video["crf"];
+
+  this->working->fps = json_working["fps"];
+  this->working->completedFrames = json_working["completedFrames"];
+  this->working->quality = json_working["quality"];
+  this->working->bitrate = json_working["bitrate"];
 }
 
 const nlohmann::json Media::asJSON(void) {

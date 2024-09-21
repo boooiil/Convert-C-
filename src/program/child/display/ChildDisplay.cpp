@@ -15,6 +15,9 @@
 #include "../../generics/GenericRunner.h"
 #include "../../settings/ProgramSettings.h"
 #include "../../settings/arguments/ArgumentParser.h"
+#include "../../settings/arguments/ArgumentRegistry.h"
+#include "../../settings/arguments/FlagArgument.h"
+#include "../../settings/arguments/IntegerArgument.h"
 #include "../../settings/enums/Activity.h"
 #include "../../settings/enums/Encoders.h"
 #include "../../settings/enums/HWAccelerators.h"
@@ -26,6 +29,9 @@
 #include "../ffmpeg/ProbeResultStreamSubtitle.h"
 #include "../ffmpeg/ProbeResultStreamVideo.h"
 #include "../media/Media.h"
+
+template <typename T>
+typename ArgumentRegistry::getTFn<T> get_t = ArgumentRegistry::get_t<T>;
 
 void ChildDisplay::print(void) {
   Child child =
@@ -56,7 +62,9 @@ void ChildDisplay::print(void) {
   std::string tune = ob + LogColor::fgCyan("TUNE") + cb + " " +
                      LogColor::fgGray(Tunes::getValue(argumentParser.tune));
   std::string amount = ob + LogColor::fgCyan("AMOUNT") + cb + " " +
-                       LogColor::fgGray(std::to_string(argumentParser.amount));
+                       LogColor::fgGray("this needs done");
+
+  // std::string a = ArgumentRegistry::get_t<IntegerArgument>("-a").get();
 
   std::string constrain = ob + LogColor::fgRed("CONSTRAIN") + cb;
   std::string debug = ob + LogColor::fgRed("DEBUG") + cb;
@@ -66,7 +74,7 @@ void ChildDisplay::print(void) {
                        runningDecoder + " " + resolution + " " + tune + " " +
                        amount;
 
-  if (argumentParser.useConstrain) {
+  if (get_t<FlagArgument>("-co")->get()) {
     header += " " + constrain;
   }
 
@@ -74,7 +82,7 @@ void ChildDisplay::print(void) {
     header += " " + debug;
   }
 
-  if (argumentParser.crop) {
+  if (get_t<FlagArgument>("-c")->get()) {
     header += " " + crop;
   }
 
@@ -95,14 +103,14 @@ void ChildDisplay::print(void) {
 
     float mediaFPS = media->working->fps > 0 ? media->working->fps : 1;
     double totalFrames = static_cast<double>(media->video->totalFrames);
-    double completedFrames = static_cast<double>(media->working->completedFrames);
+    double completedFrames =
+        static_cast<double>(media->working->completedFrames);
 
     int eta_result = static_cast<int>(
         ceil((totalFrames - completedFrames) / mediaFPS) * 1000);
 
     int percent_result =
-      static_cast<int>(std::round((completedFrames / totalFrames) * 100));
-    
+        static_cast<int>(std::round((completedFrames / totalFrames) * 100));
 
     // create a time util to get this
     std::string started = ob + LogColor::fgCyan("START") + cb + " " +
@@ -124,10 +132,8 @@ void ChildDisplay::print(void) {
     std::string activity = ob + LogColor::fgCyan("ACT") + cb + " " +
                            Activity::getValue(media->getActivity());
 
-    std::string percent =
-      ob + LogColor::fgCyan("PROG") + cb + " " +
-      std::to_string(percent_result) +
-        "%";
+    std::string percent = ob + LogColor::fgCyan("PROG") + cb + " " +
+                          std::to_string(percent_result) + "%";
 
     std::string cq = ob + LogColor::fgCyan("QUAL") + cb + " " +
                      NumberUtils::formatNumber((v_crf / crf) * 100, 2) + "%";
