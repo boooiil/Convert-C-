@@ -17,6 +17,9 @@ class LoggingFormat : public BaseArgument<LoggingOptions::Options> {
    * @param[in] argument - Argument.
    */
   void parse(std::string argument) override;
+
+  const std::string toString(void) const override;
+  const bool hasData(void) const override;
 };
 
 #endif  // !LOGGING_FORMAT_H

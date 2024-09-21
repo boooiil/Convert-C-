@@ -1,14 +1,17 @@
 #include "./Quality.h"
 
+#include <string>
+
 #include "../../../../logging/Log.h"
 #include "../../../../utils/RegexUtils.h"
 #include "../../../../utils/StringUtils.h"
 #include "../../../child/media/MediaDefinedFormat.h"
+#include "../../../child/media/MediaFormat.h"
+#include "../BaseArgument.h"
 
-Quality::Quality(void) : BaseArgument<MediaFormat>() {
-  value = MediaDefinedFormat::formats["720p"];
-  helpMessage = "Quality of the video.";
-};
+Quality::Quality(void)
+    : BaseArgument<MediaFormat>("-q", "--quality", "Quality",
+                                MediaDefinedFormat::formats["720p"]){};
 Quality::~Quality(void) {}
 
 void Quality::parse(std::string provided) {
@@ -23,11 +26,11 @@ void Quality::parse(std::string provided) {
     MediaDefinedFormat::addCustomFormat(quality);
     value = MediaDefinedFormat::formats[provided];
   } else {
-    errored = true;
+    this->setErrored(true);
   }
 }
 
-Quality& Quality::operator=(const MediaFormat& provided) {
-  value = provided;
-  return *this;
-}
+const std::string Quality::toString(void) const { return this->value.name; }
+
+// there will always be a defined format
+const bool Quality::hasData(void) const { return true; }

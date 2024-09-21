@@ -13,7 +13,8 @@ class Quality : public BaseArgument<MediaFormat> {
 
   void parse(std::string) override;
 
-  Quality& operator=(const MediaFormat& provided);
+  const std::string toString(void) const override;
+  const bool hasData(void) const override;
 };
 
 #endif  // QUALITY_H
