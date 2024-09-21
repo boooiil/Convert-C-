@@ -1,55 +1,51 @@
 #ifndef BASE_ARGUMENT_H
 #define BASE_ARGUMENT_H
 
+#include <cassert>
 #include <string>
 
-template <typename T>
-class BaseArgument {
- public:
-  virtual ~BaseArgument(void){};
+#include "./GenericArgument.h"
 
-  bool errored = false;
+template <typename T>
+class BaseArgument : public GenericArgument {
+ public:
+  BaseArgument(std::string _flag, std::string _longFlag,
+               std::string _helpMessage, T data)
+      : GenericArgument(),
+        helpMessage(_helpMessage),
+        flag(_flag),
+        longFlag(_longFlag),
+        value(data) {
+    assert(_flag[0] == '-');
+    assert(_longFlag[0] == '-');
+  }
+
+  ~BaseArgument(void) {}
 
   /**
    * @brief Parse a given argument.
    *
    * @param[in] argument  - Argument.
    */
-  virtual void parse(std::string) = 0;
+  virtual void parse(std::string argument) = 0;
+  virtual T get(void) { return value; };
+  virtual void set(const T& provided) { value = provided; };
 
-  void set(const T& provided) { value = provided; }
+  virtual std::string getHelpMessage(void) { return helpMessage; };
+  virtual std::string getLongFlag(void) { return longFlag; };
+  virtual std::string getFlag(void) { return flag; };
 
-  /**
-   * @brief Get help message.
-   *
-   * @return Help message.
-   */
-  std::string getHelpMessage(void) { return helpMessage; };
-
-  /**
-   * @brief Get the value of this argument.
-   *
-   * @return Value of provided argument.
-   */
-  T get(void) { return value; };
-
-  operator T(void) const { return value; }
-
-  /**
-   * @brief Set the value of this argument.
-   *
-   * @param[in] provided  Value to set.
-   *
-   * @return Reference to this object.
-   */
-  BaseArgument& operator=(const T& provided) {
-    value = provided;
-    return *this;
+  virtual bool isFlag(std::string _flag) {
+    return this->flag == _flag || this->longFlag == _flag;
   };
+
+  virtual operator T(void) const { return value; };
 
  protected:
   /// @brief Help message for the argument.
   std::string helpMessage;
+  std::string flag;
+  std::string longFlag;
   /// @brief Value of provided argument.
   T value;
 };
