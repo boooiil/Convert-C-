@@ -12,11 +12,16 @@
 #include "../../utils/DirectoryUtils.h"
 #include "../../utils/TimeUtils.h"
 #include "../Program.h"
+#include "../settings/arguments/ArgumentRegistry.h"
+#include "../settings/arguments/IntegerArgument.h"
 #include "../settings/enums/Activity.h"
 #include "../settings/enums/LoggingOptions.h"
 #include "media/Media.h"
 
 std::vector<std::thread> workerThreads;
+
+template <typename T>
+typename ArgumentRegistry::getTFn<T> get_t = ArgumentRegistry::get_t<T>;
 
 void Child::prepare(void) {
   std::vector<std::filesystem::directory_entry> files =
@@ -43,12 +48,12 @@ void Child::run(void) {
   // once every second
   this->setEndable(false);
   int currentAmount = static_cast<int>(this->converting.size());
+  IntegerArgument* setAmount = get_t<IntegerArgument>("-a").get();
 
-  Log::debug({"[Ticker.cpp]", std::to_string(currentAmount),
-              std::to_string(Program::settings->argumentParser->amount)});
+  Log::debug(
+      {"[Ticker.cpp]", std::to_string(currentAmount), setAmount->toString()});
 
-  if ((currentAmount < Program::settings->argumentParser->amount) &&
-      !this->pending.empty()) {
+  if ((currentAmount < (int)*setAmount) && !this->pending.empty()) {
     Media* media = this->pending.front();
 
     // if there are no media files waiting
@@ -78,17 +83,14 @@ void Child::run(void) {
   }
 
   // error if there are more converting than allowed
-  if (currentAmount > Program::settings->argumentParser->amount) {
+  if (currentAmount > (int)*setAmount) {
     Log::send({LogColor::fgRed(
         "CURRENT TRANSCODES ARE GREATER THAN THE ALLOWED AMOUNT.")});
 
-    Log::send({LogColor::fgRed(
-        "CURRENT ALLOWED AMOUNT: " +
-        std::to_string(Program::settings->argumentParser->amount))});
+    Log::send(
+        {LogColor::fgRed("CURRENT ALLOWED AMOUNT: " + setAmount->toString())});
 
-    Log::send({LogColor::fgRed(
-        "CURRENT QUEUE: " +
-        std::to_string(Program::settings->argumentParser->amount))});
+    Log::send({LogColor::fgRed("CURRENT QUEUE: " + setAmount->toString())});
 
     // iterate over converting
     while (!this->converting.empty()) {
@@ -223,14 +225,14 @@ nlohmann::json Child::asJSON() {
     nlohmann::json mediaVideoDebug;
     nlohmann::json mediaWorkingDebug;
 
-    mediaDebug["name"] = media->file->originalFileNameExt;
     mediaDebug["activity"] = Activity::getValue(media->getActivity());
-    mediaDebug["path"] = media->file->cwd;
     mediaDebug["started"] = media->started;
     mediaDebug["ended"] = media->ended;
     // this might not work
     mediaDebug["ffmpegArguments"] = media->ffmpegArguments;
 
+    mediaFileDebug["originalFileNameExt"] = media->file->originalFileNameExt;
+    mediaFileDebug["originalFullPath"] = media->file->originalFullPath;
     mediaFileDebug["conversionName"] = media->file->conversionName;
     mediaFileDebug["conversionNameExt"] = media->file->conversionNameExt;
     mediaFileDebug["conversionFolderPath"] = media->file->conversionFolderPath;
@@ -238,7 +240,7 @@ nlohmann::json Child::asJSON() {
     mediaFileDebug["ext"] = media->file->ext;
     mediaFileDebug["size"] = media->file->size;
     mediaFileDebug["newSize"] = media->file->newSize;
-    mediaFileDebug["path"] = media->file->originalFullPath;
+    mediaFileDebug["cwd"] = media->file->cwd;
     mediaFileDebug["quality"] = media->file->quality;
     mediaFileDebug["series"] = media->file->series;
     mediaFileDebug["season"] = media->file->season;
@@ -281,13 +283,13 @@ nlohmann::json Child::asJSON() {
     nlohmann::json mediaVideoDebug;
     nlohmann::json mediaWorkingDebug;
 
-    mediaDebug["name"] = media->file->originalFileNameExt;
     mediaDebug["activity"] = Activity::getValue(media->getActivity());
-    mediaDebug["cwd"] = media->file->cwd;
     mediaDebug["started"] = media->started;
     mediaDebug["ended"] = media->ended;
     mediaDebug["ffmpegArguments"] = media->ffmpegArguments;
 
+    mediaFileDebug["originalFileNameExt"] = media->file->originalFileNameExt;
+    mediaFileDebug["originalFullPath"] = media->file->originalFullPath;
     mediaFileDebug["conversionName"] = media->file->conversionName;
     mediaFileDebug["conversionNameExt"] = media->file->conversionNameExt;
     mediaFileDebug["conversionFolderPath"] = media->file->conversionFolderPath;
@@ -295,8 +297,7 @@ nlohmann::json Child::asJSON() {
     mediaFileDebug["ext"] = media->file->ext;
     mediaFileDebug["size"] = media->file->size;
     mediaFileDebug["newSize"] = media->file->newSize;
-    mediaFileDebug["originalFileNameExt"] = media->file->originalFileNameExt;
-    mediaFileDebug["originalFullPath"] = media->file->originalFullPath;
+    mediaFileDebug["cwd"] = media->file->cwd;
     mediaFileDebug["quality"] = media->file->quality;
     mediaFileDebug["series"] = media->file->series;
     mediaFileDebug["season"] = media->file->season;
