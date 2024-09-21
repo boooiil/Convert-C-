@@ -30,6 +30,7 @@ void Settings::init(int argc, char* argv[]) {
 
   // Log::debug({"[Settings.cpp] Creating argument parser object."});
   this->argumentParser = new ArgumentParser();
+  this->argumentParser->prepare();
   this->argumentParser->parse(argc, argv);
 
   Log::debug({"[Settings.cpp] Creating program settings object."});
