@@ -1,16 +1,22 @@
 #ifndef STRING_ARGUMENT_H
 #define STRING_ARGUMENT_H
 
+#include <string>
+
 #include "./BaseArgument.h"
 
 class StringArgument : public BaseArgument<std::string> {
  public:
-  operator const char*(void) const { return value.c_str(); };
-  std::string operator+(const char* str) { return value + str; };
-  std::string operator+(const std::string& str) { return value + str; };
+  StringArgument(std::string _helpMessage, std::string _flag,
+                 std::string _longFlag, std::string data)
+      : BaseArgument(_helpMessage, _flag, _longFlag, data) {}
 
-  std::string asString(void) { return value; };
-  const char* c_str(void) { return value.c_str(); };
+  ~StringArgument() {}
+
+  void parse(std::string argument) override { value = argument; }
+
+  const std::string toString(void) const override { return value; }
+  const bool hasData(void) const override { return !value.empty(); }
 };
 
 #endif  // STRING_ARGUMENT_H
