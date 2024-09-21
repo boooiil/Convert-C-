@@ -32,7 +32,11 @@ class Activity {
     FAILED_FILE_PERMISSIONS,
     FAILED_FILE_NOT_RECOGNIZED,
     FAILED_HARDWARE,
+    FAILED_INVALID_AUDIO_CHANNELS,
     FAILED_INVALID_AUDIO_STREAMS,
+    FAILED_INVALID_DURATION_SS,
+    FAILED_INVALID_DURATION_TO,
+    FAILED_INVALID_ENCODER,
     FAILED_JSON_PARSE,
     FAILED_SYSTEM,
     FINISHED,
@@ -51,6 +55,7 @@ class Activity {
    * @return String value of enum.
    */
   static std::string getValue(ActivityType activityType);
+  static Activity::ActivityType getKey(std::string value);
 
  private:
   /// @brief Map of activity types to string values.
