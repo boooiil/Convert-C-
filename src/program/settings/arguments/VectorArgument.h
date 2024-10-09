@@ -7,22 +7,22 @@
 #include <typeinfo>
 #include <vector>
 
-#include "../../../logging/Log.h"
 #include "../../../utils/ListUtils.h"
-#include "./BaseArgument.h"
+#include "../../../utils/logging/Logger.h"
+#include "BaseArgument.h"
 
 template <typename T>
 class VectorArgument : public BaseArgument<std::vector<T>> {
  public:
   VectorArgument(std::string _helpMessage, std::string _flag,
                  std::string _longFlag, std::vector<T> data)
-      : BaseArgument<std::vector<T>>(_helpMessage, _flag, _longFlag, data){};
+      : BaseArgument<std::vector<T>>(_helpMessage, _flag, _longFlag, data) {};
 
-  ~VectorArgument(void){};
+  ~VectorArgument(void) {};
 
   void parse(std::string argument) override {
     if (argument.empty()) {
-      Log::send({"argument was empty"});
+      LOG("argument was empty");
       this->setErrored(true);
       return;
     }
@@ -37,8 +37,8 @@ class VectorArgument : public BaseArgument<std::vector<T>> {
         }
       }
     } catch (const std::exception& e) {
-      Log::send({"Failed to parse vector argument: ", argument, "\n", "of type",
-                 typeid(T).name(), e.what()});
+      LOG("Failed to parse vector argument: ", argument, "\n", "of type",
+          typeid(T).name(), e.what());
       this->setErrored(true);
       return;
     }

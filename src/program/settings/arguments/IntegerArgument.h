@@ -4,8 +4,8 @@
 #include <stdexcept>
 #include <string>
 
-#include "../../../logging/Log.h"
-#include "./BaseArgument.h"
+#include "../../../utils/logging/Logger.h"
+#include "BaseArgument.h"
 
 class IntegerArgument : public BaseArgument<int> {
  public:
@@ -19,7 +19,7 @@ class IntegerArgument : public BaseArgument<int> {
     try {
       value = std::stoi(argument);
     } catch (std::invalid_argument& e) {
-      Log::debug({e.what()});
+      LOG_DEBUG(e.what());
       this->setErrored(true);
     }
   }
