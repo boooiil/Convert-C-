@@ -4,9 +4,11 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-#include "../../../logging/Log.h"
+#include "../../../utils/StringUtils.h"
+#include "../../../utils/logging/Logger.h"
 #include "../../child/media/Media.h"
 #include "../../settings/enums/Activity.h"
+#include "../../settings/enums/StringEnumDataHolder.h"
 #include "ChildProcessConversion.h"
 
 ChildProcess::ChildProcess(std::string path, std::string filename)
@@ -20,7 +22,26 @@ ChildProcess::ChildProcess(std::string path, std::string filename)
 
 ChildProcess::~ChildProcess(void) {}
 
-Activity::ActivityType ChildProcess::getActivity() { return this->activity; }
+/**
+ * My thinking for this file:
+ *
+ * Store the media in an object,
+ *
+ *   MediaMap[media.file.name] = *Media
+ *
+ *   It is known that the size of the set will be constant.
+ *
+ * there is no activity that happens on these objects
+ * it is updated when the return value gets updated.
+ *
+ *  we will need to only update select fields from each media object
+ *  when we do child process conversion
+ *
+ */
+
+StringEnumDataHolder<Activity> ChildProcess::getActivity() {
+  return this->activity;
+}
 
 void ChildProcess::getArgs(void) {
   std::cout << this->path << " arguments: ";
@@ -30,34 +51,13 @@ void ChildProcess::getArgs(void) {
 }
 
 const bool ChildProcess::isProcessing() {
-  switch (this->activity) {
-    case Activity::STATISTICS:
-    case Activity::CONVERT:
-    case Activity::VALIDATE:
-      return true;
-    default:
-      return false;
-  }
+  return ChildProcess::activity == Activity::STATISTICS ||
+         ChildProcess::activity == Activity::CONVERT ||
+         ChildProcess::activity == Activity::VALIDATE;
 }
 
 const bool ChildProcess::hasFailed() {
-  switch (this->activity) {
-    case Activity::FAILED:
-    case Activity::FAILED_CODEC:
-    case Activity::FAILED_CONTAINER:
-    case Activity::FAILED_CORRUPT:
-    case Activity::FAILED_FILE:
-    case Activity::FAILED_FILE_MISSING:
-    case Activity::FAILED_FILE_NOT_RECOGNIZED:
-    case Activity::FAILED_FILE_PERMISSIONS:
-    case Activity::FAILED_HARDWARE:
-    case Activity::FAILED_INVALID_AUDIO_STREAMS:
-    case Activity::FAILED_JSON_PARSE:
-    case Activity::FAILED_SYSTEM:
-      return true;
-    default:
-      return false;
-  }
+  return StringUtils::contains(ChildProcess::activity.getName(), "failed");
 }
 
 const bool ChildProcess::hasFinished() {
@@ -72,42 +72,28 @@ const bool ChildProcess::isWaitingToConvert() {
   return this->activity == Activity::WAITING_CONVERT;
 }
 
-void ChildProcess::prepare(void) {}
-
-void ChildProcess::run(void) {}
-
 void ChildProcess::doConversion(void) {
   this->activity = Activity::CONVERT;
 
-  Log::debug({"[ChildProcess.cpp] Running conversion for:", this->path});
+  LOG_DEBUG("Running conversion for:", this->path);
 
   ChildProcessConversion conversion(this);
   conversion.start(this->path + "/" + this->filename + " " + this->args);
 }
 
-void ChildProcess::end(void) {}
-
-void ChildProcess::setEndable(bool flag) { this->endable = flag; }
-
-bool ChildProcess::isEndable(void) { return this->endable; }
-
 void ChildProcess::fromJSON(nlohmann::json childProcess) {
   nlohmann::json runner = childProcess["Runner"];
 
   for (nlohmann::json mediaFile : runner["converting"]) {
-    Media* media = new Media();
-    media->fromJSON(mediaFile);
-    this->converting.push_back(media);
+    this->fromJSON(mediaFile);
   }
 
   for (nlohmann::json mediaFile : runner["pending"]) {
-    Media* media = new Media();
-    media->fromJSON(mediaFile);
-    this->pending.push_back(media);
+    this->fromJSON(mediaFile);
   }
 }
 
-nlohmann::json ChildProcess::asJSON(void) {
+const nlohmann::json ChildProcess::toJSON(void) const {
   nlohmann::json childProcess;
 
   childProcess["path"] = this->path;

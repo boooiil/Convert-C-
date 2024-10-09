@@ -8,8 +8,9 @@
 #include "../../child/media/Media.h"
 #include "../../generics/JSONSerializableRunner.h"
 #include "../../settings/enums/Activity.h"
+#include "../../settings/enums/StringEnumDataHolder.h"
 
-class ChildProcess : public JSONSerializableRunner {
+class ChildProcess : public Media {
  public:
   ChildProcess(std::string path, std::string filename);
   ~ChildProcess(void);
@@ -17,9 +18,6 @@ class ChildProcess : public JSONSerializableRunner {
   int pid;
   long started;
   long ended;
-
-  std::vector<Media*> converting;
-  std::vector<Media*> pending;
 
   std::string path;
   std::string filename;
@@ -34,7 +32,7 @@ class ChildProcess : public JSONSerializableRunner {
    *
    * @return Activity::ActivityType - Activity type.
    */
-  Activity::ActivityType getActivity(void);
+  StringEnumDataHolder<Activity> getActivity(void);
 
   /**
    * @brief Check if the current media is processing.
@@ -73,24 +71,17 @@ class ChildProcess : public JSONSerializableRunner {
    */
   const bool isWaitingToConvert(void);
 
-  void fromJSON(nlohmann::json childProcess);
+  void fromJSON(nlohmann::json childProcess) override;
 
   /**
    * @brief Returns the process as a JSON object.
    *
    * @return nlohmann::json
    */
-  nlohmann::json asJSON(void);
-
-  // Inherited via GenericRunner
-  void prepare(void) override;
-  void run(void) override;
-  void end(void) override;
-  void setEndable(bool flag) override;
-  bool isEndable(void) override;
+  const nlohmann::json toJSON(void) const override;
 
  private:
-  Activity::ActivityType activity;
+  StringEnumDataHolder<Activity> activity;
   bool endable;
 };
 
