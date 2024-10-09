@@ -33,7 +33,7 @@ class Parent : public JSONSerializableRunner {
    *
    * @return nlohmann::json
    */
-  nlohmann::json asJSON(void);
+  nlohmann::json toJSON(void);
 
  private:
   bool endable;

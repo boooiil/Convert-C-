@@ -7,8 +7,8 @@
 #include <string>
 #include <thread>
 
-#include "../logging/Log.h"
-#include "../logging/LogColor.h"
+#include "../utils/logging/LogColor.h"
+#include "../utils/logging/Logger.h"
 #include "generics/GenericRunner.h"
 #include "generics/JSONSerializableRunner.h"
 #include "settings/Settings.h"
@@ -43,40 +43,40 @@ void Program::run() {
 }
 
 void Program::end(void) {
-  Log::debug({"[Program.cpp] Ending program."});
-  Log::debug({"[Program.cpp] Expected to delete { log, ticker, settings }."});
+  LOG_DEBUG("Ending program.");
+  LOG_DEBUG("Expected to delete { log, ticker, settings }.");
 
   Program::stopFlag = true;
 
   if (LoggingOptions::isDebug(
           Program::settings->argumentParser->loggingFormat.get())) {
-    Log::debug({"[Program.cpp] Saving debug file."});
+    LOG_DEBUG("Saving debug file.");
 
     std::ofstream oFile("container_debug.json");
 
     if (!oFile.is_open()) {
-      Log::send({LogColor::fgRed("Failed to open debug file->")});
+      LOG(LogColor::fgRed("Failed to open debug file->"));
       return;
     }
 
-    oFile << Program::asJSON().dump(4);
+    oFile << Program::toJSON().dump(4);
     oFile.close();
   }
 
   if (Program::ticker != nullptr) {
-    Log::debug({"[Program.cpp] Deleting ticker."});
+    LOG_DEBUG("Deleting ticker.");
     Program::ticker->end();
     delete Program::ticker;
   }
 
   /*if (Program::log != nullptr) {
     Program::log->end();
-    Log::debug({"[Program.cpp] Deleting log."});
+    LOG_DEBUG("Deleting log.");
     delete Program::log;
   }*/
 
   if (Program::settings != nullptr) {
-    Log::debug({"[Program.cpp] Deleting settings."});
+    LOG_DEBUG("Deleting settings.");
     delete Program::settings;
   }
 
@@ -85,8 +85,8 @@ void Program::end(void) {
 }
 
 void Program::setEndable(bool flag) {
-  Log::debug({"Program has been set as endable:",
-              Program::stopFlag ? "True" : "False"});
+  LOG_DEBUG("Program has been set as endable:",
+            Program::stopFlag ? "True" : "False");
   Program::stopFlag = flag;
 }
 
@@ -94,16 +94,16 @@ bool Program::isEndable() { return Program::stopFlag; }
 
 void Program::fromJSON(nlohmann::json program) {}
 
-nlohmann::json Program::asJSON() {
+nlohmann::json Program::toJSON() {
   using namespace nlohmann;
 
   json program;
-  json settings_json = Program::settings->asJSON();
+  json settings_json = Program::settings->toJSON();
 
   program["Settings"] = settings_json;
 
   if (Program::ticker != nullptr) {
-    program["Ticker"] = Program::ticker->asJSON();
+    program["Ticker"] = Program::ticker->toJSON();
   }
 
   return program;

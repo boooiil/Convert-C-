@@ -16,7 +16,7 @@ class Settings {
 
   void init(int argc, char* argv[]);
 
-  nlohmann::json asJSON(void);
+  nlohmann::json toJSON(void);
 };
 
 #endif  // !SETTINGS_H

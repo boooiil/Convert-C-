@@ -1,7 +1,8 @@
 #ifndef PROGRAM_SETTINGS_H
 #define PROGRAM_SETTINGS_H
 
-#include <nlohmann/json.hpp>
+// #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include <regex>
 #include <string>
 #include <vector>
@@ -13,6 +14,7 @@
 #include "../settings/enums/Tunes.h"
 #include "enums/GPUProviders.h"
 #include "enums/Platform.h"
+#include "enums/StringEnumDataHolder.h"
 
 class ProgramSettings {
  public:
@@ -20,33 +22,33 @@ class ProgramSettings {
   ~ProgramSettings(void);
 
   /// @brief The current operating system of the user's machine
-  Platform::OPERATING_SYSTEM platform;
+  StringEnumDataHolder<Platform> platform;
   /// @brief Current working directory.
   std::string workingDir;
   /// @brief List of supported encoders by the program.
-  std::vector<Encoders::Codec> supportedEncoders;
+  std::vector<StringEnumDataHolder<Encoders>> supportedEncoders;
   /// @brief List of supported hardware accelerators by the program.
-  std::vector<HWAccelerators::Accelerator> supportedHWAccel;
+  std::vector<StringEnumDataHolder<HWAccelerators>> supportedHWAccel;
   /// @brief List of regular expressions matching tunes.
   /// @brief The matching tunes can be used as an index
   /// @brief in the tuneAssociations list.
   std::vector<std::regex> tuneRegex;
   /// @brief List of tunes.
-  std::vector<Tunes::Tune> tuneAssociations;
+  std::vector<StringEnumDataHolder<Tunes>> tuneAssociations;
 
   // TODO: change this to a map vvvv
   /// @brief The current GPU of the user's machine
-  std::vector<GPUProviders::Provider> GPU_Provider;
+  std::vector<StringEnumDataHolder<GPUProviders>> GPU_Provider;
 
   /// @brief The current encoder being used
-  Encoders::Codec runningEncoder;
+  StringEnumDataHolder<Encoders> runningEncoder;
   /// @brief The current decoder being used
-  HWAccelerators::Accelerator runningHWAccel;
+  StringEnumDataHolder<HWAccelerators> runningHWAccel;
 
   void validateSettings(ArgumentParser& argumentParser);
   void gatherSystemDetails(void);
 
-  nlohmann::json asJSON(void);
+  nlohmann::json toJSON(void);
 };
 
 #endif  // PROGRAM_SETTINGS_H

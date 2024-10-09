@@ -3,7 +3,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include "../logging/Log.h"
+#include "../utils/logging/Logger.h"
 #include "generics/JSONSerializableRunner.h"
 #include "settings/Settings.h"
 
@@ -26,7 +26,7 @@ class Program : public JSONSerializableRunner {
   bool isEndable(void);
 
   void fromJSON(nlohmann::json);
-  nlohmann::json asJSON(void);
+  nlohmann::json toJSON(void);
 
  private:
   bool endable;

@@ -6,17 +6,26 @@
 #include <string>
 #include <vector>
 
-#include "../../logging/Log.h"
 #include "../../utils/DirectoryUtils.h"
+#include "../../utils/logging/Logger.h"
 #include "./child/ChildProcess.h"
 
+/**
+ * Parent - Gather all files and queue into  ChildProcess.
+ * Child process - Run convert and parse
+ *   - Parse converting and pending
+ *     - if not in map, add it
+ *     - else, update non static fields
+ *
+ */
+
 Parent::~Parent(void) {
-  Log::debug({"[Parent.cpp] Deconstructing parent."});
+  LOG_DEBUG("Deconstructing parent.");
   while (!this->pending.empty()) {
     ChildProcess* child = this->pending.front();
     this->pending.pop();
 
-    Log::debug({"[Parent.cpp] Deleting child process in:", child->path});
+    LOG_DEBUG("Deleting child process in:", child->path);
 
     delete child;
   }
@@ -24,7 +33,7 @@ Parent::~Parent(void) {
     ChildProcess* child = this->converting.front();
     this->converting.pop();
 
-    Log::debug({"[Parent.cpp] Deleting child process in:", child->path});
+    LOG_DEBUG("Deleting child process in:", child->path);
 
     delete child;
   }
@@ -53,13 +62,13 @@ void Parent::prepare(void) {
 void Parent::run(void) {}
 
 void Parent::end(void) {
-  Log::debug({"[Parent.cpp] Ending runner."});
-  Log::debug({"[Program.cpp] Expected to delete { }."});
+  LOG_DEBUG("Ending runner.");
+  LOG_DEBUG("Expected to delete { }.");
 }
 
 void Parent::setEndable(bool flag) {
-  Log::debug(
-      {"Parent has been set as endable:", this->endable ? "True" : "False"});
+  LOG_DEBUG("Parent has been set as endable:",
+            this->endable ? "True" : "False");
   this->endable = flag;
 }
 
@@ -67,7 +76,7 @@ bool Parent::isEndable(void) { return this->endable; }
 
 void Parent::fromJSON(nlohmann::json) {}
 
-nlohmann::json Parent::asJSON(void) {
+nlohmann::json Parent::toJSON(void) {
   nlohmann::json parent;
   nlohmann::json converting_json = nlohmann::json::array();
   nlohmann::json pending_json = nlohmann::json::array();
@@ -80,9 +89,9 @@ nlohmann::json Parent::asJSON(void) {
     ChildProcess* childProcess = this->pending.front();
     this->pending.pop();
 
-    Log::send({"parent json: ", childProcess->path});
+    LOG("parent json: ", childProcess->path);
 
-    converting_json.push_back(childProcess->asJSON());
+    converting_json.push_back(childProcess->toJSON());
 
     t_queue.push(childProcess);
   }
@@ -95,9 +104,9 @@ nlohmann::json Parent::asJSON(void) {
     ChildProcess* childProcess = this->converting.front();
     this->converting.pop();
 
-    Log::send({"parent json: ", childProcess->path});
+    LOG("parent json: ", childProcess->path);
 
-    pending_json.push_back(childProcess->asJSON());
+    pending_json.push_back(childProcess->toJSON());
 
     t_queue.push(childProcess);
   }

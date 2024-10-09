@@ -3,7 +3,7 @@
 #include <chrono>
 #include <thread>
 
-#include "../../logging/Log.h"
+#include "../../utils/logging/Logger.h"
 #include "../Program.h"
 #include "../child/Child.h"
 #include "../child/display/ChildDisplay.h"
@@ -48,11 +48,11 @@ void NTicker::determineNextAction(void) {
 void NTicker::prepare(void) {
   // use parent display
   if (get_t<FlagArgument>("-parent")->get()) {
-    Log::debug({"[NTicker.cpp] Running as parent."});
+    LOG_DEBUG("Running as parent.");
     this->display = new ParentDisplay();
     this->runner = new Parent();
   } else {
-    Log::debug({"[NTicker.cpp] Running as child."});
+    LOG_DEBUG("Running as child.");
     this->display = new ChildDisplay();
     this->runner = new Child();
   }
@@ -61,6 +61,11 @@ void NTicker::prepare(void) {
 }
 
 void NTicker::run(void) {
+  if (get_t<FlagArgument>("-i")->get()) {
+    this->display->printInformation();
+    return;
+  }
+
   while (!Program::stopFlag) {
     this->runner->run();
 
@@ -87,17 +92,17 @@ void NTicker::run(void) {
 }
 
 void NTicker::end(void) {
-  Log::debug({"[NTicker.cpp] Ending ticker."});
-  Log::debug({"[NTicker.cpp] Expected to delete { display, runner }."});
+  LOG_DEBUG("Ending ticker.");
+  LOG_DEBUG("Expected to delete { display, runner }.");
 
   if (this->display != nullptr) {
-    Log::debug({"[NTicker.cpp] Deleting display."});
+    LOG_DEBUG("Deleting display.");
     delete this->display;
   }
 
   if (this->runner != nullptr) {
     // while (!this->runner->isEndable()) {
-    //   Log::debug({"[NTicker.cpp] Waiting for runner to end."});
+    //   LOG_DEBUG("Waiting for runner to end.");
 
     //  std::this_thread::sleep_for(std::chrono::milliseconds(500));
     // while (!Program::ticker->runner->isEndable()
@@ -105,14 +110,14 @@ void NTicker::end(void) {
     //}
     this->runner->end();
 
-    Log::debug({"[NTicker.cpp] Deleting runner."});
+    LOG_DEBUG("Deleting runner.");
     delete this->runner;
   }
 }
 
 void NTicker::setEndable(bool flag) {
-  Log::debug(
-      {"Parent has been set as endable:", this->endable ? "True" : "False"});
+  LOG_DEBUG("Parent has been set as endable:",
+            this->endable ? "True" : "False");
   this->endable = flag;
 }
 
@@ -122,7 +127,7 @@ void NTicker::fromJSON(nlohmann::json) {
   // read json information
 }
 
-nlohmann::json NTicker::asJSON(void) {
+nlohmann::json NTicker::toJSON(void) {
   using namespace nlohmann;
 
   json program;
@@ -130,7 +135,7 @@ nlohmann::json NTicker::asJSON(void) {
   if (this->runner == nullptr) {
     program["Runner"] = {};
   } else {
-    program["Runner"] = this->runner->asJSON();
+    program["Runner"] = this->runner->toJSON();
   }
 
   return program;

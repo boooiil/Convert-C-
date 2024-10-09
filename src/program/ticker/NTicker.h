@@ -20,7 +20,7 @@ class NTicker : public JSONSerializableRunner {
   bool isEndable(void);
 
   void fromJSON(nlohmann::json);
-  nlohmann::json asJSON(void);
+  nlohmann::json toJSON(void);
 
  private:
   bool endable;

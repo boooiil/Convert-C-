@@ -3,7 +3,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-#include "../../logging/Log.h"
+#include "../../utils/logging/Logger.h"
 #include "ProgramSettings.h"
 #include "arguments/ArgumentParser.h"
 #include "enums/Tunes.h"
@@ -11,43 +11,41 @@
 Settings::Settings() : argumentParser(nullptr), programSettings(nullptr) {}
 
 Settings::~Settings() {
-  Log::debug(
-      {"[Settings.cpp] Expected to delete { programSettings, argumentParser "
-       "}."});
+  LOG_DEBUG("deleting { programSettings, argumentParser }");
   if (this->programSettings != nullptr) {
-    Log::debug({"[Settings.cpp] Deleting program settings"});
+    LOG_DEBUG("Deleting program settings");
     delete this->programSettings;
   }
   if (this->argumentParser != nullptr) {
-    Log::debug({"[Settings.cpp] Deleting argument parser"});
+    LOG_DEBUG("Deleting argument parser");
     delete this->argumentParser;
   }
 }
 
 void Settings::init(int argc, char* argv[]) {
-  // Log::debug({"[Settings.cpp] Creating settings object with (",
-  //             std::to_string(argc), ") args."});
+  // LOG_DEBUG("Creating settings object with (",
+  //             std::to_string(argc), ") args.");
 
-  // Log::debug({"[Settings.cpp] Creating argument parser object."});
+  // LOG_DEBUG("Creating argument parser object.");
   this->argumentParser = new ArgumentParser();
   this->argumentParser->prepare();
   this->argumentParser->parse(argc, argv);
 
-  Log::debug({"[Settings.cpp] Creating program settings object."});
+  LOG_DEBUG("Creating program settings object.");
   this->programSettings = new ProgramSettings();
   this->programSettings->gatherSystemDetails();
   this->programSettings->validateSettings(*this->argumentParser);
-  Log::debug({"[Settings.cpp] Settings initialized.",
-              "tune: ", Tunes::getValue(this->argumentParser->tune)});
+  LOG_DEBUG("Settings initialized.",
+            "tune: ", this->argumentParser->tune.getName());
 }
 
-nlohmann::json Settings::asJSON() {
+nlohmann::json Settings::toJSON() {
   using namespace nlohmann;
 
   json settings;
 
-  settings["ArgumentParser"] = this->argumentParser->asJSON();
-  settings["ProgramSettings"] = this->programSettings->asJSON();
+  settings["ArgumentParser"] = this->argumentParser->toJSON();
+  settings["ProgramSettings"] = this->programSettings->toJSON();
 
   return settings;
 }
