@@ -7,6 +7,7 @@
 #include "../arguments/encoding/DesiredEncoder.h"
 #include "../arguments/misc/LoggingFormat.h"
 #include "../arguments/video/Quality.h"
+#include "../enums/StringEnumDataHolder.h"
 #include "../enums/Tunes.h"
 
 class ArgumentParser {
@@ -17,7 +18,7 @@ class ArgumentParser {
   /// @brief The current encoder being used
   Quality quality;
   /// @brief Codec tune setting
-  Tunes::Tune tune;
+  StringEnumDataHolder<Tunes> tune;
   /// @brief The user's desired encoder
   DesiredEncoder wantedEncoder;
 
@@ -27,7 +28,7 @@ class ArgumentParser {
   void parse(int argc, char* argv[]);
   void invalidArgument(std::string);
 
-  nlohmann::json asJSON(void);
+  nlohmann::json toJSON(void);
 };
 
 #endif  // !ARGUMENT_PARSER_H

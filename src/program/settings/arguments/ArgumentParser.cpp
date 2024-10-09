@@ -6,14 +6,15 @@
 #include <string>
 #include <vector>
 
-#include "../../../logging/Log.h"
-#include "../../../logging/LogColor.h"
 #include "../../../utils/StringUtils.h"
+#include "../../../utils/logging/LogColor.h"
+#include "../../../utils/logging/Logger.h"
 #include "../../Program.h"
 #include "../enums/Encoders.h"
 #include "../enums/LoggingOptions.h"
+#include "../enums/StringEnumDataHolder.h"
 #include "../enums/Tunes.h"
-#include "./ArgumentRegistry.h"
+#include "ArgumentRegistry.h"
 #include "FlagArgument.h"
 #include "GenericArgument.h"
 #include "IntegerArgument.h"
@@ -22,7 +23,7 @@
 #include "TimeStringVectorArgument.h"
 #include "VectorArgument.h"
 
-ArgumentParser::ArgumentParser() : tune(Tunes::Tune::FILM) {}
+ArgumentParser::ArgumentParser() : tune(Tunes::FILM) {}
 
 ArgumentParser::~ArgumentParser(void) {}
 
@@ -170,7 +171,7 @@ void ArgumentParser::parse(int argc, char* argv[]) {
 
   // Skip the first argument, which is the program name
   for (int i = 1; i < argc; i++) {
-    Log::send({"[UserArguments.cpp] Option:", argv[i]});
+    LOG("Option:", argv[i]);
     std::string option = StringUtils::toLowerCase(argv[i]);
 
     /**
@@ -214,6 +215,11 @@ void ArgumentParser::parse(int argc, char* argv[]) {
       if (this->loggingFormat.isErrored()) {
         return invalidArgument("Invalid logging format provided.");
       }
+
+      if (LoggingOptions::isDebug(this->loggingFormat.get())) {
+        Logger::debug_flag = true;
+      }
+
       continue;
     }
 
@@ -235,7 +241,7 @@ void ArgumentParser::parse(int argc, char* argv[]) {
         return invalidArgument("No value provided for argument.");
       }
 
-      Tunes::Tune tune_check = Tunes::getKey(argv[++i]);
+      StringEnumDataHolder<Tunes> tune_check = Tunes::getKey(argv[++i]);
 
       if (tune_check == Tunes::DEFAULT) {
         return invalidArgument("Invalid tune provided.");
@@ -273,7 +279,7 @@ void ArgumentParser::parse(int argc, char* argv[]) {
         invalidArgument(std::string(argv[i - 1]) +
                         " was provided invalid parameter " +
                         std::string(argv[i]));
-        Log::send({argument->getHelpMessage()});
+        LOG(argument->getHelpMessage());
         continue;
       }
     }
@@ -281,28 +287,26 @@ void ArgumentParser::parse(int argc, char* argv[]) {
 }
 
 void ArgumentParser::invalidArgument(std::string message) {
-  Log::send({LogColor::fgRed(message)});
+  LOG(LogColor::fgRed(message));
   Program::stopFlag = true;
 }
 
-nlohmann::json ArgumentParser::asJSON() {
+nlohmann::json ArgumentParser::toJSON() {
   // TODO: implement visitor pattern for this
 
   nlohmann::json argumentParser;
 
   for (auto& [flag, argument] : ArgumentRegistry::get_all()) {
-    Log::send({flag, argument->getLongFlag(),
-               flag == argument->getLongFlag() ? "True" : "False"});
+    LOG(flag, argument->getLongFlag(),
+        flag == argument->getLongFlag() ? "True" : "False");
     if (flag != argument->getLongFlag())
       argumentParser[flag] = argument->toString();
   }
 
-  argumentParser["wanted_encoder"] =
-      Encoders::getValue(this->wantedEncoder.get());
+  argumentParser["wanted_encoder"] = this->wantedEncoder.get().getName();
   argumentParser["quality"] = this->quality.get().scale;
-  argumentParser["tune"] = Tunes::getValue(this->tune);
-  argumentParser["logging_format"] =
-      LoggingOptions::getValue(this->loggingFormat);
+  argumentParser["tune"] = this->tune.getName();
+  argumentParser["logging_format"] = this->loggingFormat.get().getName();
 
   return argumentParser;
 }
