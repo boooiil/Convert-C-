@@ -13,9 +13,9 @@
 #include <string>
 #include <vector>
 
-#include "../../../logging/Log.h"
 #include "../../../utils/ListUtils.h"
 #include "../../../utils/StringUtils.h"
+#include "../../../utils/logging/Logger.h"
 #include "../../Program.h"
 #include "../../settings/ProgramSettings.h"
 #include "../../settings/arguments/ArgumentParser.h"
@@ -27,12 +27,13 @@
 #include "../../settings/enums/Activity.h"
 #include "../../settings/enums/Encoders.h"
 #include "../../settings/enums/HWAccelerators.h"
+#include "../../settings/enums/StringEnumDataHolder.h"
 #include "../../settings/enums/Tunes.h"
-#include "./MediaProcessConversion.h"
-#include "./MediaProcessStatistics.h"
-#include "./MediaProcessValidate.h"
 #include "MediaFile.h"
 #include "MediaFormat.h"
+#include "MediaProcessConversion.h"
+#include "MediaProcessStatistics.h"
+#include "MediaProcessValidate.h"
 #include "MediaVideoProperties.h"
 #include "MediaWorkingProperties.h"
 
@@ -58,8 +59,7 @@ Media::Media(std::string name, std::string path)
       working(new MediaWorkingProperties()) {}
 
 Media::~Media() {
-  Log::debug(
-      {"[Media.cpp] Deconstructing media: ", this->file->originalFileNameExt});
+  LOG_DEBUG("Deconstructing media: ", this->file->originalFileNameExt);
 
   if (file != nullptr) delete file;
   if (video != nullptr) delete video;
@@ -67,40 +67,16 @@ Media::~Media() {
   if (probeResult != nullptr) delete probeResult;
 }
 
-Activity::ActivityType Media::getActivity() { return Media::activity; }
+StringEnumDataHolder<Activity> Media::getActivity() { return Media::activity; }
 
 const bool Media::isProcessing() {
-  switch (Media::activity) {
-    case Activity::STATISTICS:
-    case Activity::CONVERT:
-    case Activity::VALIDATE:
-      return true;
-    default:
-      return false;
-  }
+  return Media::activity == Activity::STATISTICS ||
+         Media::activity == Activity::CONVERT ||
+         Media::activity == Activity::VALIDATE;
 }
 
 const bool Media::hasFailed() {
-  switch (Media::activity) {
-    case Activity::FAILED:
-    case Activity::FAILED_CODEC:
-    case Activity::FAILED_CONTAINER:
-    case Activity::FAILED_CORRUPT:
-    case Activity::FAILED_FILE:
-    case Activity::FAILED_FILE_MISSING:
-    case Activity::FAILED_FILE_NOT_RECOGNIZED:
-    case Activity::FAILED_FILE_PERMISSIONS:
-    case Activity::FAILED_HARDWARE:
-    case Activity::FAILED_INVALID_AUDIO_STREAMS:
-    case Activity::FAILED_INVALID_DURATION_SS:
-    case Activity::FAILED_INVALID_DURATION_TO:
-    case Activity::FAILED_INVALID_ENCODER:
-    case Activity::FAILED_JSON_PARSE:
-    case Activity::FAILED_SYSTEM:
-      return true;
-    default:
-      return false;
-  }
+  return StringUtils::contains(Media::activity.getName(), "failed");
 }
 
 const bool Media::hasFinished() {
@@ -121,15 +97,14 @@ const bool Media::isWaitingToValidate() {
   return Media::activity == Activity::WAITING_VALIDATE;
 }
 
-void Media::setActivity(Activity::ActivityType provided_activity) {
+void Media::setActivity(StringEnumDataHolder<Activity> provided_activity) {
   Media::activity = provided_activity;
 }
 
 void Media::doStatistics() {
   this->setActivity(Activity::STATISTICS);
 
-  Log::debug({"[Media.cpp] Starting statistics for: ",
-              this->file->originalFileNameExt});
+  LOG_DEBUG("Starting statistics for: ", this->file->originalFileNameExt);
 
   MediaProcessStatistics statistics(this);
   statistics.start(
@@ -146,8 +121,7 @@ void Media::doStatistics() {
 void Media::doConversion() {
   this->setActivity(Activity::CONVERT);
 
-  Log::debug({"[Media.cpp] Starting conversion for: ",
-              this->file->originalFileNameExt});
+  LOG_DEBUG("Starting conversion for: ", this->file->originalFileNameExt);
 
   MediaProcessConversion conversion(this);
 
@@ -165,8 +139,7 @@ void Media::doConversion() {
 void Media::doValidation() {
   this->setActivity(Activity::VALIDATE);
 
-  Log::debug({"[Media.cpp] Starting validation for: ",
-              this->file->originalFileNameExt});
+  LOG_DEBUG("Starting validation for: ", this->file->originalFileNameExt);
 
   MediaProcessValidate validate(this);
   validate.start("ffmpeg -v quiet -stats -i \"" +
@@ -190,9 +163,8 @@ void Media::buildFFmpegArguments(bool isValidate) {
 
   if (get_t<FlagArgument>("-hwd")->get()) {
     if (programSettings.runningHWAccel != HWAccelerators::NONE) {
-      this->ffmpegArguments.push_back(
-          "-hwaccel " +
-          HWAccelerators::getValue(programSettings.runningHWAccel));
+      this->ffmpegArguments.push_back("-hwaccel " +
+                                      programSettings.runningHWAccel.getName());
     }
   }
 
@@ -341,8 +313,8 @@ void Media::buildFFmpegArguments(bool isValidate) {
                                     " " + channelType + "\"");
   }
 
-  this->ffmpegArguments.push_back(
-      "-c:v " + Encoders::getValue(programSettings.runningEncoder));
+  this->ffmpegArguments.push_back("-c:v " +
+                                  programSettings.runningEncoder.getName());
 
   this->ffmpegArguments.push_back("-preset slow");
 
@@ -403,8 +375,7 @@ void Media::buildFFmpegArguments(bool isValidate) {
   this->ffmpegArguments.push_back("-c:s copy");
 
   if (argumentParser.tune != Tunes::DEFAULT) {
-    this->ffmpegArguments.push_back("-tune " +
-                                    Tunes::getValue(argumentParser.tune));
+    this->ffmpegArguments.push_back("-tune " + argumentParser.tune.getName());
   }
 
   this->ffmpegArguments.push_back("\"" + this->file->conversionFilePath + "\"");
@@ -415,13 +386,12 @@ void Media::buildFFmpegArguments(bool isValidate) {
     this->ffmpegArguments.push_back("-n");
   }
 
-  Log::debug(
-      {"FFMPEG ARGUMENTS: ", ListUtils::join(this->ffmpegArguments, " ")});
+  LOG_DEBUG("FFMPEG ARGUMENTS: ", ListUtils::join(this->ffmpegArguments, " "));
 }
 
 void Media::fromJSON(nlohmann::json json) {
   if (json.empty()) {
-    Log::debug({"[Media.cpp] JSON is empty."});
+    LOG_DEBUG("JSON is empty.");
     return;
   }
 
@@ -466,7 +436,7 @@ void Media::fromJSON(nlohmann::json json) {
   this->working->bitrate = json_working["bitrate"];
 }
 
-const nlohmann::json Media::asJSON(void) {
+const nlohmann::json Media::toJSON(void) const {
   nlohmann::json json;
 
   return json;
