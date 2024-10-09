@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-#include "../logging/Log.h"
+#include "../utils/logging/Logger.h"
 
 /**
  * @brief Handle various functions that involve list-like data structures.
@@ -51,7 +51,7 @@ class ListUtils {
           return true;
         }
       } catch (std::exception e) {
-        Log::debug({"[ListUtils.h] Error: ", e.what()});
+        LOG_DEBUG("[ListUtils.h] Error: ", e.what());
         continue;
       }
     }

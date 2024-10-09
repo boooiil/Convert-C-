@@ -22,7 +22,7 @@
 #else
 #include <cstdio>
 #endif
-#include "../../../logging/Log.h"
+#include "../../../utils/logging/Logger.h"
 
 /**
  * @brief Handle execution of commands on the system and track their status.
@@ -36,7 +36,7 @@ class MediaProcess {
   MediaProcess(T* _object)
       : object(_object), status(MediaProcess::Status::WAIT), stop_req(false) {}
 
-  ~MediaProcess() { Log::debug({"[MediaProcess.cpp] DESTRUCTOR CALLED"}); }
+  ~MediaProcess() { LOG_DEBUG("DESTRUCTOR CALLED"); }
 
   /**
    * @brief Status of the process.
@@ -50,7 +50,7 @@ class MediaProcess {
    */
   virtual void start(std::string command) {
     command += " 2>&1";
-    Log::debug({"[MediaProcess.cpp] SENDING COMMAND:", command});
+    LOG_DEBUG("SENDING COMMAND:", command);
 
     this->status = MediaProcess::Status::RUNNING;
 
@@ -65,7 +65,7 @@ class MediaProcess {
     }
 
     if (stop_req) {
-      Log::debug({"Stop request received before starting the loop"});
+      LOG_DEBUG("Stop request received before starting the loop");
       return;
     }
 
@@ -81,7 +81,7 @@ class MediaProcess {
       }
 
       if (stop_req) {
-        Log::debug({"Stop request received during the loop"});
+        LOG_DEBUG("Stop request received during the loop");
         break;
       }
     }
@@ -93,7 +93,7 @@ class MediaProcess {
    * @param[in] data - Data to be parsed.
    */
   virtual void parse(std::string data) {
-    Log::debug({"WARNING, USING DEFAULT PARSER", data});
+    LOG_DEBUG("WARNING, USING DEFAULT PARSER", data);
   }
 
   /**
@@ -163,7 +163,5 @@ class MediaProcess {
  private:
   bool stop_req;  /// @brief Stop request.
 };
-
-#include "MediaProcess.cpp"
 
 #endif  // !MEDIA_PROCESS

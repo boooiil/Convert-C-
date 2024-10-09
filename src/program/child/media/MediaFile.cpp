@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 
-#include "../../../logging/Log.h"
 #include "../../../utils/RegexUtils.h"
 #include "../../../utils/StringUtils.h"
+#include "../../../utils/logging/Logger.h"
 #include "../../Program.h"
 
 MediaFile::MediaFile()
@@ -44,9 +44,7 @@ MediaFile::MediaFile(std::string name, std::string path)
       quality(0),
       season(0) {}
 
-MediaFile::~MediaFile() {
-  Log::debug({"[MediaFile] Deconstructing MediaFile"});
-}
+MediaFile::~MediaFile() { LOG_DEBUG("[MediaFile] Deconstructing MediaFile"); }
 
 /**
  * Checklist:
@@ -77,8 +75,7 @@ void MediaFile::rename() {
   // if the media name matches the media pattern
   if (RegexUtils::isMatch(this->originalFileNameExt, mediaPattern,
                           std::regex::icase)) {
-    Log::debug(
-        {"[MediaFile.cpp] Matched media name: ", this->originalFileNameExt});
+    LOG_DEBUG("Matched media name: ", this->originalFileNameExt);
     // get all matches of the media name
     std::vector<std::string> media_matches = RegexUtils::getAllMatches(
         this->originalFileNameExt, mediaPattern, std::regex::icase);
@@ -94,17 +91,14 @@ void MediaFile::rename() {
     this->resolveConversionPaths(this->series, this->season, this->episode,
                                  this->cwd);
 
-    Log::debug({"[MediaFile.cpp] Original file:", this->originalFileNameExt});
-    Log::debug({"[MediaFile.cpp] Original path:", this->originalFullPath});
-    Log::debug({"[MediaFile.cpp] Renamed file:", this->conversionName});
-    Log::debug(
-        {"[MediaFile.cpp] Renamed file path:", this->conversionFilePath});
-    Log::debug(
-        {"[MediaFile.cpp] Renamed folder path:", this->conversionFolderPath});
+    LOG_DEBUG("Original file:", this->originalFileNameExt);
+    LOG_DEBUG("Original path:", this->originalFullPath);
+    LOG_DEBUG("Renamed file:", this->conversionName);
+    LOG_DEBUG("Renamed file path:", this->conversionFilePath);
+    LOG_DEBUG("Renamed folder path:", this->conversionFolderPath);
   } else {
     // TODO: finish
-    Log::debug({"[MediaFile.cpp] Could not match media name: ",
-                this->originalFileNameExt});
+    LOG_DEBUG("Could not match media name: ", this->originalFileNameExt);
 
     // satisfies the condition of originalFilePath
     this->resolveOriginalFullPath(this->cwd, this->originalFileNameExt);
@@ -213,8 +207,7 @@ void MediaFile::resolveQuality(std::string original_filename) {
       original_filename, R"((1080p|720p|480p))", std::regex::icase);
 
   if (quality_match == "") {
-    Log::debug({"[MediaFile.cpp] Could not find quality for file: ",
-                this->originalFullPath});
+    LOG_DEBUG("Could not find quality for file: ", this->originalFullPath);
   } else {
     this->quality = std::stoi(StringUtils::replaceAll(quality_match, "p", ""));
   }

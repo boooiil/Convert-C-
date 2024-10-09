@@ -1,21 +1,21 @@
-#include "./Quality.h"
+#include "Quality.h"
 
 #include <string>
 
-#include "../../../../logging/Log.h"
 #include "../../../../utils/RegexUtils.h"
 #include "../../../../utils/StringUtils.h"
+#include "../../../../utils/logging/Logger.h"
 #include "../../../child/media/MediaDefinedFormat.h"
 #include "../../../child/media/MediaFormat.h"
 #include "../BaseArgument.h"
 
 Quality::Quality(void)
     : BaseArgument<MediaFormat>("-q", "--quality", "Quality",
-                                MediaDefinedFormat::formats["720p"]){};
+                                MediaDefinedFormat::formats["720p"]) {};
 Quality::~Quality(void) {}
 
 void Quality::parse(std::string provided) {
-  Log::debug({"[Quality] Parsing quality:", provided});
+  LOG_DEBUG("[Quality] Parsing quality:", provided);
   if (MediaDefinedFormat::formats.find(provided) !=
       MediaDefinedFormat::formats.end()) {
     value = MediaDefinedFormat::formats[provided];

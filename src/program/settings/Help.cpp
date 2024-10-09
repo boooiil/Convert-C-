@@ -1,10 +1,9 @@
 #include "Help.h"
 
-#include "../../logging/Log.h"
+#include "../../utils/logging/Logger.h"
 
 void Help::printHelp() {
-  Log::send(
-      {"Usage: convert [options]\n\n",
+  LOG("Usage: convert [options]\n\n",
        "Options:\n",
        "  -a    --amount [num]                 Set the amount of files to "
        "convert at once. (Default: 1)\n",
@@ -135,5 +134,5 @@ void Help::printHelp() {
        "      HEIGHT: 640\n",
        "      CROP: 854:720 (32:27 ~ 4:3)\n"
 
-      });
+  );
 }

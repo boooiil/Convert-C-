@@ -4,9 +4,9 @@
 #include <stdexcept>
 #include <string>
 
-#include "../../../logging/Log.h"
 #include "../../../utils/RegexUtils.h"
 #include "../../../utils/StringUtils.h"
+#include "../../../utils/logging/Logger.h"
 #include "../../Program.h"
 #include "../../settings/ProgramSettings.h"
 #include "../../settings/arguments/ArgumentParser.h"
@@ -25,7 +25,7 @@ MediaProcessConversion::~MediaProcessConversion() {
 }
 
 void MediaProcessConversion::parse(std::string data) {
-  Log::debug({"[MediaProcessConversion.cpp] PARSING LINE:", data});
+  LOG_DEBUG("PARSING LINE:", data);
 
   ArgumentParser argumentParser = *Program::settings->argumentParser;
   ProgramSettings programSettings = *Program::settings->programSettings;
@@ -73,7 +73,7 @@ void MediaProcessConversion::parse(std::string data) {
   }
 
   else if (RegexUtils::isMatch(data, "frame=.+?(\\d+)")) {
-    Log::debug({"[MediaProcessConversion.cpp] PARSING LINE"});
+    LOG_DEBUG("PARSING LINE");
 
     std::string quality =
         RegexUtils::getFirstMatch(data, "q=(\\d+\\.\\d+|-\\d+\\.\\d+)");
@@ -101,12 +101,11 @@ void MediaProcessConversion::parse(std::string data) {
     this->object->working->completedFrames = std::stoll(completedFrames);
     this->object->working->fps = std::stof(fps);
 
-    Log::debug({"[MediaProcessConversion.cpp] QUALITY:", quality});
-    Log::debug({"[MediaProcessConversion.cpp] BITRATE:", bitrate});
-    Log::debug(
-        {"[MediaProcessConversion.cpp] COMPLETED FRAMES:", completedFrames});
-    Log::debug({"[MediaProcessConversion.cpp] FPS:", fps});
+    LOG_DEBUG("QUALITY:", quality);
+    LOG_DEBUG("BITRATE:", bitrate);
+    LOG_DEBUG("COMPLETED FRAMES:", completedFrames);
+    LOG_DEBUG("FPS:", fps);
   }
 
-  Log::debug({"[MediaProcessConversion.cpp] PARSING END"});
+  LOG_DEBUG("PARSING END");
 }

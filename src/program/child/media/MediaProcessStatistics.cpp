@@ -15,9 +15,9 @@
 #include <string>
 #include <vector>
 
-#include "../../../logging/Log.h"
 #include "../../../utils/ListUtils.h"
 #include "../../../utils/RegexUtils.h"
+#include "../../../utils/logging/Logger.h"
 #include "../../Program.h"
 #include "../../settings/enums/Activity.h"
 #include "../ffmpeg/ProbeResult.h"
@@ -38,7 +38,7 @@ MediaProcessStatistics::~MediaProcessStatistics() {
 }
 
 void MediaProcessStatistics::start(std::string command) {
-  Log::debug({"[MediaProcessStatistics.cpp] SENDING COMMAND:", command});
+  LOG_DEBUG("SENDING COMMAND:", command);
 
   MediaProcessStatistics::status = MediaProcessStatistics::Status::RUNNING;
 
@@ -58,14 +58,14 @@ void MediaProcessStatistics::start(std::string command) {
   while (fgets(buffer.data(), static_cast<int>(buffer.size()), pipe.get()) !=
          nullptr) {
     // MediaProcessStatistics::container.log.debug(
-    //     {"[MediaProcessStatistics.cpp] RAW OUTPUT: ", buffer.data()});
+    //     {"RAW OUTPUT: ", buffer.data()});
     result += buffer.data();
     // std::this_thread::sleep_for(
     //     std::chrono::seconds(1));  // delay for long running processes
   }
 
   // MediaProcessStatistics::container.log.debug(
-  //    {"[MediaProcessStatistics.cpp] OUTPUT: ", result});
+  //    {"OUTPUT: ", result});
   MediaProcessStatistics::parse(result);
 }
 
@@ -73,8 +73,8 @@ void MediaProcessStatistics::parse(std::string data) {
   try {
     if (RegexUtils::isMatch(data, "not recognized") ||
         RegexUtils::isMatch(data, "unknown command")) {
-      Log::debug(
-          {"[MediaProcessStatistics] Could not find ffprobe, failing.", data});
+      LOG_DEBUG("[MediaProcessStatistics] Could not find ffprobe, failing.",
+                data);
       // TODO: add FAILED_MISSING_FFPROBE
       this->object->setActivity(Activity::FAILED);
       return;
@@ -86,9 +86,8 @@ void MediaProcessStatistics::parse(std::string data) {
     // TODO: validate that file exists, assert fails when file missing
     assert(this->object->probeResult->videoStreams.size() > 0);
 
-    Log::debug(
-        {"[MediaProcessStatistics.cpp] VIDEO STREAMS: ",
-         std::to_string(this->object->probeResult->videoStreams.size())});
+    LOG_DEBUG("VIDEO STREAMS: ",
+              std::to_string(this->object->probeResult->videoStreams.size()));
 
     ProbeResultStreamVideo prsv = this->object->probeResult->videoStreams[0];
 
@@ -114,10 +113,10 @@ void MediaProcessStatistics::parse(std::string data) {
       seconds = std::stoi(timeParts[2]);
       duration = (hours * 60 * 60) + (minutes * 60) + seconds;
     } else {
-      Log::debug({"[MediaProcessStatistics.cpp] DURATION NOT FOUND"});
-      Log::debug(
-          {"[MediaProcessStatistics.cpp] Obtaining duration from format. This "
-           "could be inaccurate."});
+      LOG_DEBUG("DURATION NOT FOUND");
+      LOG_DEBUG(
+          "Obtaining duration from format. This "
+          "could be inaccurate.");
 
       duration = (int)std::stof(this->object->probeResult->format.duration);
     }
@@ -143,7 +142,7 @@ void MediaProcessStatistics::parse(std::string data) {
         this->object->video->convertedHeight;
     this->object->video->crf = format.crf;
   } catch (const std::exception& e) {
-    Log::debug({"[MediaProcessStatistics.cpp] ERROR: ", e.what()});
+    LOG_DEBUG("ERROR: ", e.what());
     this->object->setActivity(Activity::FAILED_JSON_PARSE);
     MediaProcessStatistics::status = MediaProcess::Status::_ERROR;
     return;

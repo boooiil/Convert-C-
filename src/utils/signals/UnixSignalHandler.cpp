@@ -6,19 +6,19 @@
 
 #include <iostream>
 
-#include "../../logging/Log.h"
 #include "../../program/Program.h"
+#include "../../utils/logging/Logger.h"
 
 UnixSignalHandler::UnixSignalHandler() {}
 UnixSignalHandler::~UnixSignalHandler() {}
 
 void UnixSignalHandler::registerHandler() {
-  Log::send({"[UNIXSignalHandler.cpp] Registering signal handler."});
+  LOG("Registering signal handler.");
   signal(SIGKILL, handleSignal);
   signal(SIGTERM, handleSignal);
   signal(SIGINT, handleSignal);
   signal(SIGQUIT, handleSignal);
-  Log::send({"[UNIXSignalHandler.cpp] Signal handler registered."});
+  LOG("Signal handler registered.");
 }
 
 void UnixSignalHandler::handleSignal(int signal) {

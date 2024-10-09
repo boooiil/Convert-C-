@@ -1,6 +1,6 @@
 #include "MediaVideoProperties.h"
 
-#include "../../../logging/Log.h"
+#include "../../../utils/logging/Logger.h"
 
 MediaVideoProperties::MediaVideoProperties()
     : fps(0.0),
@@ -16,6 +16,5 @@ MediaVideoProperties::MediaVideoProperties()
       crop("") {}
 
 MediaVideoProperties::~MediaVideoProperties() {
-  Log::debug(
-      {"[MediaVideoProperties.cpp] Deconstructing MediaVideoProperties"});
+  LOG_DEBUG("Deconstructing MediaVideoProperties");
 }

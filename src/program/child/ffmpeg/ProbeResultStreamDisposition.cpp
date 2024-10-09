@@ -2,7 +2,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include "../../../logging/Log.h"
+#include "../../../utils/logging/Logger.h"
 
 /**
  * TODO: Validate ffmpeg verison to avoid missing fields
@@ -30,9 +30,9 @@ ProbeResultStreamDisposition::~ProbeResultStreamDisposition() {}
 
 ProbeResultStreamDisposition::ProbeResultStreamDisposition(
     nlohmann::json JSON) {
-  Log::debug(
-      {"[ProbeResultStreamDisposition.cpp] Starting "
-       "ProbeResultStreamDisposition..."});
+  LOG_DEBUG(
+      "Starting "
+      "ProbeResultStreamDisposition...");
   ProbeResultStreamDisposition::default_ = JSON["default"];
   ProbeResultStreamDisposition::dub = JSON["dub"];
   ProbeResultStreamDisposition::original = JSON["original"];
@@ -51,7 +51,7 @@ ProbeResultStreamDisposition::ProbeResultStreamDisposition(
   // ProbeResultStreamDisposition::metadata = JSON["metadata"];
   // ProbeResultStreamDisposition::dependent = JSON["dependent"];
   // ProbeResultStreamDisposition::still_image = JSON["still_image"];
-  Log::debug(
-      {"[ProbeResultStreamDisposition.cpp] Ended "
-       "ProbeResultStreamDisposition"});
+  LOG_DEBUG(
+      "Ended "
+      "ProbeResultStreamDisposition");
 }

@@ -2,7 +2,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include "../../../logging/Log.h"
+#include "../../../utils/logging/Logger.h"
 #include "ProbeResultFormat.h"
 #include "ProbeResultStreamAudio.h"
 #include "ProbeResultStreamSubtitle.h"
@@ -10,7 +10,7 @@
 
 ProbeResult::ProbeResult() {};
 ProbeResult::~ProbeResult() {
-  Log::debug({"[ProbeResult] Deconstructing ProbeResult"});
+  LOG_DEBUG("[ProbeResult] Deconstructing ProbeResult");
 };
 
 ProbeResult::ProbeResult(nlohmann::json JSON) {

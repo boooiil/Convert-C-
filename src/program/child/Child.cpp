@@ -7,10 +7,10 @@
 #include <thread>
 #include <vector>
 
-#include "../../logging/Log.h"
-#include "../../logging/LogColor.h"
 #include "../../utils/DirectoryUtils.h"
 #include "../../utils/TimeUtils.h"
+#include "../../utils/logging/LogColor.h"
+#include "../../utils/logging/Logger.h"
 #include "../Program.h"
 #include "../settings/arguments/ArgumentRegistry.h"
 #include "../settings/arguments/IntegerArgument.h"
@@ -35,8 +35,7 @@ void Child::prepare(void) {
     media->file->rename();
 
     if (!std::filesystem::exists(media->file->conversionFolderPath)) {
-      Log::debug({"[Child.cpp] Creating directory: ",
-                  media->file->conversionFolderPath});
+      LOG_DEBUG("Creating directory: ", media->file->conversionFolderPath);
       std::filesystem::create_directory(media->file->conversionFolderPath);
     }
 
@@ -50,8 +49,7 @@ void Child::run(void) {
   int currentAmount = static_cast<int>(this->converting.size());
   IntegerArgument* setAmount = get_t<IntegerArgument>("-a").get();
 
-  Log::debug(
-      {"[Ticker.cpp]", std::to_string(currentAmount), setAmount->toString()});
+  LOG_DEBUG(std::to_string(currentAmount), setAmount->toString());
 
   if ((currentAmount < (int)*setAmount) && !this->pending.empty()) {
     Media* media = this->pending.front();
@@ -60,17 +58,15 @@ void Child::run(void) {
     // and the current amount of converting media is 0
     // then exit the program
     if (!media->isWaiting()) {
-      Log::debug({"[Ticker.cpp] Media is not waiting:",
-                  media->file->originalFileNameExt,
-                  Activity::getValue(media->getActivity())});
+      LOG_DEBUG("Media is not waiting:", media->file->originalFileNameExt,
+                media->getActivity().getName());
       if (currentAmount == 0) {
         this->setEndable(true);
         Program::stopFlag = true;
       }
     } else {
-      Log::debug({"[Ticker.cpp] Queued media for encoding:",
-                  media->file->originalFileNameExt,
-                  Activity::getValue(media->getActivity())});
+      LOG_DEBUG("Queued media for encoding:", media->file->originalFileNameExt,
+                media->getActivity().getName());
       media->setActivity(Activity::WAITING_STATISTICS);
 
       media->started = TimeUtils::getEpoch();
@@ -84,19 +80,17 @@ void Child::run(void) {
 
   // error if there are more converting than allowed
   if (currentAmount > (int)*setAmount) {
-    Log::send({LogColor::fgRed(
-        "CURRENT TRANSCODES ARE GREATER THAN THE ALLOWED AMOUNT.")});
+    LOG(LogColor::fgRed(
+        "CURRENT TRANSCODES ARE GREATER THAN THE ALLOWED AMOUNT."));
 
-    Log::send(
-        {LogColor::fgRed("CURRENT ALLOWED AMOUNT: " + setAmount->toString())});
+    LOG(LogColor::fgRed("CURRENT ALLOWED AMOUNT: " + setAmount->toString()));
 
-    Log::send({LogColor::fgRed("CURRENT QUEUE: " + setAmount->toString())});
+    LOG(LogColor::fgRed("CURRENT QUEUE: " + setAmount->toString()));
 
     // iterate over converting
     while (!this->converting.empty()) {
       Media* value = this->converting.front();
-      Log::send(
-          {LogColor::fgRed("CURRENT FILE: " + value->file->conversionName)});
+      LOG(LogColor::fgRed("CURRENT FILE: " + value->file->conversionName));
       this->converting.pop();
     }
 
@@ -110,13 +104,11 @@ void Child::run(void) {
   while (!this->converting.empty()) {
     Media* media = this->converting.front();
 
-    Log::debug({"[Ticker.cpp]", media->file->originalFileNameExt,
-                Activity::getValue(media->getActivity())});
+    LOG_DEBUG(media->file->originalFileNameExt, media->getActivity().getName());
 
     if (!media->isProcessing()) {
-      Log::debug({"[Ticker.cpp] Media is not processing:",
-                  media->file->originalFileNameExt,
-                  Activity::getValue(media->getActivity())});
+      LOG_DEBUG("Media is not processing:", media->file->originalFileNameExt,
+                media->getActivity().getName());
       if (media->isWaitingToStatistics())
         media->doStatistics();
       else if (media->isWaitingToConvert()) {
@@ -133,20 +125,20 @@ void Child::run(void) {
       // todo: again, chrono stuff
       media->ended = TimeUtils::getEpoch();
 
-      Log::debug({"[Ticker.cpp] Media ended:", media->file->conversionName});
+      LOG_DEBUG("Media ended:", media->file->conversionName);
       this->pending.push(media);
-      Log::debug({"[Ticker.cpp] pending size after finish:",
-                  std::to_string(this->pending.size())});
+      LOG_DEBUG("pending size after finish:",
+                std::to_string(this->pending.size()));
     } else {
       t_queue.push(media);
     }
     this->converting.pop();
   }
 
-  Log::debug({"[Ticker.cpp] t_queue size:", std::to_string(t_queue.size())});
+  LOG_DEBUG("t_queue size:", std::to_string(t_queue.size()));
   this->converting = t_queue;
 
-  if (Program::settings->argumentParser->loggingFormat ==
+  if (Program::settings->argumentParser->loggingFormat.get() ==
       LoggingOptions::DEBUG) {
     // Ticker::display->printDebug();
     // should not need to print in this class
@@ -161,8 +153,8 @@ void Child::run(void) {
 }
 
 void Child::end(void) {
-  Log::debug({"[Child.cpp] Ending child runner."});
-  Log::debug({"[Child.cpp] Expected to delete { pending[], converting[] }."});
+  LOG_DEBUG("Ending child runner.");
+  LOG_DEBUG("Expected to delete { pending[], converting[] }.");
   // iterate over running threads and join
   for (auto& t : workerThreads) {
     if (t.joinable()) {
@@ -178,8 +170,7 @@ void Child::end(void) {
     Media* media = this->pending.front();
     this->pending.pop();
 
-    Log::debug(
-        {"[Child.cpp] Deleting media in:", media->file->originalFileNameExt});
+    LOG_DEBUG("Deleting media in:", media->file->originalFileNameExt);
 
     delete media;
   }
@@ -189,16 +180,14 @@ void Child::end(void) {
     Media* media = this->converting.front();
     this->converting.pop();
 
-    Log::debug(
-        {"[Child.cpp] Deleting media in:", media->file->originalFileNameExt});
+    LOG_DEBUG("Deleting media in:", media->file->originalFileNameExt);
 
     delete media;
   }
 }
 
 void Child::setEndable(bool flag) {
-  Log::debug(
-      {"Child has been set as endable:", this->endable ? "True" : "False"});
+  LOG_DEBUG("Child has been set as endable:", this->endable ? "True" : "False");
   this->endable = flag;
 }
 
@@ -206,7 +195,7 @@ bool Child::isEndable(void) { return this->endable; }
 
 void Child::fromJSON(nlohmann::json) {}
 
-nlohmann::json Child::asJSON() {
+nlohmann::json Child::toJSON() {
   using namespace nlohmann;
 
   json child;
@@ -225,7 +214,7 @@ nlohmann::json Child::asJSON() {
     nlohmann::json mediaVideoDebug;
     nlohmann::json mediaWorkingDebug;
 
-    mediaDebug["activity"] = Activity::getValue(media->getActivity());
+    mediaDebug["activity"] = media->getActivity().getName();
     mediaDebug["started"] = media->started;
     mediaDebug["ended"] = media->ended;
     // this might not work
@@ -283,7 +272,7 @@ nlohmann::json Child::asJSON() {
     nlohmann::json mediaVideoDebug;
     nlohmann::json mediaWorkingDebug;
 
-    mediaDebug["activity"] = Activity::getValue(media->getActivity());
+    mediaDebug["activity"] = media->getActivity().getName();
     mediaDebug["started"] = media->started;
     mediaDebug["ended"] = media->ended;
     mediaDebug["ffmpegArguments"] = media->ffmpegArguments;

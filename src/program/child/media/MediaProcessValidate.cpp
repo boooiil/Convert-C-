@@ -3,8 +3,8 @@
 #include <regex>
 #include <string>
 
-#include "../../../logging/Log.h"
 #include "../../../utils/RegexUtils.h"
+#include "../../../utils/logging/Logger.h"
 #include "../../settings/enums/Activity.h"
 #include "Media.h"
 #include "MediaProcess.h"
@@ -33,9 +33,8 @@ void MediaProcessValidate::parse(std::string data) {
     this->object->working->completedFrames = std::stoll(completedFrames);
     this->object->working->fps = std::stof(fps);
 
-    Log::debug({"[MediaProcessValidate.cpp] QUALITY:", quality});
-    Log::debug(
-        {"[MediaProcessValidate.cpp] COMPLETED FRAMES:", completedFrames});
-    Log::debug({"[MediaProcessValidate.cpp] FPS:", fps});
+    LOG_DEBUG("QUALITY:", quality);
+    LOG_DEBUG("COMPLETED FRAMES:", completedFrames);
+    LOG_DEBUG("FPS:", fps);
   }
 }

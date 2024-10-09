@@ -6,11 +6,11 @@
 #include <queue>
 #include <string>
 
-#include "../../../logging/Log.h"
-#include "../../../logging/LogColor.h"
 #include "../../../utils/NumberUtils.h"
 #include "../../../utils/StringUtils.h"
 #include "../../../utils/TimeUtils.h"
+#include "../../../utils/logging/LogColor.h"
+#include "../../../utils/logging/Logger.h"
 #include "../../Program.h"
 #include "../../generics/GenericRunner.h"
 #include "../../settings/ProgramSettings.h"
@@ -50,19 +50,20 @@ void ChildDisplay::print(void) {
                      TimeUtils::dateFormat(TimeUtils::getEpoch());
   std::string encoder =
       ob + LogColor::fgCyan("TARGET ENC") + cb + " " +
-      LogColor::fgGray(Encoders::getValue(argumentParser.wantedEncoder));
+      LogColor::fgGray(argumentParser.wantedEncoder.get().getName());
   std::string runningEncoder =
       ob + LogColor::fgCyan("ENC") + cb + " " +
-      LogColor::fgGray(Encoders::getValue(programSettings.runningEncoder));
-  std::string runningDecoder = ob + LogColor::fgCyan("ACC") + cb + " " +
-                               LogColor::fgGray(HWAccelerators::getValue(
-                                   programSettings.runningHWAccel));
+      LogColor::fgGray(programSettings.runningEncoder.getName());
+  std::string runningDecoder =
+      ob + LogColor::fgCyan("ACC") + cb + " " +
+      LogColor::fgGray(programSettings.runningHWAccel.getName());
   std::string resolution = ob + LogColor::fgCyan("RES") + cb + " " +
                            LogColor::fgGray(argumentParser.quality.get().name);
   std::string tune = ob + LogColor::fgCyan("TUNE") + cb + " " +
-                     LogColor::fgGray(Tunes::getValue(argumentParser.tune));
-  std::string amount = ob + LogColor::fgCyan("AMOUNT") + cb + " " +
-                       LogColor::fgGray("this needs done");
+                     LogColor::fgGray(argumentParser.tune.getName());
+  std::string amount =
+      ob + LogColor::fgCyan("AMOUNT") + cb + " " +
+      LogColor::fgGray(get_t<IntegerArgument>("-a").get()->toString());
 
   // std::string a = ArgumentRegistry::get_t<IntegerArgument>("-a").get();
 
@@ -78,7 +79,7 @@ void ChildDisplay::print(void) {
     header += " " + constrain;
   }
 
-  if (argumentParser.loggingFormat == LoggingOptions::DEBUG) {
+  if (argumentParser.loggingFormat.get() == LoggingOptions::DEBUG) {
     header += " " + debug;
   }
 
@@ -130,7 +131,7 @@ void ChildDisplay::print(void) {
                                media->file->conversionName, 25));
 
     std::string activity = ob + LogColor::fgCyan("ACT") + cb + " " +
-                           Activity::getValue(media->getActivity());
+                           media->getActivity().getName();
 
     std::string percent = ob + LogColor::fgCyan("PROG") + cb + " " +
                           std::to_string(percent_result) + "%";
@@ -165,7 +166,7 @@ void ChildDisplay::print(void) {
                                media->file->conversionName, 25));
 
     std::string activity = ob + LogColor::fgCyan("ACT") + cb + " " +
-                           Activity::getValue(media->getActivity());
+                           media->getActivity().getName();
 
     if (media->hasFinished()) {
       double currSize = static_cast<double>(media->file->size);
@@ -196,7 +197,7 @@ void ChildDisplay::print(void) {
     t_queue.push(media);
   }
   child.pending = t_queue;
-  Log::send({sendStr});
+  LOG(sendStr);
 }
 
 void ChildDisplay::printDebug(void) {
@@ -204,26 +205,19 @@ void ChildDisplay::printDebug(void) {
 }
 
 void ChildDisplay::printInformation(void) {
-  Log::debug({"Printing Information"});
+  LOG_DEBUG("Printing Information");
 
   NTicker* ticker = Program::ticker->getRunner<NTicker>();
   Child* runner = ticker->runner->getRunner<Child>();
 
-  Log::debug({
-      LogColor::fgBlack("Black"),
-      LogColor::fgRed("Red"),
-      LogColor::fgGreen("Green"),
-      LogColor::fgGray("Gray"),
-      LogColor::fgYellow("Yellow"),
-      LogColor::fgBlue("Blue"),
-      LogColor::fgOrange("Orange"),
-      LogColor::fgMagenta("Magenta"),
-      LogColor::fgCyan("Cyan"),
-      LogColor::fgWhite("White"),
-  });
+  LOG(LogColor::fgBlack("Black"), LogColor::fgRed("Red"),
+      LogColor::fgGreen("Green"), LogColor::fgGray("Gray"),
+      LogColor::fgYellow("Yellow"), LogColor::fgBlue("Blue"),
+      LogColor::fgOrange("Orange"), LogColor::fgMagenta("Magenta"),
+      LogColor::fgCyan("Cyan"), LogColor::fgWhite("White"));
 
   if (runner->pending.empty()) {
-    Log::send({LogColor::fgRed("No media files found.")});
+    LOG(LogColor::fgRed("No media files found."));
     return;
   }
 
@@ -241,94 +235,91 @@ void ChildDisplay::printInformation(void) {
     std::string cb = LogColor::fgGray("]");
     std::string colon = LogColor::fgGray(": ");
 
-    Log::send({nl + ob + LogColor::fgRed(media->file->originalFileNameExt) +
-               cb + nl});
+    LOG(nl + ob + LogColor::fgRed(media->file->originalFileNameExt) + cb + nl);
 
-    Log::send({LogColor::fgWhite("  " + ob + "Format") + cb});
+    LOG(LogColor::fgWhite("  " + ob + "Format") + cb);
 
-    Log::send({LogColor::bgBlue("    Duration") + colon +
-               LogColor::bgOrange(media->probeResult->format.duration)});
+    LOG(LogColor::bgBlue("    Duration") + colon +
+        LogColor::bgOrange(media->probeResult->format.duration));
 
-    Log::send({LogColor::bgBlue("    Format: ") +
-               LogColor::bgOrange(media->probeResult->format.format_name)});
+    LOG(LogColor::bgBlue("    Format: ") +
+        LogColor::bgOrange(media->probeResult->format.format_name));
 
-    Log::send({LogColor::bgBlue("    Bit Rate: ") +
-               LogColor::bgOrange(media->probeResult->format.bit_rate)});
+    LOG(LogColor::bgBlue("    Bit Rate: ") +
+        LogColor::bgOrange(media->probeResult->format.bit_rate));
 
-    Log::send({LogColor::bgBlue("    Size: ") +
-               LogColor::bgOrange(media->probeResult->format.size)});
+    LOG(LogColor::bgBlue("    Size: ") +
+        LogColor::bgOrange(media->probeResult->format.size));
 
-    Log::send({LogColor::bgBlue("    Stream Count: ") +
-               LogColor::bgOrange(
-                   std::to_string(media->probeResult->format.nb_streams))});
+    LOG(LogColor::bgBlue("    Stream Count: ") +
+        LogColor::bgOrange(
+            std::to_string(media->probeResult->format.nb_streams)));
 
-    Log::send({LogColor::fgWhite(nl + "  " + ob + "Video Streams") + cb});
+    LOG(LogColor::fgWhite(nl + "  " + ob + "Video Streams") + cb);
 
     // video streams
     for (int i = 0; i < media->probeResult->videoStreams.size(); i++) {
       ProbeResultStreamVideo prsv = media->probeResult->videoStreams[i];
 
-      Log::send({"    " + ob + std::to_string(i) + cb + " " +
-                 LogColor::fgOrange(prsv.codec_name)});
+      LOG("    " + ob + std::to_string(i) + cb + " " +
+          LogColor::fgOrange(prsv.codec_name));
 
-      Log::send(
-          {LogColor::fgBlue("      Profile") + colon +
-           LogColor::fgOrange(prsv.profile.empty() ? "None" : prsv.profile)});
+      LOG(LogColor::fgBlue("      Profile") + colon +
+          LogColor::fgOrange(prsv.profile.empty() ? "None" : prsv.profile));
 
-      Log::send({LogColor::fgBlue("      Res") + colon +
-                 LogColor::fgOrange(std::to_string(prsv.width) + "x" +
-                                    std::to_string(prsv.height)) +
-                 " (" + LogColor::fgOrange(prsv.display_aspect_ratio) + ")"});
+      LOG(LogColor::fgBlue("      Res") + colon +
+          LogColor::fgOrange(std::to_string(prsv.width) + "x" +
+                             std::to_string(prsv.height)) +
+          " (" + LogColor::fgOrange(prsv.display_aspect_ratio) + ")");
 
-      Log::send({LogColor::fgBlue("      Listed Duration") + colon +
-                 LogColor::fgOrange(prsv.tags.DURATION.empty()
-                                        ? "None"
-                                        : prsv.tags.DURATION)});
+      LOG(LogColor::fgBlue("      Listed Duration") + colon +
+          LogColor::fgOrange(prsv.tags.DURATION.empty() ? "None"
+                                                        : prsv.tags.DURATION));
     }
 
-    Log::send({LogColor::fgWhite(nl + "  " + ob + "Audio Streams") + cb});
+    LOG(LogColor::fgWhite(nl + "  " + ob + "Audio Streams") + cb);
 
     // audio streams
     for (int i = 0; i < media->probeResult->audioStreams.size(); i++) {
       ProbeResultStreamAudio prsa = media->probeResult->audioStreams[i];
 
-      Log::send({"    " + ob + std::to_string(i) + cb + " " +
-                 LogColor::fgOrange(prsa.tags.language)});
+      LOG("    " + ob + std::to_string(i) + cb + " " +
+          LogColor::fgOrange(prsa.tags.language));
 
-      Log::send({LogColor::fgBlue("      Title") + colon +
-                 LogColor::fgOrange(
-                     prsa.tags.title.empty() ? "None" : prsa.tags.title)});
+      LOG(LogColor::fgBlue("      Title") + colon +
+          LogColor::fgOrange(prsa.tags.title.empty() ? "None"
+                                                     : prsa.tags.title));
 
-      Log::send({LogColor::fgBlue("      Codec") + colon +
-                 LogColor::fgOrange(prsa.codec_name)});
+      LOG(LogColor::fgBlue("      Codec") + colon +
+          LogColor::fgOrange(prsa.codec_name));
 
-      Log::send({LogColor::fgBlue("      Channels") + colon +
-                 LogColor::fgOrange(std::to_string(prsa.channels))});
+      LOG(LogColor::fgBlue("      Channels") + colon +
+          LogColor::fgOrange(std::to_string(prsa.channels)));
 
-      Log::send({LogColor::fgBlue("      Channel Layout") + colon +
-                 LogColor::fgOrange(prsa.channel_layout)});
+      LOG(LogColor::fgBlue("      Channel Layout") + colon +
+          LogColor::fgOrange(prsa.channel_layout));
 
-      Log::send({LogColor::fgBlue("      Sample Rate") + colon +
-                 LogColor::fgOrange(prsa.sample_rate)});
+      LOG(LogColor::fgBlue("      Sample Rate") + colon +
+          LogColor::fgOrange(prsa.sample_rate));
 
-      Log::send({LogColor::fgBlue("      Bit Rate") + colon +
-                 LogColor::fgOrange(prsa.tags.BPS)});
+      LOG(LogColor::fgBlue("      Bit Rate") + colon +
+          LogColor::fgOrange(prsa.tags.BPS));
     }
 
-    Log::send({LogColor::fgWhite(nl + "  " + ob + "Subtitle Streams") + cb});
+    LOG(LogColor::fgWhite(nl + "  " + ob + "Subtitle Streams") + cb);
 
     // subtitle streams
     for (int i = 0; i < media->probeResult->subtitleStreams.size(); i++) {
       ProbeResultStreamSubtitle prss = media->probeResult->subtitleStreams[i];
 
-      Log::send({"    " + ob + std::to_string(i) + cb + " " +
-                 LogColor::fgOrange(prss.tags.language)});
+      LOG("    " + ob + std::to_string(i) + cb + " " +
+          LogColor::fgOrange(prss.tags.language));
 
-      Log::send({LogColor::fgBlue("      Title") + colon +
-                 LogColor::fgOrange(prss.tags.title)});
+      LOG(LogColor::fgBlue("      Title") + colon +
+          LogColor::fgOrange(prss.tags.title));
 
-      Log::send({LogColor::fgBlue("      Codec") + colon +
-                 LogColor::fgOrange(prss.codec_name)});
+      LOG(LogColor::fgBlue("      Codec") + colon +
+          LogColor::fgOrange(prss.codec_name));
     }
 
     t_queue.push(media);
@@ -345,5 +336,5 @@ void ChildDisplay::printJSON(void) {
   system("clear");
 #endif
   // TODO: finish
-  puts(Program::ticker->asJSON().dump().c_str());
+  puts(Program::ticker->toJSON().dump().c_str());
 }

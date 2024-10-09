@@ -3,13 +3,14 @@
 #include <filesystem>
 #include <string>
 #include <vector>
-#include "../logging/Log.h"
+
+#include "../utils/logging/Logger.h"
 #include "ListUtils.h"
 
 std::vector<std::filesystem::directory_entry> DirectoryUtils::getFilesInCWD() {
   std::vector<std::filesystem::directory_entry> files;
   for (const auto& entry :
-    std::filesystem::directory_iterator(std::filesystem::current_path())) {
+       std::filesystem::directory_iterator(std::filesystem::current_path())) {
     if (entry.is_regular_file()) {
       files.push_back(entry);
     }
@@ -21,7 +22,7 @@ std::vector<std::filesystem::directory_entry>
 DirectoryUtils::getFilesInCWDWithExt(std::string ext) {
   std::vector<std::filesystem::directory_entry> files;
   for (const auto& entry :
-    std::filesystem::directory_iterator(std::filesystem::current_path())) {
+       std::filesystem::directory_iterator(std::filesystem::current_path())) {
     if (entry.is_regular_file() && entry.path().extension() == ext) {
       files.push_back(entry);
     }
@@ -33,7 +34,7 @@ std::vector<std::filesystem::directory_entry>
 DirectoryUtils::getFilesInCWDWithExt(std::vector<const char*> exts) {
   std::vector<std::filesystem::directory_entry> files;
   for (const auto& entry :
-    std::filesystem::directory_iterator(std::filesystem::current_path())) {
+       std::filesystem::directory_iterator(std::filesystem::current_path())) {
     if (entry.is_regular_file()) {
       for (std::string ext : exts) {
         if (entry.path().extension() == ext) {
@@ -47,10 +48,10 @@ DirectoryUtils::getFilesInCWDWithExt(std::vector<const char*> exts) {
 }
 
 std::vector<std::filesystem::directory_entry> DirectoryUtils::findFileInSubdir(
-  std::string filename) {
+    std::string filename) {
   std::vector<std::filesystem::directory_entry> files;
   for (const auto& entry : std::filesystem::recursive_directory_iterator(
-    std::filesystem::current_path())) {
+           std::filesystem::current_path())) {
     if (entry.is_regular_file() && entry.path().filename() == filename) {
       files.push_back(entry);
     }
@@ -66,20 +67,19 @@ bool DirectoryUtils::createDir(std::string path) {
   try {
     std::filesystem::create_directory(path);
     return true;
-  }
-  catch (std::exception err) {
-    Log::debug({ err.what() });
+  } catch (std::exception err) {
+    LOG_DEBUG(err.what());
     return false;
   }
 }
 
 bool DirectoryUtils::createDir(std::string path, bool recursive) {
-
   if (!recursive) {
     return createDir(path);
   }
 
-  std::vector<std::string> paths = ListUtils::splitv(path, std::regex(R"(\|/)"));
+  std::vector<std::string> paths =
+      ListUtils::splitv(path, std::regex(R"(\|/)"));
   std::string built_path;
 
   for (std::string dir : paths) {
@@ -91,5 +91,4 @@ bool DirectoryUtils::createDir(std::string path, bool recursive) {
   }
 
   return true;
-
 }

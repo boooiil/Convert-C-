@@ -4,7 +4,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-#include "../../../logging/Log.h"
+#include "../../../utils/logging/Logger.h"
 #include "../../child/media/MediaProcess.h"
 #include "ChildProcess.h"
 
@@ -12,7 +12,7 @@ ChildProcessConversion::ChildProcessConversion(ChildProcess* childProcess)
     : MediaProcess(childProcess) {}
 
 void ChildProcessConversion::parse(std::string data) {
-  Log::send({"[ChildProcessConversion.cpp] Parsing data.", data});
+  LOG("Parsing data.", data);
 
   data.erase(std::remove(data.begin(), data.end(), '\f'), data.end());
 

@@ -1,6 +1,6 @@
 #include "ParentDisplay.h"
 
-#include "../../../logging/Log.h"
+#include "../../../utils/logging/Logger.h"
 #include "../../Program.h"
 #include "../../generics/GenericRunner.h"
 #include "../../ticker/NTicker.h"
@@ -15,7 +15,7 @@ void ParentDisplay::printDebug(void) {
 }
 
 void ParentDisplay::printInformation(void) {
-  Log::debug({"Printing Information"});
+  LOG_DEBUG("Printing Information");
 
   NTicker* ticker = Program::ticker->getRunner<NTicker>();
   Parent* runner = ticker->runner->getRunner<Parent>();
