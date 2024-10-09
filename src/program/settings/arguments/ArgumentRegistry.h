@@ -5,7 +5,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "./GenericArgument.h"
+#include "GenericArgument.h"
 
 class ArgumentRegistry {
  public:

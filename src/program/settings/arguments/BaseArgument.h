@@ -4,7 +4,7 @@
 #include <cassert>
 #include <string>
 
-#include "./GenericArgument.h"
+#include "GenericArgument.h"
 
 template <typename T>
 class BaseArgument : public GenericArgument {

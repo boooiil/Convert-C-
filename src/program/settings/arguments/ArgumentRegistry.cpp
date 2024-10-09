@@ -1,4 +1,4 @@
-#include "./ArgumentRegistry.h"
+#include "ArgumentRegistry.h"
 
 #include <memory>
 #include <string>

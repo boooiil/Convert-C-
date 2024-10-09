@@ -3,7 +3,7 @@
 
 #include <type_traits>
 
-#include "./BaseArgument.h"
+#include "BaseArgument.h"
 
 template <typename T,
           typename std::enable_if<std::is_base_of<T, T>::value>::type* =

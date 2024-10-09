@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "./BaseArgument.h"
+#include "BaseArgument.h"
 
 class StringArgument : public BaseArgument<std::string> {
  public:

@@ -1,7 +1,7 @@
 #ifndef FLOAT_ARGUMENT_H
 #define FLOAT_ARGUMENT_H
 
-#include "./BaseArgument.h"
+#include "BaseArgument.h"
 
 class FloatArgument : public BaseArgument<float> {
  public:

@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "./BaseArgument.h"
+#include "BaseArgument.h"
 
 /**
  * @brief A class that represents a flag argument with a BaseArgument of type
