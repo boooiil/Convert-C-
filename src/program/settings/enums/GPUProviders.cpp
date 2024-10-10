@@ -1,4 +1,4 @@
-#include "./GPUProviders.h"
+#include "GPUProviders.h"
 
 #include <string>
 #include <unordered_map>
@@ -6,26 +6,15 @@
 
 #include "../../../utils/ListUtils.h"
 
-std::unordered_map<GPUProviders::Provider, std::string>
-    GPUProviders::providerMap = {{NVIDIA, "nvidia"},
-                                 {AMD, "amd"},
-                                 {INTEL, "intel"},
-                                 {UNKNOWN, "unknown"}};
+const StringEnumDataHolder<GPUProviders> GPUProviders::UNKNOWN("unknown",
+                                                               "Unknown");
+const StringEnumDataHolder<GPUProviders> GPUProviders::NVIDIA("nvidia",
+                                                              "Nvidia");
+const StringEnumDataHolder<GPUProviders> GPUProviders::INTEL("intel", "Intel");
+const StringEnumDataHolder<GPUProviders> GPUProviders::AMD("amd", "AMD");
 
-GPUProviders::GPUProviders() {}
-GPUProviders::~GPUProviders() {}
-
-GPUProviders::Provider GPUProviders::getKey(std::string provider) {
-  for (auto const& [key, val] : providerMap) {
-    if (val == provider) {
-      return key;
-    }
-  }
-  return GPUProviders::UNKNOWN;
-}
-
-GPUProviders::Provider GPUProviders::getPreferred(
-    std::vector<GPUProviders::Provider> providers) {
+const StringEnumDataHolder<GPUProviders> GPUProviders::getPreferred(
+    std::vector<StringEnumDataHolder<GPUProviders>> providers) {
   if (ListUtils::contains(providers, NVIDIA)) {
     return NVIDIA;
   } else if (ListUtils::contains(providers, INTEL)) {
@@ -35,8 +24,4 @@ GPUProviders::Provider GPUProviders::getPreferred(
   } else {
     return UNKNOWN;
   }
-}
-
-std::string GPUProviders::getValue(GPUProviders::Provider provider) {
-  return providerMap.at(provider);
 }

@@ -1,14 +1,14 @@
 #include "Decoders.h"
 
-std::unordered_map<Decoders::Codec, std::string> Decoders::codecMap = {
-    {Decoders::NONE, "none"},         {Decoders::AV1_CUVID, "av1_cuvid"},
-    {Decoders::AV1_QSV, "av1_qsv"},   {Decoders::H264_CUVID, "h264_cuvid"},
-    {Decoders::H264_QSV, "h264_qsv"}, {Decoders::HEVC_CUVID, "hevc_cuvid"},
-    {Decoders::HEVC_QSV, "hevc_qsv"}};
+const StringEnumDataHolder<Decoders> Decoders::NONE("none", "None");
 
-Decoders::Decoders() {}
-Decoders::~Decoders() {}
+const StringEnumDataHolder<Decoders> Decoders::H264_CUVID("h264_cuvid",
+                                                          "H264_CUVID");
+const StringEnumDataHolder<Decoders> Decoders::HEVC_CUVID("hevc_cuvid",
+                                                          "HEVC_CUVID");
+const StringEnumDataHolder<Decoders> Decoders::AV1_CUVID("av1_cuvid",
+                                                         "AV1_CUVID");
 
-std::string Decoders::getValue(Decoders::Codec codec) {
-  return codecMap.at(codec);
-}
+const StringEnumDataHolder<Decoders> Decoders::H264_QSV("h264_qsv", "H264_QSV");
+const StringEnumDataHolder<Decoders> Decoders::HEVC_QSV("hevc_qsv", "HEVC_QSV");
+const StringEnumDataHolder<Decoders> Decoders::AV1_QSV("av1_qsv", "AV1_QSV");

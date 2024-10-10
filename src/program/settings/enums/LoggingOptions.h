@@ -3,39 +3,33 @@
 
 #include <string>
 #include <unordered_map>
+#include <vector>
+
+#include "StringEnumDataHolder.h"
 
 class LoggingOptions {
  public:
-  LoggingOptions(void);
-  ~LoggingOptions(void);
+  static const StringEnumDataHolder<LoggingOptions> INVALID;
+  static const StringEnumDataHolder<LoggingOptions> DEFAULT;
+  static const StringEnumDataHolder<LoggingOptions> DEBUG;
+  static const StringEnumDataHolder<LoggingOptions> VERBOSE;
+  static const StringEnumDataHolder<LoggingOptions> JSON;
+  static const StringEnumDataHolder<LoggingOptions> JSON_DEBUG;
+  static const StringEnumDataHolder<LoggingOptions> JSON_VERBOSE;
 
-  enum Options {
-    DEFAULT,
-    DEBUG,
-    VERBOSE,
-    JSON,
-    JSON_DEBUG,
-    JSON_VERBOSE,
-    INVALID
-  };
+  static const std::vector<const StringEnumDataHolder<LoggingOptions>*> _all() {
+    return {&INVALID, &DEFAULT,    &DEBUG,       &VERBOSE,
+            &JSON,    &JSON_DEBUG, &JSON_VERBOSE};
+  }
 
-  /**
-   * @brief Get the codec from a string.
-   *
-   * @param[in] providedOption - Desired logging option.
-   *
-   * @return Codec enum.
-   */
-  static Options getKey(std::string providedOption);
-
-  /**
-   * @brief Get the string value of the enum.
-   *
-   * @param[in] providedOption - Desired logging option.
-   *
-   * @return String value of enum.
-   */
-  static std::string getValue(Options providedOption);
+  static const StringEnumDataHolder<LoggingOptions> getKey(std::string value) {
+    for (auto& item : _all()) {
+      if (item->getName() == value) {
+        return *item;
+      }
+    }
+    return INVALID;
+  }
 
   /**
    * @brief Check if the provided option is JSON.
@@ -43,7 +37,7 @@ class LoggingOptions {
    * @param[in] providedOption - Desired logging option.
    * @return True if JSON, false otherwise.
    */
-  static bool isJSON(Options providedOption);
+  static bool isJSON(StringEnumDataHolder<LoggingOptions> providedOption);
 
   /**
    * @brief Check if the provided option is Debug.
@@ -51,7 +45,7 @@ class LoggingOptions {
    * @param[in] providedOption - Desired logging option.
    * @return True if Debug, false otherwise.
    */
-  static bool isDebug(Options providedOption);
+  static bool isDebug(StringEnumDataHolder<LoggingOptions> providedOption);
 
   /**
    * @brief Check if the provided option is Verbose.
@@ -59,10 +53,7 @@ class LoggingOptions {
    * @param[in] providedOption - Desired logging option.
    *   * @return True if Verbose, false otherwise.
    */
-  static bool isVerbose(Options providedOption);
-
- private:
-  static std::unordered_map<Options, std::string> loggingOptionMap;
+  static bool isVerbose(StringEnumDataHolder<LoggingOptions> providedOption);
 };
 
 #endif  // LOGGING_OPTIONS_H

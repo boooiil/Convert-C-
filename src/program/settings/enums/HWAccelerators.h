@@ -10,7 +10,9 @@
 #define HWACCELERATORS
 
 #include <string>
-#include <unordered_map>
+#include <vector>
+
+#include "StringEnumDataHolder.h"
 
 /**
  * @brief Class for HWAccelerators enum and map.
@@ -18,30 +20,24 @@
  */
 class HWAccelerators {
  public:
-  HWAccelerators();
-  ~HWAccelerators();
+  static const StringEnumDataHolder<HWAccelerators> NONE;
+  static const StringEnumDataHolder<HWAccelerators> AMD;
+  static const StringEnumDataHolder<HWAccelerators> NVIDIA;
+  static const StringEnumDataHolder<HWAccelerators> INTEL;
+  static const StringEnumDataHolder<HWAccelerators> VULKAN;
 
-  /**
-   * @brief Enum for hardware accelerators.
-   *
-   */
-  enum Accelerator { NONE, AMD, NVIDIA, INTEL, VULKAN };
+  static const std::vector<const StringEnumDataHolder<HWAccelerators>*> _all() {
+    return {&NONE, &AMD, &NVIDIA, &INTEL, &VULKAN};
+  }
 
-  /**
-   * @brief Get the string value of the enum.
-   *
-   * @param[in] accelerator - Desired accelerator.
-   *
-   * @return String value of enum.
-   */
-  static std::string getValue(Accelerator accelerator);
-
- private:
-  /**
-   * @brief Map of enum to string value.
-   *
-   */
-  static std::unordered_map<Accelerator, std::string> acceleratorMap;
+  static const StringEnumDataHolder<HWAccelerators> getKey(std::string value) {
+    for (auto& item : _all()) {
+      if (item->getName() == value) {
+        return *item;
+      }
+    }
+    return NONE;
+  }
 };
 
 #endif  // HWACCELERATORS

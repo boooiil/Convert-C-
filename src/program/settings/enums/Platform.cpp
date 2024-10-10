@@ -1,13 +1,10 @@
 #include "Platform.h"
 
-std::unordered_map<Platform::OPERATING_SYSTEM, std::string> Platform::osMap = {
-    {Platform::OPERATING_SYSTEM::WINDOWS, "Windows"},
-    {Platform::OPERATING_SYSTEM::_LINUX, "Linux"},
-    {Platform::OPERATING_SYSTEM::LINUX_LIKE, "Linux-like"},
-    {Platform::OPERATING_SYSTEM::MAC, "Mac"},
-    {Platform::OPERATING_SYSTEM::UNKNOWN, "Unknown"}};
+#include "StringEnumDataHolder.h"
 
-Platform::Platform(void) {}
-Platform::~Platform(void) {}
-
-std::string Platform::getValue(OPERATING_SYSTEM os) { return osMap[os]; }
+const StringEnumDataHolder<Platform> Platform::UNKNOWN("unknown", "Unknown");
+const StringEnumDataHolder<Platform> Platform::WINDOWS("windows", "Windows");
+const StringEnumDataHolder<Platform> Platform::_LINUX("linux", "Linux");
+const StringEnumDataHolder<Platform> Platform::LINUX_LIKE("linux-like",
+                                                          "Linux like");
+const StringEnumDataHolder<Platform> Platform::MACOS("macos", "MacOS");

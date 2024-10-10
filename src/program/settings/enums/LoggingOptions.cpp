@@ -5,50 +5,39 @@
 #include <utility>
 
 #include "../../../utils/StringUtils.h"
+#include "StringEnumDataHolder.h"
+const StringEnumDataHolder<LoggingOptions> LoggingOptions::INVALID("invalid",
+                                                                   "Invalid");
 
-std::unordered_map<LoggingOptions::Options, std::string>
-    LoggingOptions::loggingOptionMap = {
-        {LoggingOptions::Options::DEFAULT, "default"},
-        {LoggingOptions::Options::DEBUG, "debug"},
-        {LoggingOptions::Options::VERBOSE, "verbose"},
-        {LoggingOptions::Options::JSON, "json"},
-        {LoggingOptions::Options::JSON_DEBUG, "json_debug"},
-        {LoggingOptions::Options::JSON_VERBOSE, "json_verbose"},
-        {LoggingOptions::INVALID, "invalid"}};
+const StringEnumDataHolder<LoggingOptions> LoggingOptions::DEFAULT("default",
+                                                                   "Default");
+const StringEnumDataHolder<LoggingOptions> LoggingOptions::DEBUG("debug",
+                                                                 "Debug");
+const StringEnumDataHolder<LoggingOptions> LoggingOptions::VERBOSE("verbose",
+                                                                   "Verbose");
+const StringEnumDataHolder<LoggingOptions> LoggingOptions::JSON("json", "Json");
+const StringEnumDataHolder<LoggingOptions> LoggingOptions::JSON_DEBUG(
+    "json_debug", "JsonDebug");
+const StringEnumDataHolder<LoggingOptions> LoggingOptions::JSON_VERBOSE(
+    "json_verbose", "JsonVerbose");
 
-LoggingOptions::LoggingOptions(void) {}
-LoggingOptions::~LoggingOptions(void) {}
-
-LoggingOptions::Options LoggingOptions::getKey(std::string providedOption) {
-  for (std::pair<LoggingOptions::Options, std::string> loggingOption :
-       loggingOptionMap) {
-    std::string value = StringUtils::toLowerCase(loggingOption.second);
-    if (value == providedOption) {
-      return loggingOption.first;
-    }
-  }
-
-  return LoggingOptions::Options::INVALID;
+bool LoggingOptions::isJSON(
+    StringEnumDataHolder<LoggingOptions> providedOption) {
+  return providedOption == LoggingOptions::JSON ||
+         providedOption == LoggingOptions::JSON_DEBUG ||
+         providedOption == LoggingOptions::JSON_VERBOSE;
 }
 
-std::string LoggingOptions::getValue(LoggingOptions::Options providedOption) {
-  return loggingOptionMap[providedOption];
+bool LoggingOptions::isDebug(
+    StringEnumDataHolder<LoggingOptions> providedOption) {
+  return providedOption == LoggingOptions::DEBUG ||
+         providedOption == LoggingOptions::JSON_DEBUG ||
+         providedOption == LoggingOptions::VERBOSE ||
+         providedOption == LoggingOptions::JSON_VERBOSE;
 }
 
-bool LoggingOptions::isJSON(LoggingOptions::Options providedOption) {
-  return providedOption == LoggingOptions::Options::JSON ||
-         providedOption == LoggingOptions::Options::JSON_DEBUG ||
-         providedOption == LoggingOptions::Options::JSON_VERBOSE;
-}
-
-bool LoggingOptions::isDebug(LoggingOptions::Options providedOption) {
-  return providedOption == LoggingOptions::Options::DEBUG ||
-         providedOption == LoggingOptions::Options::JSON_DEBUG ||
-         providedOption == LoggingOptions::Options::VERBOSE ||
-         providedOption == LoggingOptions::Options::JSON_VERBOSE;
-}
-
-bool LoggingOptions::isVerbose(LoggingOptions::Options providedOption) {
-  return providedOption == LoggingOptions::Options::VERBOSE ||
-         providedOption == LoggingOptions::Options::JSON_VERBOSE;
+bool LoggingOptions::isVerbose(
+    StringEnumDataHolder<LoggingOptions> providedOption) {
+  return providedOption == LoggingOptions::VERBOSE ||
+         providedOption == LoggingOptions::JSON_VERBOSE;
 }

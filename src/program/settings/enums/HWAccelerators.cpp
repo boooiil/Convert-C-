@@ -1,15 +1,13 @@
 #include "HWAccelerators.h"
 
-std::unordered_map<HWAccelerators::Accelerator, std::string>
-    HWAccelerators::acceleratorMap = {{HWAccelerators::NONE, "none"},
-                                      {HWAccelerators::AMD, "opencl"},
-                                      {HWAccelerators::NVIDIA, "cuda"},
-                                      {HWAccelerators::INTEL, "qsv"},
-                                      {HWAccelerators::VULKAN, "vaapi"}};
+#include "StringEnumDataHolder.h"
 
-HWAccelerators::HWAccelerators() {}
-HWAccelerators::~HWAccelerators() {}
+const StringEnumDataHolder<HWAccelerators> HWAccelerators::NONE("none", "None");
 
-std::string HWAccelerators::getValue(HWAccelerators::Accelerator accelerator) {
-  return acceleratorMap.at(accelerator);
-}
+const StringEnumDataHolder<HWAccelerators> HWAccelerators::AMD("opencl", "AMD");
+const StringEnumDataHolder<HWAccelerators> HWAccelerators::NVIDIA("cuda",
+                                                                  "NVIDIA");
+const StringEnumDataHolder<HWAccelerators> HWAccelerators::INTEL("qsv",
+                                                                 "Intel");
+const StringEnumDataHolder<HWAccelerators> HWAccelerators::VULKAN("vaapi",
+                                                                  "Vulkan");

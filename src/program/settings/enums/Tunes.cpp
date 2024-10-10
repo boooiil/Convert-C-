@@ -1,39 +1,26 @@
-#include "./Tunes.h"
+#include "Tunes.h"
 
-#include <string>
-#include <unordered_map>
-#include <utility>
+#include "StringEnumDataHolder.h"
 
-#include "../../../utils/StringUtils.h"
-
-std::unordered_map<Tunes::Tune, std::string> Tunes::tuneMap = {
-    {Tunes::FILM, "film"},
-    {Tunes::ANIMATION, "animation"},
-    {Tunes::GRAIN, "grain"},
-    {Tunes::STILL_IMAGE, "still_image"},
-    {Tunes::PSNR, "psnr"},
-    {Tunes::SSIM, "ssim"},
-    {Tunes::FAST_DECODE, "fast_decode"},
-    {Tunes::ZERO_LATENCY, "zero_latency"},
-    {Tunes::TEXTURE_COMPRESSION, "texture_compression"},
-    {Tunes::PROXY, "proxy"},
-    {Tunes::HIGH_QUALITY, "high_quality"},
-    {Tunes::LOW_LATENCY, "low_latency"},
-    {Tunes::ZERO_LATENCY_LOW_LATENCY, "zero_latency_low_latency"},
-    {Tunes::LOSSLESS, "lossless"},
-    {Tunes::DEFAULT, "default"}};
-
-Tunes::Tunes() {}
-Tunes::~Tunes() {}
-
-Tunes::Tune Tunes::getKey(std::string value) {
-  value = StringUtils::toLowerCase(value);
-  for (std::pair<Tunes::Tune, std::string> tune : tuneMap) {
-    if (tune.second == value) {
-      return tune.first;
-    }
-  }
-  return Tunes::DEFAULT;
-}
-
-std::string Tunes::getValue(Tunes::Tune tune) { return tuneMap.at(tune); }
+const StringEnumDataHolder<Tunes> Tunes::DEFAULT("default", "Default");
+const StringEnumDataHolder<Tunes> Tunes::FILM("film", "Film");
+const StringEnumDataHolder<Tunes> Tunes::ANIMATION("animation", "Animation");
+const StringEnumDataHolder<Tunes> Tunes::GRAIN("grain", "Grain");
+const StringEnumDataHolder<Tunes> Tunes::STILL_IMAGE("still_image",
+                                                     "Still Image");
+const StringEnumDataHolder<Tunes> Tunes::PSNR("psnr", "PSNR");
+const StringEnumDataHolder<Tunes> Tunes::SSIM("ssim", "SSIM");
+const StringEnumDataHolder<Tunes> Tunes::FAST_DECODE("fast_decode",
+                                                     "Fast Decode");
+const StringEnumDataHolder<Tunes> Tunes::ZERO_LATENCY("zero_latency",
+                                                      "Zero Latency");
+const StringEnumDataHolder<Tunes> Tunes::TEXTURE_COMPRESSION(
+    "texture_compression", "Texture Compression");
+const StringEnumDataHolder<Tunes> Tunes::PROXY("proxy", "Proxy");
+const StringEnumDataHolder<Tunes> Tunes::HIGH_QUALITY("high_quality",
+                                                      "High Quality");
+const StringEnumDataHolder<Tunes> Tunes::LOW_QUALITY("low_quality",
+                                                     "Low Quality");
+const StringEnumDataHolder<Tunes> Tunes::ZERO_LATENCY_LOW_LATENCY(
+    "zero_latency_low_latency", "Zero Latency Low Latency");
+const StringEnumDataHolder<Tunes> Tunes::LOSSLESS("lossless", "Lossless");

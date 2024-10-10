@@ -2,38 +2,32 @@
 #define GPU_PROVIDERS_H
 
 #include <string>
-#include <unordered_map>
 #include <vector>
+
+#include "StringEnumDataHolder.h"
 
 class GPUProviders {
  public:
-  GPUProviders();
-  ~GPUProviders();
+  static const StringEnumDataHolder<GPUProviders> NVIDIA;
+  static const StringEnumDataHolder<GPUProviders> AMD;
+  static const StringEnumDataHolder<GPUProviders> INTEL;
+  static const StringEnumDataHolder<GPUProviders> UNKNOWN;
 
-  enum Provider { NVIDIA, AMD, INTEL, UNKNOWN };
+  static const StringEnumDataHolder<GPUProviders> getPreferred(
+      std::vector<StringEnumDataHolder<GPUProviders>>);
 
-  /**
-   * @brief Get the codec from a string.
-   *
-   * @param[in] codec - Desired codec.
-   *
-   * @return Codec enum.
-   */
-  static Provider getKey(std::string codec);
+  static const std::vector<const StringEnumDataHolder<GPUProviders>*> _all() {
+    return {&NVIDIA, &AMD, &INTEL, &UNKNOWN};
+  };
 
-  static Provider getPreferred(std::vector<Provider> providers);
-
-  /**
-   * @brief Get the string value of the enum.
-   *
-   * @param[in] codec - Desired codec.
-   *
-   * @return String value of enum.
-   */
-  static std::string getValue(Provider codec);
-
- private:
-  static std::unordered_map<Provider, std::string> providerMap;
+  static const StringEnumDataHolder<GPUProviders> getKey(std::string value) {
+    for (auto& item : _all()) {
+      if (item->getName() == value) {
+        return *item;
+      }
+    }
+    return UNKNOWN;
+  }
 };
 
 #endif  // GPU_PROVIDERS_H

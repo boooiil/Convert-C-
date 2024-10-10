@@ -1,52 +1,45 @@
 #include "Encoders.h"
 
-std::unordered_map<Encoders::Codec, std::string> Encoders::codecMap = {
-    {Encoders::AV1, "av1"},
-    {Encoders::AV1_AMF, "av1_amf"},
-    {Encoders::AV1_NVENC, "av1_nvenc"},
-    {Encoders::AV1_QSV, "av1_qsv"},
-    {Encoders::H264, "h264"},
-    {Encoders::H264_AMF, "h264_amf"},
-    {Encoders::H264_NVENC, "h264_nvenc"},
-    {Encoders::H264_QSV, "h264_qsv"},
-    {Encoders::HEVC, "hevc"},
-    {Encoders::HEVC_AMF, "hevc_amf"},
-    {Encoders::HEVC_NVENC, "hevc_nvenc"},
-    {Encoders::HEVC_QSV, "hevc_qsv"},
-    {Encoders::INVALID, "invalid"}};
+#include "StringEnumDataHolder.h"
 
-Encoders::Encoders() {}
-Encoders::~Encoders() {}
+const StringEnumDataHolder<Encoders> Encoders::INVALID("invalid", "Invalid");
 
-Encoders::Codec Encoders::getKey(std::string codec) {
-  for (auto const& [key, val] : codecMap) {
-    if (val == codec) {
-      return key;
-    }
-  }
-  return Encoders::INVALID;
-}
+const StringEnumDataHolder<Encoders> Encoders::H264("h264", "H.264");
+const StringEnumDataHolder<Encoders> Encoders::H264_AMF("h264_amf",
+                                                        "H.264 AMF");
+const StringEnumDataHolder<Encoders> Encoders::H264_NVENC("h264_nvenc",
+                                                          "H.264 NVEnc");
+const StringEnumDataHolder<Encoders> Encoders::H264_QSV("h264_qsv",
+                                                        "H.264 QSV");
 
-std::string Encoders::getValue(Encoders::Codec codec) {
-  return codecMap.at(codec);
-}
+const StringEnumDataHolder<Encoders> Encoders::HEVC("hevc", "HEVC");
+const StringEnumDataHolder<Encoders> Encoders::HEVC_AMF("hevc_amf", "HEVC AMF");
+const StringEnumDataHolder<Encoders> Encoders::HEVC_NVENC("hevc_nvenc",
+                                                          "HEVC NVEnc");
+const StringEnumDataHolder<Encoders> Encoders::HEVC_QSV("hevc_qsv", "HEVC QSV");
 
-bool Encoders::isH264(Encoders::Codec codec) {
+const StringEnumDataHolder<Encoders> Encoders::AV1("av1", "AV1");
+const StringEnumDataHolder<Encoders> Encoders::AV1_AMF("av1_amf", "AV1 AMF");
+const StringEnumDataHolder<Encoders> Encoders::AV1_NVENC("av1_nvenc",
+                                                         "AV1 NVEnc");
+const StringEnumDataHolder<Encoders> Encoders::AV1_QSV("av1_qsv", "AV1 QSV");
+
+bool Encoders::isH264(StringEnumDataHolder<Encoders> codec) {
   return codec == Encoders::H264 || codec == Encoders::H264_AMF ||
          codec == Encoders::H264_NVENC || codec == Encoders::H264_QSV;
 }
 
-bool Encoders::isHEVC(Encoders::Codec codec) {
+bool Encoders::isHEVC(StringEnumDataHolder<Encoders> codec) {
   return codec == Encoders::HEVC || codec == Encoders::HEVC_AMF ||
          codec == Encoders::HEVC_NVENC || codec == Encoders::HEVC_QSV;
 }
 
-bool Encoders::isAV1(Encoders::Codec codec) {
+bool Encoders::isAV1(StringEnumDataHolder<Encoders> codec) {
   return codec == Encoders::AV1 || codec == Encoders::AV1_AMF ||
          codec == Encoders::AV1_NVENC || codec == Encoders::AV1_QSV;
 }
 
-bool Encoders::isHardwareEncoder(Encoders::Codec codec) {
+bool Encoders::isHardwareEncoder(StringEnumDataHolder<Encoders> codec) {
   return codec == Encoders::AV1_AMF || codec == Encoders::AV1_NVENC ||
          codec == Encoders::AV1_QSV || codec == Encoders::H264_AMF ||
          codec == Encoders::H264_NVENC || codec == Encoders::H264_QSV ||
