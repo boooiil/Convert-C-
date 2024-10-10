@@ -4,9 +4,11 @@
 #include <string>
 
 #include "../../enums/LoggingOptions.h"
+#include "../../enums/StringEnumDataHolder.h"
 #include "../BaseArgument.h"
 
-class LoggingFormat : public BaseArgument<LoggingOptions::Options> {
+class LoggingFormat
+    : public BaseArgument<StringEnumDataHolder<LoggingOptions>> {
  public:
   LoggingFormat();
   ~LoggingFormat();

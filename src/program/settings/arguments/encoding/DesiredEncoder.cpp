@@ -1,23 +1,20 @@
-#include "./DesiredEncoder.h"
+#include "DesiredEncoder.h"
 
 #include <string>
 
 #include "../../enums/Encoders.h"
+#include "../../enums/StringEnumDataHolder.h"
 #include "../BaseArgument.h"
 
 DesiredEncoder::DesiredEncoder(void)
-    : BaseArgument("-e", "--encoder", "Desired Encoder",
-                   Encoders::Codec::HEVC) {
-  value = Encoders::Codec::HEVC;
-  helpMessage = "Desired encoder for the output file.";
-}
+    : BaseArgument("-e", "--encoder", "Desired Encoder", Encoders::HEVC) {}
 
 DesiredEncoder::~DesiredEncoder(void) {}
 
 void DesiredEncoder::parse(std::string provided) {
-  Encoders::Codec codec = Encoders::getKey(provided);
+  StringEnumDataHolder<Encoders> codec = Encoders::getKey(provided);
 
-  if (codec == Encoders::Codec::INVALID) {
+  if (codec == Encoders::INVALID) {
     this->setErrored(true);
     return;
   }
@@ -26,7 +23,7 @@ void DesiredEncoder::parse(std::string provided) {
 }
 
 const std::string DesiredEncoder::toString(void) const {
-  return Encoders::getValue(this->value);
+  return this->value.getName();
 }
 
 const bool DesiredEncoder::hasData(void) const {

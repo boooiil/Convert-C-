@@ -4,17 +4,16 @@
 #include <string>
 
 #include "../../enums/Encoders.h"
+#include "../../enums/StringEnumDataHolder.h"
 #include "../BaseArgument.h"
 
-class DesiredEncoder : public BaseArgument<Encoders::Codec> {
+class DesiredEncoder : public BaseArgument<StringEnumDataHolder<Encoders>> {
  public:
   DesiredEncoder(void);
 
   ~DesiredEncoder(void);
 
   void parse(std::string) override;
-
-  operator Encoders::Codec() const { return value; }
 
   // Inherited via BaseArgument
   const std::string toString(void) const override;

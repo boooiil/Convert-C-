@@ -3,12 +3,12 @@
 #include <string>
 
 #include "../../enums/LoggingOptions.h"
+#include "../../enums/StringEnumDataHolder.h"
 #include "../BaseArgument.h"
 
 LoggingFormat::LoggingFormat(void)
-    : BaseArgument<LoggingOptions::Options>("-lf", "--loggingformat",
-                                            "Logging format",
-                                            LoggingOptions::Options::DEFAULT) {
+    : BaseArgument<StringEnumDataHolder<LoggingOptions>>(
+          "-lf", "--loggingformat", "Logging format", LoggingOptions::DEFAULT) {
   value = LoggingOptions::DEFAULT;
   helpMessage = "Set the display logging format.";
 }
@@ -16,7 +16,8 @@ LoggingFormat::LoggingFormat(void)
 LoggingFormat::~LoggingFormat(void) {}
 
 void LoggingFormat::parse(std::string provided) {
-  LoggingOptions::Options option = LoggingOptions::getKey(provided);
+  StringEnumDataHolder<LoggingOptions> option =
+      LoggingOptions::getKey(provided);
 
   if (option == LoggingOptions::INVALID) {
     this->setErrored(true);
@@ -27,7 +28,7 @@ void LoggingFormat::parse(std::string provided) {
 }
 
 const std::string LoggingFormat::toString(void) const {
-  return LoggingOptions::getValue(this->value);
+  return this->value.getName();
 }
 
 const bool LoggingFormat::hasData(void) const {

@@ -3,17 +3,16 @@
 
 #include <string>
 
+#include "../../enums/StringEnumDataHolder.h"
 #include "../../enums/Tunes.h"
 #include "../BaseArgument.h"
 
-class EncodingTune : public BaseArgument<Tunes::Tune> {
+class EncodingTune : public BaseArgument<StringEnumDataHolder<Tunes>> {
  public:
   EncodingTune(void);
   ~EncodingTune(void);
 
   void parse(std::string) override;
-
-  operator Tunes::Tune() const { return value; }
 };
 
 #endif  // ENCODING_TUNE_H
