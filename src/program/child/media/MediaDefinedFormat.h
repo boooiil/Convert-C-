@@ -19,13 +19,6 @@
  */
 class MediaDefinedFormat {
  public:
-  /**
-   * @brief Create a custom media format.
-   *
-   * @param[in] height - height (resolution) of the media format.
-   */
-  static void addCustomFormat(int height);
-
   /// @brief Map of media formats {name, MediaFormat}
   static std::unordered_map<std::string, MediaFormat> formats;
 };

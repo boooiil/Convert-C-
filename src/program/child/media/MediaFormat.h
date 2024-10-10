@@ -65,6 +65,8 @@ class MediaFormat {
    * @return Calculated height of the media.
    */
   static int getResolution(int width, int height, int newWidth);
+
+  void fromCustom(int height);
 };
 
 #endif  // !MEDIA_FORMAT

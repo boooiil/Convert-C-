@@ -31,27 +31,3 @@ std::unordered_map<std::string, MediaFormat> MediaDefinedFormat::formats = {
                           "1138:640")}
 
 };
-
-void MediaDefinedFormat::addCustomFormat(int height) {
-  MediaFormat format = MediaFormat(std::to_string(height) + "p", 24, 0.0f, 0.0f,
-                                   0.0f, 0, 0, "", "");
-
-  format.height = height % 2 ? height++ : height;
-  format.width = static_cast<int>(ceil(format.height * 1.777777777777778));
-
-  if (format.width % 2) {
-    format.width++;
-  }
-
-  int cropHeight = static_cast<int>(ceil(format.width / 2.4));
-
-  if (cropHeight % 2) {
-    cropHeight++;
-  }
-
-  format.crop = std::to_string(format.width) + ":" + std::to_string(cropHeight);
-  format.scale =
-      std::to_string(format.width) + ":" + std::to_string(format.height);
-
-  MediaDefinedFormat::formats[format.name] = format;
-};
