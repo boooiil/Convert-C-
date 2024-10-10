@@ -10,11 +10,14 @@
 #include "../../../utils/logging/LogColor.h"
 #include "../../../utils/logging/Logger.h"
 #include "../../Program.h"
+#include "../../settings/enums/MediaFormats.h"
 #include "../enums/Encoders.h"
 #include "../enums/LoggingOptions.h"
 #include "../enums/StringEnumDataHolder.h"
 #include "../enums/Tunes.h"
 #include "ArgumentRegistry.h"
+#include "EnumObjectArgument.h"
+#include "EnumStringArgument.h"
 #include "FlagArgument.h"
 #include "GenericArgument.h"
 #include "IntegerArgument.h"
@@ -131,8 +134,6 @@ void ArgumentParser::prepare() {
   add("-i", fa);
   add("--info", fa);
 
-  // TODO: logging format (LoggingOptions)
-
   fa = std::make_shared<FlagArgument>(
       "-o", "--overwrite", "Overwrite the output file if it exists.", false);
 
@@ -153,7 +154,29 @@ void ArgumentParser::prepare() {
   add("-ss", sa);
   add("--start", sa);
 
-  // TODO: tune (Tunes)
+  // std::shared_ptr<EnumStringArgument<Tunes>> eat =
+  //     std::make_shared<EnumStringArgument<Tunes>>(
+  //         "-t", "--tune", "Set the video encoder tunings.", Tunes::FILM);
+
+  // add("-t", eat);
+  // add("--tune", eat);
+
+  // // TODO: logging format (LoggingOptions)
+  // std::shared_ptr<EnumStringArgument<LoggingFormat>> ealf =
+  //     std::make_shared<EnumStringArgument<LoggingFormat>>(
+  //         "-lf", "--logformat", "Set the log format",
+  //         LoggingOptions::DEFAULT);
+
+  // add("-lf", ealf);
+  // add("--logformat", ealf);
+
+  // std::shared_ptr<EnumObjectArgument<MediaFormat>> eamf =
+  //     std::make_shared<EnumObjectArgument<MediaFormat>>(
+  //         "-q", "--quality", "Set the video encoder quality",
+  //         MediaFormats::P_720);
+
+  // add("-q", eamf);
+  // add("--quality", eamf);
 
   std::shared_ptr<TimeStringVectorArgument> tsva =
       std::make_shared<TimeStringVectorArgument>(
@@ -297,8 +320,8 @@ nlohmann::json ArgumentParser::toJSON() {
   nlohmann::json argumentParser;
 
   for (auto& [flag, argument] : ArgumentRegistry::get_all()) {
-    LOG(flag, argument->getLongFlag(),
-        flag == argument->getLongFlag() ? "True" : "False");
+    LOG_DEBUG(flag, argument->getLongFlag(),
+              flag == argument->getLongFlag() ? "True" : "False");
     if (flag != argument->getLongFlag())
       argumentParser[flag] = argument->toString();
   }

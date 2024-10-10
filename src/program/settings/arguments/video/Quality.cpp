@@ -15,7 +15,7 @@ Quality::Quality(void)
 Quality::~Quality(void) {}
 
 void Quality::parse(std::string provided) {
-  LOG_DEBUG("[Quality] Parsing quality:", provided);
+  LOG_DEBUG("Parsing quality:", provided);
   if (MediaDefinedFormat::formats.find(provided) !=
       MediaDefinedFormat::formats.end()) {
     value = MediaDefinedFormat::formats[provided];
@@ -23,8 +23,10 @@ void Quality::parse(std::string provided) {
     std::string quality_str = StringUtils::replaceAll(provided, "p", "");
     int quality = std::stoi(quality_str);
 
-    MediaDefinedFormat::addCustomFormat(quality);
-    value = MediaDefinedFormat::formats[provided];
+    MediaFormat mf = MediaFormat();
+    mf.fromCustom(quality);
+
+    value = mf;
   } else {
     this->setErrored(true);
   }

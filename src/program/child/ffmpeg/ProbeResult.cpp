@@ -9,9 +9,7 @@
 #include "ProbeResultStreamVideo.h"
 
 ProbeResult::ProbeResult() {};
-ProbeResult::~ProbeResult() {
-  LOG_DEBUG("[ProbeResult] Deconstructing ProbeResult");
-};
+ProbeResult::~ProbeResult() { LOG_DEBUG("Deconstructing ProbeResult"); };
 
 ProbeResult::ProbeResult(nlohmann::json JSON) {
   ProbeResult::format = ProbeResultFormat(JSON["format"]);

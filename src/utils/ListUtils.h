@@ -51,7 +51,7 @@ class ListUtils {
           return true;
         }
       } catch (std::exception e) {
-        LOG_DEBUG("[ListUtils.h] Error: ", e.what());
+        LOG_DEBUG("Error: ", e.what());
         continue;
       }
     }
