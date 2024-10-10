@@ -73,8 +73,7 @@ void MediaProcessStatistics::parse(std::string data) {
   try {
     if (RegexUtils::isMatch(data, "not recognized") ||
         RegexUtils::isMatch(data, "unknown command")) {
-      LOG_DEBUG("[MediaProcessStatistics] Could not find ffprobe, failing.",
-                data);
+      LOG_DEBUG("Could not find ffprobe, failing.", data);
       // TODO: add FAILED_MISSING_FFPROBE
       this->object->setActivity(Activity::FAILED);
       return;

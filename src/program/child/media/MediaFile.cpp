@@ -44,7 +44,7 @@ MediaFile::MediaFile(std::string name, std::string path)
       quality(0),
       season(0) {}
 
-MediaFile::~MediaFile() { LOG_DEBUG("[MediaFile] Deconstructing MediaFile"); }
+MediaFile::~MediaFile() { LOG_DEBUG("Deconstructing MediaFile"); }
 
 /**
  * Checklist:

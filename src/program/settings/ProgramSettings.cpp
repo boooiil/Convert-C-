@@ -113,7 +113,7 @@ void ProgramSettings::gatherSystemDetails(void) {
     result += buffer.data();
   }
 
-  LOG_DEBUG("[ProgramSettings.cpp (win)] GPU Provider Raw:", result);
+  LOG_DEBUG("GPU Provider Raw:", result);
 
   // nvidia
   if (RegexUtils::isMatch(result, "nvidia", std::regex_constants::icase)) {
@@ -149,7 +149,7 @@ void ProgramSettings::gatherSystemDetails(void) {
     result += buffer.data();
   }
 
-  LOG_DEBUG("[ProgramSettings.cpp (unix)] GPU Provider Raw:", result);
+  LOG_DEBUG("GPU Provider Raw:", result);
 
   // nvidia
   if (RegexUtils::isMatch(result, "nvidia", std::regex_constants::icase)) {
