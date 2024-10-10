@@ -13,6 +13,7 @@
 #include "../../utils/logging/Logger.h"
 #include "../Program.h"
 #include "../settings/arguments/ArgumentRegistry.h"
+#include "../settings/arguments/FlagArgument.h"
 #include "../settings/arguments/IntegerArgument.h"
 #include "../settings/enums/Activity.h"
 #include "../settings/enums/LoggingOptions.h"
@@ -34,7 +35,8 @@ void Child::prepare(void) {
     Media* media = new Media(filename, cwd);
     media->file->rename();
 
-    if (!std::filesystem::exists(media->file->conversionFolderPath)) {
+    if (!std::filesystem::exists(media->file->conversionFolderPath) &&
+        !get_t<FlagArgument>("-i")->get()) {
       LOG_DEBUG("Creating directory: ", media->file->conversionFolderPath);
       std::filesystem::create_directory(media->file->conversionFolderPath);
     }
