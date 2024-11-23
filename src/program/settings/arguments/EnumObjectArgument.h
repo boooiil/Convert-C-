@@ -11,18 +11,17 @@
  */
 template <typename T>
 class EnumObjectArgument : public BaseArgument<ObjectEnumDataHolder<T>> {
-public:
+ public:
   EnumObjectArgument(std::string _helpMessage, std::string _flag,
-    std::string _longFlag, int data)
-    : BaseArgument(_helpMessage, _flag, _longFlag, data) {}
+                     std::string _longFlag, int data)
+      : BaseArgument<ObjectEnumDataHolder<T>>(_helpMessage, _flag, _longFlag,
+                                              data) {}
 
   ~EnumObjectArgument() {}
 
   void parse(std::string argument) override {}
 
-  const std::string toString(void) const {
-    return std::to_string();
-  }
+  const std::string toString(void) const { return ""; }
 
   const bool hasData(void) const { return true; }
 };

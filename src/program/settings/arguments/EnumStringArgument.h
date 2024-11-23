@@ -11,10 +11,11 @@
  */
 template <typename T>
 class EnumStringArgument : public BaseArgument<StringEnumDataHolder<T>> {
-public:
+ public:
   EnumStringArgument(std::string _helpMessage, std::string _flag,
-    std::string _longFlag, int data)
-    : BaseArgument(_helpMessage, _flag, _longFlag, data) {}
+                     std::string _longFlag, int data)
+      : BaseArgument<StringEnumDataHolder<T>>(_helpMessage, _flag, _longFlag,
+                                              data) {}
 
   ~EnumStringArgument() {}
 
@@ -23,7 +24,7 @@ public:
   }
 
   const std::string toString(void) const {
-    //TODO: figure out how to do this
+    // TODO: figure out how to do this
     return "";
   }
 
