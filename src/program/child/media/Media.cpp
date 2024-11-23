@@ -210,8 +210,13 @@ void Media::buildFFmpegArguments(bool isValidate) {
     if (!audioStreams->get().empty()) {
       // and if the audio stream is not in the list
       // skip the audio stream
-      if (!ListUtils::contains(audioStreams->get(), i)) continue;
+      if (!ListUtils::contains(audioStreams->get(), i)) {
+        LOG_DEBUG("Skipping audio stream", i, "for not being in the list.");
+        continue;
+      }
     }
+
+    LOG_DEBUG("Audio stream", i, "is in the list.");
 
     bool afCopy = false;
     int usingChannels = this->probeResult->audioStreams[i].channels;
@@ -228,9 +233,10 @@ void Media::buildFFmpegArguments(bool isValidate) {
     std::vector<std::string> audioFormats = acodec->get();
     std::vector<int> audioChannels = ac->get();
 
-    // if audio formats exceed streams
-    // use the format
+    // if there is an audio format within the list
+    // at index use the format
     if (audioFormats.size() > i) {
+      LOG_DEBUG("Audio index [", i, "] is using codec (", audioFormats[i], ")");
       usingFormat = audioFormats[i];
       this->ffmpegArguments.push_back(codecMap + " " + usingFormat);
 
@@ -239,19 +245,27 @@ void Media::buildFFmpegArguments(bool isValidate) {
     // but are under the stream count
     // use the last format
     else if (!audioFormats.empty()) {
+      LOG_DEBUG("Audio index [", i, "] exceeded codecs, using last codec (",
+                audioFormats[audioFormats.size() - 1], ")");
       usingFormat = audioFormats[audioFormats.size() - 1];
       this->ffmpegArguments.push_back(codecMap + " " + usingFormat);
     }
     // else flag that the audio format is to be copied
     else {
+      LOG_DEBUG("Audio index [", i, "] marked for copy codec.");
       afCopy = true;
     }
 
     // if there are provided audio channels
     if (!audioChannels.empty()) {
+      LOG_DEBUG("Audio index [", i, "] has provided channels.");
       // if the audio formats are empty
       // use the existing audio codec
       if (afCopy) {
+        LOG_DEBUG("Audio index [", i,
+                  "] has channels but needs codec to proceed, using codec copy "
+                  "with channels (",
+                  audioChannels[i], ")");
         std::string codec = this->probeResult->audioStreams[i].codec_name;
         this->ffmpegArguments.push_back(codecMap + " " + codec);
       }
@@ -259,6 +273,8 @@ void Media::buildFFmpegArguments(bool isValidate) {
       // if the audio channels exceed the audio streams
       // use the channel at the stream index
       if (audioChannels.size() > i) {
+        LOG_DEBUG("Audio index [", i, "] is using channel (", audioChannels[i],
+                  ")");
         usingChannels = audioChannels[i];
 
         this->ffmpegArguments.push_back(channelMap + " " +
@@ -266,6 +282,9 @@ void Media::buildFFmpegArguments(bool isValidate) {
       }
       // else use the last audio channel
       else {
+        LOG_DEBUG("Audio index [", i,
+                  "] exceeded channels, using last channel (",
+                  audioChannels[audioChannels.size() - 1], ")");
         usingChannels = audioChannels[audioChannels.size() - 1];
 
         this->ffmpegArguments.push_back(channelMap + " " +
@@ -276,6 +295,8 @@ void Media::buildFFmpegArguments(bool isValidate) {
       // and the audio formats are empty
       // copy the existing audio stream
       if (afCopy) {
+        LOG_DEBUG("Audio index [", i,
+                  "] had no defined audio codec or channels, setting copy.");
         this->ffmpegArguments.push_back(codecMap + " copy");
       }
       // if the audio channels are empty
@@ -284,6 +305,10 @@ void Media::buildFFmpegArguments(bool isValidate) {
       else {
         std::string channels =
             std::to_string(this->probeResult->audioStreams[i].channels);
+        LOG_DEBUG("Audio index [", i,
+                  "] had audio codec but no channels, using default channels (",
+                  channels, ")");
+        ;
         this->ffmpegArguments.push_back(channelMap + " " + channels);
       }
     }
@@ -306,6 +331,9 @@ void Media::buildFFmpegArguments(bool isValidate) {
       default:
         channelType = std::to_string(usingChannels);
     }
+
+    LOG_DEBUG("Audio index [", i, "] was set a title of (", usingFormat,
+              channelType, ").");
 
     usingFormat = StringUtils::toUpperCase(usingFormat);
 
