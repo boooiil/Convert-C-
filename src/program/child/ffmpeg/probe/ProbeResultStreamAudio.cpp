@@ -2,7 +2,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include "../../../utils/logging/Logger.h"
+#include "../../../../utils/logging/Logger.h"
 #include "ProbeResultStreamDisposition.h"
 #include "ProbeResultStreamTags.h"
 

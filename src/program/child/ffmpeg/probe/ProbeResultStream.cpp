@@ -3,13 +3,13 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-#include "../../../utils/logging/Logger.h"
+#include "../../../../utils/logging/Logger.h"
 #include "ProbeResultStreamDisposition.h"
 #include "ProbeResultStreamTags.h"
 
 ProbeResultStream::ProbeResultStream()
     : index(-1), extradata_size(-1), start_pts(-1) {}
-ProbeResultStream::~ProbeResultStream() {}
+ProbeResultStream::~ProbeResultStream() = default;
 
 ProbeResultStream::ProbeResultStream(nlohmann::json JSON) {
   if (!JSON["index"].is_null()) {

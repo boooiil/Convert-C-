@@ -3,8 +3,8 @@
 #include <nlohmann/json.hpp>
 #include <regex>
 
-#include "../../../utils/RegexUtils.h"
-#include "../../../utils/logging/Logger.h"
+#include "../../../../utils/RegexUtils.h"
+#include "../../../../utils/logging/Logger.h"
 #include "ProbeResultStreamDisposition.h"
 #include "ProbeResultStreamTags.h"
 
@@ -23,7 +23,7 @@ ProbeResultStreamVideo::ProbeResultStreamVideo()
       is_avc(-1),
       level(-1),
       refs(-1) {}
-ProbeResultStreamVideo::~ProbeResultStreamVideo() {}
+ProbeResultStreamVideo::~ProbeResultStreamVideo() = default;
 
 ProbeResultStreamVideo::ProbeResultStreamVideo(nlohmann::json JSON) {
   LOG_DEBUG("Starting ProbeResultStreamVideo...");

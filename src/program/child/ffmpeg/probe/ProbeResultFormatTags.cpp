@@ -2,7 +2,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include "../../../utils/logging/Logger.h"
+#include "../../../../utils/logging/Logger.h"
 
 ProbeResultFormatTags::ProbeResultFormatTags() {}
 ProbeResultFormatTags::~ProbeResultFormatTags() {}

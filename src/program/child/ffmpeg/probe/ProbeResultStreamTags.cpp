@@ -2,10 +2,10 @@
 
 #include <nlohmann/json.hpp>
 
-#include "../../../utils/logging/Logger.h"
+#include "../../../../utils/logging/Logger.h"
 
-ProbeResultStreamTags::ProbeResultStreamTags() {}
-ProbeResultStreamTags::~ProbeResultStreamTags() {}
+ProbeResultStreamTags::ProbeResultStreamTags() = default;
+ProbeResultStreamTags::~ProbeResultStreamTags() = default;
 
 ProbeResultStreamTags::ProbeResultStreamTags(nlohmann::json JSON) {
   LOG_DEBUG("Starting ProbeResultStreamTags...");

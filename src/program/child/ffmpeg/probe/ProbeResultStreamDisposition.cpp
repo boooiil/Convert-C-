@@ -2,7 +2,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include "../../../utils/logging/Logger.h"
+#include "../../../../utils/logging/Logger.h"
 
 /**
  * TODO: Validate ffmpeg verison to avoid missing fields
