@@ -25,15 +25,15 @@
 #include "../../settings/enums/Tunes.h"
 #include "../../ticker/NTicker.h"
 #include "../Child.h"
-#include "../ffmpeg/ProbeResultStreamAudio.h"
-#include "../ffmpeg/ProbeResultStreamSubtitle.h"
-#include "../ffmpeg/ProbeResultStreamVideo.h"
+#include "../ffmpeg/probe/ProbeResultStreamAudio.h"
+#include "../ffmpeg/probe/ProbeResultStreamSubtitle.h"
+#include "../ffmpeg/probe/ProbeResultStreamVideo.h"
 #include "../media/Media.h"
 
 template <typename T>
 typename ArgumentRegistry::getTFn<T> get_t = ArgumentRegistry::get_t<T>;
 
-void ChildDisplay::print(void) {
+void ChildDisplay::print() {
   Child child =
       *Program::ticker->getRunner<NTicker>()->runner->getRunner<Child>();
   ArgumentParser argumentParser = *Program::settings->argumentParser;

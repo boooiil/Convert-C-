@@ -16,19 +16,19 @@
 #include "../../generics/JSONSerializable.h"
 #include "../../settings/enums/Activity.h"
 #include "../../settings/enums/StringEnumDataHolder.h"
-#include "../ffmpeg/ProbeResult.h"
+#include "../ffmpeg/probe/ProbeResult.h"
 #include "MediaFile.h"
 #include "MediaVideoProperties.h"
 #include "MediaWorkingProperties.h"
 
- /**
-  * @brief Media class.
-  *
-  * Trrr
-  *
-  */
+/**
+ * @brief Media class.
+ *
+ * Trrr
+ *
+ */
 class Media : public JSONSerializable {
-public:
+ public:
   /// @brief vector of arguments to be passed to ffmpeg
   std::vector<std::string> ffmpegArguments;
   long started;  /// @brief start time
@@ -152,7 +152,7 @@ public:
 
   const nlohmann::json toJSON(void) const override;
 
-private:
+ private:
   /// @brief activity type
   StringEnumDataHolder<Activity> activity;
 };
