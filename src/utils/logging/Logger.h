@@ -11,7 +11,7 @@
 #define LOG_DEBUG(...) Logger::debug(__FILE__, __LINE__, __VA_ARGS__)
 
 class Logger {
-public:
+ public:
   static bool debug_flag;
 
   // Helper function to extract the file name from the path
@@ -36,7 +36,7 @@ public:
   // Recursive function to log multiple arguments
   template <typename First, typename... Rest>
   static void logToStream(std::ostream& stream, const First& first,
-    const Rest&... rest) {
+                          const Rest&... rest) {
     stream << toString(first) << " ";  // Convert the first argument to string
     logToStream(stream, rest...);      // Recurse for the remaining arguments
   }
